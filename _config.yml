@@ -1,15 +1,15 @@
-title: "Affiliates"
-email: wowthemesnet@gmail.com
-timezone: UTC
-baseurl: "/affiliates-jekyll-theme"
+title: "To HW or To SW?"
+email: gcnever@naver.com
+timezone: Asia/Seoul
+baseurl: ""
 permalink: "/:title/"
 logo: 'assets/images/logo.png'
 favicon: 'assets/images/favicon.ico'
-author: Sal
+author: kau-newbie
 paginate: 30
 disqus: 'demowebsite'
-locale: en_us
-lang: en_us
+locale: ko_kr
+lang: kr
 feed_items: 10
 feed_update_period: daily
 feed_update_frequency: 1
@@ -20,32 +20,21 @@ kramdown:
 sass:
   sass_dir: _sass
   style: :compressed
-ganalytics: UA-113961478-1
+ganalytics: 
 
 # Authors
 authors:
-  sal:
-    name: Sal
-    display_name: Sal
-    avatar: 'assets/images/sal.png'
-    email: wowthemesnet@gmail.com
-    web: https://www.wowthemes.net/category/jekyll-themes/
-    twitter: https://twitter.com/wowthemesnet
-    description: "Author of Affiliates, a template available for WordPress, HTML, Ghost and Jekyll. You are currently previewing Jekyll template demo."
-  john:
-    name: John
-    display_name: John
-    avatar: 'assets/images/john.png'
-    email: wowthemesnet@gmail.com
-    web: https://www.wowthemes.net/category/jekyll-themes/
-    twitter: https://twitter.com/wowthemesnet
-    description: "This is the author box. Write a short description of the author here. You are currently previewing Affiliates theme demo, a Jekyll template compatible with Github pages."
+  kau-newbie:
+    name: kau-newbie
+    display_name: kau-newbie
+    avatar: #'assets/images/my-avatar.png' # 나중에 본인 아바타 이미지 경로로 바꾸세요
+    email: gcnever@naver.com
+    web: https://kau-newbie.github.io
+    twitter: # 사용하지 않으면 비워두세요
+    description: "항공대학교 신입생을 위한 여러가지 팁을 공유하는 블로그입니다."
 
 # Social
 social:
-  instagram: https://www.instagram.com/bootstrapstarter/
-  facebook: https://www.facebook.com/bootstrapstartercom-346329609045284
-  twitter: https://twitter.com/bstartercom
 
 # Plugins
 plugins: 
