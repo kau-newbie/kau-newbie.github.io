@@ -27,7 +27,7 @@ authors:
   kau-newbie:
     name: kau-newbie
     display_name: kau-newbie
-    avatar: #'assets/images/my-avatar.png' # 나중에 본인 아바타 이미지 경로로 바꾸세요
+    avatar: 'assets/images/my-avatar.png' # 나중에 본인 아바타 이미지 경로로 바꾸세요
     email: gcnever@naver.com
     web: https://kau-newbie.github.io
     twitter: # 사용하지 않으면 비워두세요
