@@ -13,6 +13,11 @@
 	<div id="mc_embed_signup_scroll">
 	<h4>기능 알아보고 있는 중...</h4>
 	</div>
+	<div>
+	{% for category in site.categories %}
+		<h4 class="mt-5 mb-4 pb-2 border-bottom" id="{{ category[0] | replace: " ","-" }}"><span class="text-capitalize small font-weight-bold">"{{ category[0] }}"</span></h4>
+	{% endfor %}
+	</div>
 </form>
 <!-- <div class="mc-field-group">                
 	<input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="E-mail Address">
@@ -29,5 +34,3 @@
 <script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[3]='MMERGE3';ftypes[3]='text';fnames[1]='MMERGE1';ftypes[1]='text';fnames[2]='MMERGE2';ftypes[2]='text';fnames[4]='MMERGE4';ftypes[4]='text';fnames[5]='MMERGE5';ftypes[5]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>-->
 <!--End mc_embed_signup-->
 
-{% for category in site.categories %}
-<h4 class="mt-5 mb-4 pb-2 border-bottom" id="{{ category[0] | replace: " ","-" }}"><span class="text-capitalize small font-weight-bold">"{{ category[0] }}"</span></h4>
