@@ -3,7 +3,7 @@ layout: post
 title:  "[project]Project: AndroidTutor"
 author: kau-newbie
 categories: [ project, android, app, ai ]
-image: 
+image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
 # AndroidTutor(가제) 프로젝트
