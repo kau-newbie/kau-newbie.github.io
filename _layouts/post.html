@@ -75,16 +75,24 @@ post_class: post-template
             
             
              <!-- Author Box -->
-                {% if page.author %}				
-				<div class="row post-top-meta">
-					<div class="col-md-1">
-						<img class="author-thumb" src="{{site.baseurl}}/{{author.avatar}}" alt="{{ author.display_name }}">
-					</div>
-					<div class="col-md-11">
-						<a target="_blank" class="link-dark" href="{{ author.web }}">{{ author.display_name }}</a><a target="_blank" href="{{ author.twitter }}" class="btn follow">Follow</a>
-						<span class="author-description">{{ author.description }}</span>						
-					</div>
-				</div>				
+                {% if page.author %}	
+                <div class="row post-top-meta g-0 align-items-center">
+    <div class="col-auto me-3"> 
+        <img class="author-thumb" src="{{site.baseurl}}/{{author.avatar}}" alt="{{ author.display_name }}" 
+             style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%;">
+    </div>
+    
+    <div class="col">
+        <div class="d-flex align-items-center mb-1">
+            <a target="_blank" class="link-dark fw-bold" href="{{ author.web }}">{{ author.display_name }}</a>
+            <a target="_blank" href="{{ author.twitter }}" class="btn follow btn-sm ms-2">Follow</a>
+        </div>
+        <span class="author-description d-block text-muted" style="font-size: 0.9rem;">
+            {{ author.description }}
+        </span>                        
+    </div>
+</div>			
+								
                 {% endif %}
             
             
