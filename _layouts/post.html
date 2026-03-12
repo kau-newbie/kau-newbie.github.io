@@ -75,30 +75,27 @@ post_class: post-template
             
             
              <!-- Author Box -->
-                {% if page.author %}	
-            <div class="row post-top-meta g-0 align-items-center" style="display: flex; flex-wrap: nowrap;">
-    
-            <div class="col-auto"> 
-                <img class="author-thumb" src="{{site.baseurl}}/{{author.avatar}}" alt="{{ author.display_name }}" 
-                    style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; display: block;">
-            </div>
-    
-            <div class="col ms-2">
-                <div style="display: flex; align-items: center; margin-bottom: 2px;">
-                <a target="_blank" class="link-dark fw-bold" href="{{ author.web }}" style="text-decoration: none; font-size: 1.2rem; margin-right: 8px;">
-                    {{ author.display_name }}
-                </a>
-                <a target="_blank" href="{{ author.twitter }}" class="btn follow btn-sm" style="padding: 2px 8px; font-size: 0.75rem; border: 1px solid #ddd; border-radius: 20px;">
-                    Follow
-                </a>
-                </div>
-            <span class="author-description" style="display: block; color: #666; font-size: 0.95rem;">
-                {{ author.description }}
-            </span>                        
-            </div>
-        </div>                   
-    </div>
-		
+                	
+            {% if page.author %}                
+
+                <div class="row post-top-meta">
+
+                    <div class="col-md-auto">
+
+                        <img class="author-thumb" src="{{site.baseurl}}/{{author.avatar}}" alt="{{ author.display_name }}">
+
+                    </div>
+
+                    <div class="col">
+
+                        <a target="_blank" class="link-dark" href="{{ author.web }}">{{ author.display_name }}</a><a target="_blank" href="{{ author.twitter }}" class="btn follow">Follow</a>
+
+                        <span class="author-description">{{ author.description }}</span>                        
+
+                    </div>
+
+                </div>              
+
 								
                 {% endif %}
             
