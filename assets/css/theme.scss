@@ -613,3 +613,20 @@ span.navigation:before {
     transition: all.3s;
     opacity:.8;
 }
+
+/* 코드 블록 전체 배경 및 스타일 */
+figure.highlight, pre {
+  background: #282c34 !important; /* 어두운 배경색 */
+  color: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  overflow: auto;
+}
+
+/* 코드 내부 언어별 색상 (Rouge 기본 클래스) */
+.highlight .k { color: #c678dd; font-weight: bold; } /* 키워드 (int, if 등) */
+.highlight .s { color: #98be65; }                /* 문자열 ("Hello") */
+.highlight .n { color: #e06c75; }                /* 변수 이름 */
+.highlight .c { color: #7f848e; font-style: italic; } /* 주석 */
+.highlight .m { color: #d19a66; }                /* 숫자 */
