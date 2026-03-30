@@ -10,11 +10,11 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 
 여러모로 기워붙이며 기능을 추가한지 어언 몇 달째...,
 
-현재 코드의 상태는 다음과 같았다.
+현재 코드(일부)의 상태는 다음과 같았다.
 
 ![난잡한 코드의 상태](../assets/images/forPost/AndroidTutor(2)/massy-modules.png)
 
-둘다 reterofit을 써서, 같은 OpenAi 서버에게 보내는데 각기 다른 모듈을 만들어 쓰고 있었다. endpoint와 모델, 모델변수 등만 다른데, 뭔가 중복을 줄일 방법이 없을까? 어디서 주워들은 건 있어가지고, annotation(@)을 적어두면 코드가 알아서 이때는 A에게 보냈다가, 이때는 B에게 보내는 무언가를 찾아봤다. 젬나이씨의 말로는 Hilt를 쓰면 된다고 했다.
+OpenAiApi나 ChatGpt 모듈이나 둘다 reterofit을 써서, 같은 OpenAi 서버에게 보내는데, 각기 다른 모듈로 존재하고 있었다. endpoint와 모델, 모델변수 등만 다른데, 뭔가 중복을 줄일 방법이 없을까? 어디서 주워들은 건 있어가지고, annotation(@)을 적어두면 코드가 알아서 이때는 A에게 보냈다가, 이때는 B에게 보내는 무언가를 찾아봤다. 젬나이씨의 말로는 Hilt를 쓰면 된다고 했다.
 
 ## HILT란?
 
@@ -103,6 +103,89 @@ fun main(args: Array) {
 }
 ```
 확실히 차이가 보인다! 외부에서 의존성(요소)를 넣어주고 있다.
+
+계속해서 공식문서를 읽어보자.
+```
+There are two major ways to do dependency injection in Android:
+
+Constructor Injection. This is the way described above. You pass the dependencies of a class to its constructor.
+
+Field Injection (or Setter Injection). Certain Android framework classes such as activities and fragments are instantiated by the system, so constructor injection is not possible. With field injection, dependencies are instantiated after the class is created. The code would look like this:
+```
+아무래도 DI는 클래스를 인스턴스할 때 사용하는 방법인가보다. (필요한 내부 구성요소가 없어서 에러가 나면 안되니까!)
+보통 두 가지 DI의 방법이 있다고 한다.
+1. 바로 위 예시처럼 생성자에 외부에서 넘겨받은 객체 인자를 넘겨줄 때
+2. 1번이 안되는 상황: Activity나 Fragments같은 안드로이드 시스템(OS)자체가 객체로 만드는(instance화하는) 경우, 즉 필드 주입(field injection)을 해야할 때
+
+
+이때, 필드 주입이란, 내부의 변수(=필드)에 나중에 채워넣는 방식이다. 어떻게 나중에 채워넣는단 말인가요? 한다면, 나도 마침 프로젝트를 진행하면서 꽤 자주 본 예약어가 있다. 바로 `lateinit`이다. 
+> 처음 실행 때 블록 안 코드를 실행하고, 그 다음부터는 재사용하는 `lazy`와는 다르다.
+
+예시를 보자.
+```java
+class LoginActivity : AppCompatActivity() {
+    
+    // Activity가 시스템에 의해 생성된 후, Hilt가 이 필드에 ViewModel 주소를 꽂아줌
+    @Inject
+    lateinit var viewModel: LoginViewModel 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 이제 viewModel 사용 가능
+    }
+}
+```
+LoginActivity라는 클래스를 인스턴스하기 위해선, 내부 구성요소인 viewModel이 필요하다. 문제는 viewModel은 Activity가 만들어지며 system에서 따로 만들어주는 객체이다. 이처럼 Service, Activity, Fragments 등 시스템이 객체를 만들어주는 클래스들은 lateinit var(반드시 가변 변수 var로 선언해야 한다고 한다.)을 이용해 내부 변수(field)로 선언을 해놓고, 후에 Hilt같은 DI 툴들이 넣어주도록 해야한다는 것이다. 제미나이는 아래처럼 설명했다.
+```
+메모리 관점
+
+1. Activity 객체가 힙(Heap)에 먼저 덩그러니 올라갑니다.
+
+2. 이후 DI 툴이 Activity 안에 있는 loginViewModel이라는 **리모컨(주조값 저장소)**에 실제 LoginViewModel 객체의 주소값을 "나중에" 딱 꽂아주는 것입니다.
+```
+여기까지 dependencies를 주입하는 것까지 알아보았다. 문제는, 이게 너무 많아지면? dependencies들이 아주 방대하고, 또 복잡하게 얽혀있으면? 안드로이드 페이지에서는 그래프 같은 것들로 관리하는 것을 권장한다. 그리고 추가로 - 여기서 중요하다 - 이걸 모두 해결(관리)해주는 **library들을 소개한다.**
+> 이 라이브러리는 
+> 1. 정적 타임 (컴파일 시)
+> 2. 런 타임 (실행 중)
+> 에서 모두 dependency injection을 지원한다. 
+
+**Dagger**
+
+Dagger 가 여기서 가장 대표적인 라이브러리 중 하나라고 한다. 
+```Dagger facilitates using DI in your app by creating and managing the graph of dependencies for you. It provides fully static and compile-time dependencies addressing many of the development and performance issues of reflection-based solutions such as Guice.```
+하지만 나는 Dagger를 더 쉽고 편하게 쓸 수 있게 해준 Hilt로 바로 넘어갈 것이다.
+
+**Service Locator**
+
+Service Locator는 DI tool(library)가 아닌, DI의 대안이다. 자세히 알지 못해(원문도 언급만 한다.) 가볍게 짚고만 넘어갈 것이다.
+원문에서 보여준 예시코드는 다음과 같다.
+```java
+object ServiceLocator {
+    fun getEngine(): Engine = Engine()
+}
+
+class Car {
+    private val engine = ServiceLocator.getEngine()
+
+    fun start() {
+        engine.start()
+    }
+}
+
+fun main(args: Array) {
+    val car = Car()
+    car.start()
+}
+```
+다만, DI에 비해 단점이 크게 두 가지 정도 있었는데,
+1. 테스트가 어렵다.
+- 보통 싱글톤 객체로 locator를 만들기 때문에, 각 객체별로 분리가 되는(예를 들어, Car예시에서는 매 인스턴스 시점마다 서로 다른 가짜 클래스(테스트용)를 만들어 넣어줄 수 있다.) DI와 달리, 따로 코드를 추가하거나 바꾸지 않았다면 계속 같은 가짜 클래스를 넣어주게 된다.
+2. 의존성(요소)을 파악하기 어렵게 한다. 
+- DI면 클래스의 인자(arguments)로 바로 파악이 가능한데, 일일히 코드 안을 들여다 봐야(첫째 줄부터 바로 볼 수 있지 않다.) 어떤 의존성(요소)를 필요로 하는지 알 수 있게 된다.
+
+**Hilt**
+
+드디어 힐트이다. Dagger를 기반으로 훨씬 쉽게 사용할 수 있게 만들었다. 공식 안드로이드 페이지에서도 권장한다고 나와있다. 
 
 ## HILT란?(2)
 
