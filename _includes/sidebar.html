@@ -7,7 +7,7 @@
             {% for category in sorted_categories %}
             {% assign category_name = category[0] %}
             
-            <a href="{{ site.baseurl }}/categories.html#{{ category_name | replace: ' ','-' }}" 
+           <a href="{{ '/categories.html' | relative_url }}#{{ category_name | replace: ' ','-' }}" 
                style="
                 display: inline-block;
                 padding: 2px 8px;
