@@ -8,7 +8,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 
 # AndroidTutor(가제) 프로젝트(2)
 
-분명 잘 따라가고 있었는데 (https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.), 문제가 많았다.
+분명 잘 따라가고 있었는데 [Di-Hilt 문서](https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.), 문제가 많았다.
 
 ## HILT 한 번 써보려다 고생이 많다. - migration to Ksp
 
@@ -45,9 +45,8 @@ legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "AGP_VERSION" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "KOTLIN_VERSION" }
 ```
 마침 나도 kapt를 쓰고 있었기에, 하는 수 없이 바꿔야만 했다. 
-```(https://developer.android.com/build/migrate-to-ksp?hl=ko&_gl=1*1gtk9kk*_up*MQ..*_ga*MTk3OTQ0OTM5OC4xNzc0ODczNzM4*_ga_6HH9YJMN9M*czE3NzQ4NzM3MzgkbzEkZz
-AkdDE3NzQ4NzM3MzgkajYwJGwwJGgxOTM3ODUyNjE0)
-```
+[migration 관련 문서](https://developer.android.com/build/migrate-to-ksp?hl=ko&_gl=1*1gtk9kk*_up*MQ..*_ga*MTk3OTQ0OTM5OC4xNzc0ODczNzM4*_ga_6HH9YJMN9M*czE3NzQ4NzM3MzgkbzEkZzAkdDE3NzQ4NzM3MzgkajYwJGwwJGgxOTM3ODUyNjE0)
+
 를 참고해서 하나씩 따라가봤다.
 
 일단 AGP_VERSION 저걸 안드로이드스튜디오가 인식을 못했다. 안드로이드 스튜디오에서는 "agp"를 쓰라던데, 바꾸고, 그 외 여러 kotlin 어쩌구 줄을 지우고...
