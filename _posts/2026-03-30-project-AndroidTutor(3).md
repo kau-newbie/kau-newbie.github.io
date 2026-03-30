@@ -45,7 +45,10 @@ legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "AGP_VERSION" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "KOTLIN_VERSION" }
 ```
 마침 나도 kapt를 쓰고 있었기에, 하는 수 없이 바꿔야만 했다. 
-(https://developer.android.com/build/migrate-to-ksp?hl=ko&_gl=1*1gtk9kk*_up*MQ..*_ga*MTk3OTQ0OTM5OC4xNzc0ODczNzM4*_ga_6HH9YJMN9M*czE3NzQ4NzM3MzgkbzEkZzAkdDE3NzQ4NzM3MzgkajYwJGwwJGgxOTM3ODUyNjE0)를 참고해서 하나씩 따라가봤다.
+```(https://developer.android.com/build/migrate-to-ksp?hl=ko&_gl=1*1gtk9kk*_up*MQ..*_ga*MTk3OTQ0OTM5OC4xNzc0ODczNzM4*_ga_6HH9YJMN9M*czE3NzQ4NzM3MzgkbzEkZz
+AkdDE3NzQ4NzM3MzgkajYwJGwwJGgxOTM3ODUyNjE0)
+```
+를 참고해서 하나씩 따라가봤다.
 
 일단 AGP_VERSION 저걸 안드로이드스튜디오가 인식을 못했다. 안드로이드 스튜디오에서는 "agp"를 쓰라던데, 바꾸고, 그 외 여러 kotlin 어쩌구 줄을 지우고...
 그렇게 되나 싶었는데, 이게 웬걸
@@ -61,3 +64,15 @@ See Android Studio & AGP compatibility options.
 그리고 마참내! 됐다! ksp 줄들이 파란걸 볼 수 있다.
 ![migration to ksp is too hard...](/assets/images/forPost/AndroidTutor(2)/ksp-good.png)
 
+문제는 또 새로운 에러가 떴다는 건데..,
+![new err?](/assets/images/forPost/AndroidTutor(2)/newerr1.png)
+제미나이에 따르면, 보통 Dagger Hilt 라이브러리와 그 컴파일러역할을 하는 KSP 버전이 서로 일치하지 않기 때문이라고 했다.
+Hilt 버전 일치를 먼저 확인하랜다. 다시 gradle.kts 파일을 프로젝트 레벨과 app(모듈) 레벨에서 서로 같은지 확인한다. 아, 서로 버전이 달랐다. 황급히 app 레벨에서 gradle 파일을 수정했다.
+![find version of KSP](/assets/images/forPost/AndroidTutor(2)/app-lv-settings.png)
+이렇게 하고 돌리니 이제 새로운 에러가 났다.
+```
+error: [Dagger/MissingBinding] android.content.Context cannot be provided without an @Provides-annotated method.
+```
+이제부터는 앱 안의 코드 문제이다. 드디어 Hilt를 사용할 준비가 되었다(?) 기쁘다. 계속해서 Hilt를 내 앱에 적용해보자.
+
+...To Be Countinue...
