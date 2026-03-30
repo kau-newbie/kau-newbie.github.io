@@ -65,9 +65,12 @@ See Android Studio & AGP compatibility options.
 
 문제는 또 새로운 에러가 떴다는 건데..,
 ![new err?](/assets/images/forPost/AndroidTutor(2)/newerr1.png)
+
 제미나이에 따르면, 보통 Dagger Hilt 라이브러리와 그 컴파일러역할을 하는 KSP 버전이 서로 일치하지 않기 때문이라고 했다.
 Hilt 버전 일치를 먼저 확인하랜다. 다시 gradle.kts 파일을 프로젝트 레벨과 app(모듈) 레벨에서 서로 같은지 확인한다. 아, 서로 버전이 달랐다. 황급히 app 레벨에서 gradle 파일을 수정했다.
+
 ![find version of KSP](/assets/images/forPost/AndroidTutor(2)/app-lv-settings.png)
+
 이렇게 하고 돌리니 이제 새로운 에러가 났다.
 ```
 error: [Dagger/MissingBinding] android.content.Context cannot be provided without an @Provides-annotated method.
