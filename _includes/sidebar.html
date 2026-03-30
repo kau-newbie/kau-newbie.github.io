@@ -1,8 +1,37 @@
 <div class="sidebar sticky-top">
     <div class="sidebar-section">
-        <h5><span>category</span></h5>
+        <h5 class="mb-3"><span>Category</span></h5>
+        
+        <div class="category-buttons" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            {% assign sorted_categories = site.categories | sort %}
+            {% for category in sorted_categories %}
+            {% assign category_name = category[0] %}
+            
+            <a href="{{ site.baseurl }}/categories.html#{{ category_name | replace: ' ','-' }}" 
+               style="
+                display: inline-block;
+                padding: 2px 8px;
+                font-size: 11px;
+                font-weight: 500;
+                color: #333;
+                background-color: #f4f4f4;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                font-family: 'Courier New', Courier, monospace; /* 마크다운 느낌을 위해 모노체 사용 */
+               "
+               onmouseover="this.style.backgroundColor='#e9e9e9'; this.style.borderColor='#ccc';"
+               onmouseout="this.style.backgroundColor='#f4f4f4'; this.style.borderColor='#ddd';">
+                {{ category_name | downcase }} </a>
+            
+            {% endfor %}
+        </div>
+
+        <hr class="mt-4">
         {% include newsletter.html %}
     </div>
+    
     <div class="sidebar-section">
         <h5><span>Your Ad Here</span></h5>
         <img src="{{site.baseurl}}/assets/images/ad.png">

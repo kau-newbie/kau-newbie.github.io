@@ -12,7 +12,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 
 현재 코드의 상태는 다음과 같았다.
 
-![난잡한 코드의 상태](../assets/images/massy-modules.png)
+![난잡한 코드의 상태](../assets/images/forPost/AndroidTutor(2)/massy-modules.png)
 
 둘다 reterofit을 써서, 같은 OpenAi 서버에게 보내는데 각기 다른 모듈을 만들어 쓰고 있었다. endpoint와 모델, 모델변수 등만 다른데, 뭔가 중복을 줄일 방법이 없을까? 어디서 주워들은 건 있어가지고, annotation(@)을 적어두면 코드가 알아서 이때는 A에게 보냈다가, 이때는 B에게 보내는 무언가를 찾아봤다. 젬나이씨의 말로는 Hilt를 쓰면 된다고 했다.
 
