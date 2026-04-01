@@ -183,6 +183,18 @@ fun main(args: Array) {
 2. 의존성(요소)을 파악하기 어렵게 한다. 
 - DI면 클래스의 인자(arguments)로 바로 파악이 가능한데, 일일히 코드 안을 들여다 봐야(첫째 줄부터 바로 볼 수 있지 않다.) 어떤 의존성(요소)를 필요로 하는지 알 수 있게 된다.
 
+## 수동 DI v.s. container 방식?
+
+Hilt로 넘어가기 전에 뭐 하나를 찾아봐야만 했다. Hilt 안내 문서에서는 가장 먼저 앱에서 Application 클래스가 필요했는데, 이게 왜 필요한지 찾아보니, 수동 DI에 관한 문서를 읽어봐야했다. [수동 DI 문서](https://developer.android.com/training/dependency-injection/manual?hl=ko&_gl=1*1jcx920*_up*MQ..*_ga*MTE0NDQ2Mjk1LjE3NzQ4NTI3ODI.*_ga_6HH9YJMN9M*czE3NzQ4NTI3ODEkbzEkZzAkdDE3NzQ4NTI3ODEkajYwJGwwJGg1ODkwNjY4ODA.)에 따르면,
+```
+클래스 간 종속성은 그래프로 표시할 수 있고 그래프에서 각 클래스는 종속된 클래스에 연결됩니다. 모든 클래스와 서로의 종속성을 표시하면 애플리케이션 그래프가 구성됩니다. 
+
+종속 항목 삽입을 사용하면 클래스를 쉽게 연결할 수 있고 테스트를 위해 구현을 교체할 수 있습니다. 예를 들어 저장소에 종속된 ViewModel을 테스트할 때 가짜 또는 모의 구현과 함께 Repository의 다른 구현을 전달하여 다른 사례를 테스트할 수 있습니다. <--이건 이미 알고 있는 사실이다.
+```
+라고 한다. 해서, 내가 팀원들과 개발중인 앱도, 이번에 hilt로의 migration(이라도 해도 되려나요)을 하는 목적과, 그 목표를 명확히 할겸, 그래프를 그려보겠다. 아래와 같다.
+
+![Dependency Graph over the App]()
+
 **Hilt**
 
 드디어 힐트이다. Dagger를 기반으로 훨씬 쉽게 사용할 수 있게 만들었다. 공식 안드로이드 페이지에서도 권장한다고 나와있다. 
@@ -193,4 +205,4 @@ fun main(args: Array) {
 의 내용을 따라 계속해서 진행해보자. 물론, 나에겐 쉽지 않은 여정이었다.
 
 
-...To Be Countinue....
+...To Be Continue....

@@ -6,9 +6,9 @@ categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# AndroidTutor(가제) 프로젝트(2)
+# AndroidTutor(가제) 프로젝트(3)
 
-분명 잘 따라가고 있었는데 [Di-Hilt 문서](https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.), 문제가 많았다.
+[Di-Hilt 문서](https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.)를 참고하면서 분명 잘 따라가고 있었는데, 문제가 생겼다.
 
 ## HILT 한 번 써보려다 고생이 많다. - migration to Ksp
 
@@ -91,4 +91,4 @@ error: [Dagger/MissingBinding] android.content.Context cannot be provided withou
 ```
 이제부터는 앱 안의 코드 문제이다. 드디어 Hilt를 사용할 준비가 되었다(?) 기쁘다. 
 
-...To Be Countinue...
+...To Be Continue...
