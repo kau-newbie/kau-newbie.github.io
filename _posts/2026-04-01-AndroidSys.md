@@ -3,7 +3,7 @@ layout: post
 title:  "[Android]view filtering 기능에 대해서"
 author: kau-newbie
 categories: [ android, os, view, security]
-image: assets/images/prj-androidtutor-basicmodel.jpg
+image: assets/images/forPost/android_logo.png
 ---
 
 # Android OS system
