@@ -27,9 +27,9 @@ id("com.google.dagger.hilt.android") version "2.59.2" apply false
 #### 버전 카탈로그의 핵심 구성 (`libs.versions.toml`)
 프로젝트의 `gradle` 폴더 안에 위치하며, 크게 세 부분으로 나뉩니다.
 
-* [versions]: 라이브러리 버전 번호를 변수로 정의합니다.
-* [libraries]: 실제 라이브러리 경로와 위에서 정의한 버전을 연결합니다.
-* [plugins]: Gradle 플러그인들을 정의합니다.
+- [versions]: 라이브러리 버전 번호를 변수로 정의합니다.
+- [libraries]: 실제 라이브러리 경로와 위에서 정의한 버전을 연결합니다.
+- [plugins]: Gradle 플러그인들을 정의합니다.
 
 ##### Step 1: `libs.versions.toml` 수정
 ```toml
