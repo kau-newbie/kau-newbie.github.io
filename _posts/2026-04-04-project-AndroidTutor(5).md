@@ -270,24 +270,26 @@ companion object {
  override suspend fun preprocessResponse(resText: String?) {
         if (resText == null) return
         if (resText.contains("목표달성")) {
-            LogData.isMicUsed.set(false)
-
-            val aiMessage = StringEditor.extractTargetLine(resText, "목표달성!")
-            val finalMessage = if (aiMessage.isNotBlank()) {
-                "목표달성! ${aiMessage.trim()}"  // <-- 이렇게 추가
-            } else {
-                "목표달성! 성공했어요. 더 궁금한 게 있다면 저를 눌러주세요."
+            withContext(Dispatchers.Main + NonCancellable) {
+                LogData.isMicUsed.set(false)
+    
+                val aiMessage = StringEditor.extractTargetLine(resText, "목표달성!")
+                val finalMessage = if (aiMessage.isNotBlank()) {
+                    "목표달성! ${aiMessage.trim()}"  // <-- 이렇게 추가
+                } else {
+                    "목표달성! 성공했어요. 더 궁금한 게 있다면 저를 눌러주세요."
+                }
+                // 목표 달성시 저장하던 지난 목표 지우기
+                clearLastGoal()
+                PromptBuffer.clearAll()
+    
+                // 루프 정지
+                loopJob?.cancel()
+                loopJob = null
+    
+                // 말풍선 띄우기
+                showSpeechBubble(finalMessage, 5000L)
             }
-            // 목표 달성시 저장하던 지난 목표 지우기
-            clearLastGoal()
-            PromptBuffer.clearAll()
-
-            // 루프 정지
-            loopJob?.cancel()
-            loopJob = null
-
-            // 말풍선 띄우기
-            showSpeechBubble(finalMessage, 5000L)
             return
         }else {
 ```
