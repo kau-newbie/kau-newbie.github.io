@@ -80,7 +80,9 @@ AnimationPlayer라는 모듈에서 애니메이션을 실행함과 동시에 취
                 //넘어가서 실행
                 animationPlayer.removeGuide(windowManager)
 ```
-어쩌면 당연한게, 사용자가 가이드 애니메이션을 따라 터치를 했을 경우(올바른 좌표인지 아닌지는 확인하지 않는다. 해당 좌표빼고 모두 블락한다면, (애초에 그럴 수 있나?) 뭔가 기분이 찜찜해서 안 넣었다. 가이드라기보다는 무언가 강제하는 체벌같다.) 애니메이션은 즉시 종료된다. 
+어쩌면 당연한게, 로직 자체가 사용자가 가이드 애니메이션을 따라 터치를 했을 경우, 애니메이션은 즉시 종료되도록 했다.
+- 올바른 좌표인지 아닌지는 확인하지 않는다. 
+- 올바른 좌표가 아닐 때 막는 기능, 예를 들어 해당 좌표빼고 모두 블락하는 기능은 (애초에 그럴 수 있나?) 뭔가 기분이 찜찜해서 안 넣었다. 가이드라기보다는 무언가 강제하는 체벌같다. 
 
 그럼 사용자가 터치를 했었느냐? 나는 분명 터치를 하지 않았고, 로그만 봐도 정말 순식간에 터치가 이루어졌다. 
 
@@ -99,9 +101,8 @@ AnimationPlayer라는 모듈에서 애니메이션을 실행함과 동시에 취
 2. 상태 갱신 이후, 앞선 루틴이 있으면, collect{}에 앞선 루틴이 모두 실행되기를 기다리는 중에 취소를 판단한다.
 3. 대답을 확인하고 코루틴을 중지시키거나 화면에 반영하지 않는다.
 
-처음 든 생각으로서는, 3번은 너무 느리다. 어느세월에 다시 LLM에게 쿼리를 보내고, 추론시간을 기다려 완성된 응답을 받아오지? 이미 accessibility_service_config.xml파일에서 android:notificationTimeout="300" 해당 flag 값을 0.3초로 설정해뒀다. 
-
-물론, 이것보다는 collect에서 .debounce(3000) 메소드로 3초간 stateFlow에서 갱신되는 상태 값들의 반영을 지연시키는게 더 크다. 
+처음 든 생각으로서는, 3번은 너무 느리다. 어느세월에 다시 LLM에게 쿼리를 보내고, 추론시간을 기다려 완성된 응답을 받아오지? 이미 `accessibility_service_config.xml`파일에서 `android:notificationTimeout="300"`(해당 flag 값을 0.3초)으로 설정해뒀다. 
+게다가 collect에서 `.debounce(3000)` 메소드로 3초간 stateFlow에서 갱신되는 상태 값들의 반영을 지연시키는데, 이 효과는 android:....="300" 보다 더 크다. 
 
 우선은 1번과 2번을 먼저 검토해보자.
 
@@ -222,16 +223,17 @@ data class GuideSignature(
 그리고 이곳저곳에서 활용해본다. 아래에 `.toGuideSignature()`은 별도의 확장함수`Extension Function`을 추가한 것이다. 기존 클래스(String)의 소스 코드를 수정하지 않고도 새로운 메서드를 추가했다. 코틀린 기능이랜다.
 
 ```kotlin
-(GoalGuide, 즉 collect{}를 통해 일종의 loop job(루틴) 코드 안)
-...
+
+//(GoalGuide, 즉 collect{}를 통해 일종의 loop job(루틴) 코드 안)
+//...
 //지시사항, ui 요소 좌표, 행동을 signature로 이전과 비교.
                 val (instructionText, coordinateNumbers, guidedAction) = StringEditor.extractSignature(responseText)
-                if(GuideSignature(instructionText, coordinateNumbers, guidedAction)==
+                if(GuideSignature(instructionText.trim(), coordinateNumbers, guidedAction.trim())==
                 (PromptBuffer.getFootprint(PromptBuffer.FootprintViewOptions.LAST_ONLY).toGuideSignature())){ // 가독성 최악이다. 하지만 일단은 넘어가자. 일단은....
                     log("같은 가이드 시그니처 발생. return.")
                     return@collect
                 }
-                ...
+                //...
 ```
 
 이렇게 두 개의 시그니처를 비교한다. 전자는 방금 받아온 LLM의 응답을, 후자는 footprint에서 나온 것이다.
@@ -246,7 +248,7 @@ data class GuideSignature(
 > - loadFactor: default가 0.75(75%)이다. 75%가 차면 배열 크기를 키우겠다는 얘기이다.
 > - accessOrder: 기본값은 false. FIFO인데, true로 할 시, LRU, 즉 Least Recently Used가 된다. 
 
-```
+```kotlin
 companion object {
         ...
         // 동일한 ID에 대해 1초 동안 무시.
@@ -267,11 +269,9 @@ companion object {
 ```
 요렇게 함으로써, 앞에서 봤던 isTouched가 인식돼 애니메이션이 강제종료되는 것을 조금은 줄일 수 있을 것이다.
 
-물론 이렇게 테스트했더니 문제가 하나 생겼다. 바로 알람 설정 테스트였는데, 이게 TYPE_WINDOW_CONTENT_CHANGED 중에서도 text와 
-
 ### 목표달성시 목표달성 문구가 포함된 말풍선이 보이지 않는 문제
 
-그리고 또, 목표달성시 "목표달성! + 간단한 설명"를 사용자에게 보여주는 것 또한 사용자 경험 측면에서 몹시 중요하다 생각했는데, 역시나 뒤이어 들어오는 collect{}루틴이 (loopJob이라 명하고 있다. loopJob은 이 colelct{}를 감싼 processEvent 메서드를 실행하는 코루틴의 Job 객체이다.) 취소해버려 말풍선이 화면에 표시되지 않는 현상이 있었다. 
+그리고 또, 목표달성시 "목표달성! + 간단한 설명"를 사용자에게 보여주는 것 또한 사용자 경험 측면에서 몹시 중요하다 생각했는데, 테스트를 해보니 '목표달성' 반환 뒤, 뒤이어 들어오는 collect{}루틴이 (loopJob이라 명하고 있다.) 실행 중인 말풍선을 취소해버려서 "목표달성!..."이 써있는 말풍선이 화면에 표시되지 않는 현상이 있었다. 
 
 역시나 범인으로 의심되는 부분은 isTouched가 들어오면 말풍선을 취소하고, 각종 job 객체를 cancel()해버리는 부분이다.
 
@@ -287,7 +287,7 @@ companion object {
                  //지시사항, ui 요소 좌표, 행동을 signature로 이전과 비교.
                 val (instructionText, coordinateNumbers, guidedAction) = StringEditor.extractSignature(responseText)
                 val lastGuideSignature = PromptBuffer.getFootprint(PromptBuffer.FootprintViewOptions.LAST_ONLY).toGuideSignature()
-                if(GuideSignature(instructionText, coordinateNumbers, guidedAction)==
+                if(GuideSignature(instructionText.trim(), coordinateNumbers, guidedAction.trim())==
                     lastGuideSignature){
                     log("같은 가이드 시그니처 발생. return.")
                     return@collect
