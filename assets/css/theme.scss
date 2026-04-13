@@ -18,7 +18,7 @@ html {
   
 body {
     background:#fff;
-    font-size:17px;
+    font-size:16px;
     transition: all 200ms linear;
     font-family: "PT Sans",sans-serif;
     line-height:1.7;
@@ -202,7 +202,7 @@ small, .small {
     letter-spacing:0;
 }
 .layout-page .section-title h2:before {top:17px;}
-.article-post ol, .article-post ul { margin-bottom:1.5rem;}
+.article-post ol, .article-post ul { margin-bottom:1.05rem;}
 .article-post ol ol, .article-post ul ul {   
     list-style: disc;
     margin-bottom:0rem;
