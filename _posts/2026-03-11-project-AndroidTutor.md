@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[project]Project: AndroidTutor"
+title:  "[project]AndroidTutor(1) 벡터 임베딩과 RAG"
 author: kau-newbie
 categories: [ project, android, app, ai ]
 image: assets/images/prj-androidtutor-basicmodel.jpg

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[project]Project: AndroidTutor(5) coroutine(코루틴)와 flag 변수의 race condition"
+title:  "[project]AndroidTutor(5) coroutine(코루틴)와 flag 변수의 race condition"
 author: kau-newbie
 categories: [ android, os, coroutine, project]
 image: assets/images/prj-androidtutor-basicmodel.jpg
