@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[project]Project: AndroidTutor(4) Hilt에 대해서-3"
+title:  "[project]AndroidTutor(4) Hilt에 대해서-3"
 author: kau-newbie
 categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
