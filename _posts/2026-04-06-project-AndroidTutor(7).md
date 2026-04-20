@@ -6,10 +6,7 @@ categories: [ android, os, project]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# Model을 바꿔보자
-
-
-# 그 밖의 이벤트 필터링 로직 문제  
+# 접근성 이벤트 필터링 로직 문제 (삼성 launcher v.s. android launcher)
 
 지금 앱 개발을 하면서 테스트는 거의 항상 구글 안드로이드 폰으로 하고 있는데, 보통 이벤트 인식문제는 갤럭시 쪽에서 발생한다.
 

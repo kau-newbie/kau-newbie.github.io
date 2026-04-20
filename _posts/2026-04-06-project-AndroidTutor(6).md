@@ -6,6 +6,6 @@ categories: [ android, os, project, thread safe, multiprocess, interface]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# Android OS system
+# ThreadSafe in Android?
 
 ...writing....
