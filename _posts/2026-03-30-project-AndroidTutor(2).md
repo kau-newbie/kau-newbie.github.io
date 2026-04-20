@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "[project]AndroidTutor(2) Hilt에 대해서"
+title:  "[project]AndroidTutor(2) Hilt로 migration하자-1"
 author: kau-newbie
 categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# AndroidTutor(가제) 프로젝트(2)
+# DI란?
 
 여러모로 기워붙이며 기능을 추가한지 어언 몇 달째...,
 

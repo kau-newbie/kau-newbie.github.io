@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "[project]AndroidTutor(4) Hilt에 대해서-3"
+title:  "[project]AndroidTutor(4) Hilt로 migration하자-3"
 author: kau-newbie
 categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# AndroidTutor(가제) 프로젝트(4)
+# 버전 카탈로그(libs.versions.toml)
 
 [Di-Hilt 문서](https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.)와 유콩씨가 준 자료를 가지고 Hilt를 하나하나 적용해볼 것이다.
 

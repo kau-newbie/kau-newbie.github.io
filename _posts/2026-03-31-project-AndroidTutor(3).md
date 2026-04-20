@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "[project]AndroidTutor(3) Hilt에 대해서-2"
+title:  "[project]AndroidTutor(3) Hilt로 migration하자-2"
 author: kau-newbie
 categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# AndroidTutor(가제) 프로젝트(3)
+# AGP와 Ksp 문제
 
 [Di-Hilt 문서](https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.)를 참고하면서 분명 잘 따라가고 있었는데, 문제가 생겼다.
 

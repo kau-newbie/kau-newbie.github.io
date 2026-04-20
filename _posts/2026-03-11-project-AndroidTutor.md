@@ -6,7 +6,7 @@ categories: [ project, android, app, ai ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# AndroidTutor(가제) 프로젝트
+# 벡터 임베딩과 RAG 알아보기
 
 
 도중에 LLM이 처리할 입력을 줄일 방법이 필요했다. 처음 생각한 방법은, RAG model의 embedding 방식을 따라하는 것이다.
