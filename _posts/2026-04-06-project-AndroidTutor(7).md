@@ -20,6 +20,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 2. 앱 드로어 확인 결과, 삼성 ui 런처에서는 `TYPE_WINDOW_STATE_CHANGED` 가 아닌, `TYPE_WINDOW_CONTENT_CHANGED`가 발생한다.
 3. 앱 드로어 자체의 구성 view들이 id가 없다보니, (No Id로 null을 처리하고 있다. (`resourceId?:"No Id"`)) 다른 No Id인 view들의 이벤트에 묻힐 수 있겠다.
 - 왜냐하면 현재 다음과 같은 코드로 같은 view id에서 온 이벤트는 일정시간동안 필터링하고 있기 때문이다.
+
 ```kotlin
 // 특정 resourceID별로 마지막 처리 시간을 저장 (ID : Timestamp)
     // 고정된 크기를 가진 원형 버퍼 형태의 맵
@@ -42,6 +43,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
         // 2. 통과했다면 현재 시간 업데이트
         viewEventTimestamps[resourceId] = currentTime
 ```
+
 코드에 따르면 TYPE_WINDOW_CONTENT_CHANGED이고, 체크를 사용자가 하고 있는 게 아니라면, view의 id (viewIdResourcName)를 비교해 필터링한다.
 
 여기서 문제는 No Id로 일관하면 다른 view들의 상태변화에 앱 드로어가 열린 이벤트를 필터링해버릴 수도 있는 것이다.
@@ -53,7 +55,7 @@ view의 id 만으로는 구분하는게 부족하다. 구분자를 더 넣어야
 
 hash함수는 이미 버퍼에 넣을 때 hash값을 key 값으로 해서 그 value를 넣고 있기 때문에, 중요한 건 signature를 만드는 작업이다.
 
-이것저것 생각해봤지만, (inteface라던가, data class라던가) 접근성 서비스에서만 쓸 signature이기도 하고, NodeInfo를 받아와야 하기 때문에, 이미 접근성 서비스 안 메서드 getLabelOfNode()를 쓰기 위해 다음과 같이 구현했다.
+이것저것 생각해봤지만, (inteface라던가, data class라던가) 접근성 서비스에서만 쓸 signature이기도 하고, NodeInfo를 받아와야 하기 때문에, 이미 접근성 서비스 안에 내가 만들어둔 메서드 getLabelOfNode()를 쓰기 위해 다음과 같이 구현했다.
 ```
 val resourceSignature = resourceId+getLabelOfNode(node)
 ```
