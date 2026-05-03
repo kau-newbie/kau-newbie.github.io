@@ -380,3 +380,84 @@ Constant Value: 6 (0x00000006)
 
 최종적으로 AccessibilityService 안에서 코드 상 필터링 로직을 손 봐준다.
 
+우리 앱 로직은 "사용자의 터치 --> 화면 ui 상태 변경"을 전제로 하고 있다.
+
+따라서 사용자의 조작 이벤트를 받으면 isTouched 플래그 변수를 true로 바꾸고, 화면 상태가 변경된 이벤트가 오면 그때 UI정보를 담는 버퍼(stateFlow로 구현)에 이 변경된 화면 정보 전체를 트리구조로 하여 LLM에게 보내게 된다.
+
+따라서 처음에는 TYPE_VIEW_X 형태로 view를 조작했을 때 받는 이벤트들로 isTouched를 바꾸었다면, 지금은 
+
+```kotlin
+
+if(event.eventType == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START){
+            UIstateBuffer.isTouched.set(true)
+            log("\n사용자 조작 감지: class=${event.className ?: "no class name"} \nisTouched: ${UIstateBuffer.isTouched}\nview: ${event.source?.viewIdResourceName ?: "ID가 없음."}")
+        }
+
+```
+와 같이 사용자의 터치 그 자체만으로(화면 어느 곳이나) isTouched flag를 true로 바꾸도록 한다.
+
+단, 보다 민감하게 isTouched 플래그를 변경하는 만큼, 뒤의 '화면 ui 상태 변경'에서 더욱 필터링을 촘촘하게 해주어야 하겠다.
+
+*이때! 사용자의 조작을 인식하지 못하는 경우가 있다.*
+- 예를 들면, 웹 페이지 조작에서나, 팝업 다이어로그 등등의 창에서는 사용자 조작이 이벤트로 발생하지 않는다. (경험적으로 알고 있는 사실이다.)
+
+이를 해결하기 위해, TYPE_WINDOW_STATE_CHANGED 정도의 이벤트는 ui상태 변경이면서 동시에 사용자의 조작으로 인식한다. 즉, isTouched를 true로 바꿔준다.
+- 팝업 다이어로그가 사라질 때 사용자의 조작도 같이 이루어졌다고 가정하는 것이다!
+
+또, 이렇게 하면, 사용자가 의도치 않았는데도 팝업 다이어로그 같은 창이 화면에 떴을 때, LLM에게 곧바로 ui 상태와 함께 request를 보낼 수 있게 된다.
+
+TYPE_WINDOW_STATE_CHANGED외에도 TYPE_WINDOWS_CHANGED 중에서 특정 부분과, 심지어는 TYPE_WINDOW_CONTENT_CHANGED까지도 isTouched를 true로 바꾸도록 하였다.
+- TYPE_WINDOW_CONTENT_CHANGED는 매우매우 민감하기 때문에, 해당 AccessibilityNodeInfo, 혹은 AccessibilityEvent.source (getSource일 것이다.)의 resource id나 description, 혹은 class에 home이라던지, launcher 등의 글자를 파싱해서 필터링하고 있다.
+
+*불현듯 문제가 또 생각났다.*
+
+예를 들어, 유투브를 실행했는데, 유투브 window가 생기고, 동시에 앱 업데이트가 필요해 업데이트를 하겠냐는 시스템 알림 화면이 떴다. 예를 들어 이 시스템 알림 화면과 앞선 유투브 앱 화면이 똑같은 TYPE_WINDOW_STATE_CHANGED라고 하자.
+
+우리가 위에서 짠 `accessibiltiy_service_config.xml`에 의하면, 같은 이벤트 타입은 0.4초 이내에 두 번 발생하지 않도록 필터링해준다. 이건 일괄적인 필터링이라 이렇게 TYPE_WNIDOW_STATE_CHANGED같은 특정한 이벤트 타입만을 예외로 둘 수 없다.
+
+해결책은 역시, xml 상으로는 "0"으로 설정하고, 대신 서비스 내의 코드에서 직접 걸러내는 것이다. 다음과 같이 구현했다.
+
+```kotlin
+
+        val currentTime = System.currentTimeMillis()
+        if(event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED&&!node.isCheckable){
+            if(currentTime - lastContentTime <= 400L) return
+
+            lastContentTime = currentTime
+            
+            ...(생략)...
+        }
+
+```
+
+기본적으로 content_changed 이벤트 타입에 대해서만, 0.4초의 텀을 두도록 필터링했다. 다만, xml의 필터링과는 다르게, 시스템이 최신 이벤트만은 가지고 있지 않는다는 위험성이 있겠다.
+- 대신, checkable할 경우, 즉 check를 할 수 있는 경우에는 예외로 둔다.
+> 의외로 시계 알람 같은 앱에서 시간 맞추는 기능을 checked로 표시하고 있다는 걸 알게됐기 때문이다.
+> - 그러면서 touch 이벤트는 잘 발생시키지 않는다. 나쁘다.
+
+이렇게 해두고, TYPE_WINDOW_CONTENT_CHANGED가 발생했고, 그 자세한 내용이 checked가 변경일 때, '화면 ui 상태 변경'으로 인정해서 Ui 정보가 StateFlow로 넘어가게끔 헀다.
+
+아래 코드와 같다.
+
+```kotlin
+
+            ...(생략)...
+
+// 여기서 이제 ui state가 변경됐는지 판단하고, 최종적으로 ui정보를 담는 stateFlow로 보내게 된다.
+
+ if ( isUiChanged.compareAndSet(true,false) ) { 
+            val logBuilder = StringBuilder() //java String은 기본적으로 불변. 매번 reference가 새로운 메모리 공간을 가리키게 하므로, 효율을 위해 가변(mutable) 메모리 공간을 할당.
+        
+            ...
+            traverseNode(rootNode, logBuilder)
+
+            // 1. 방금 만든 새 로그 스냅샷(문자열)을 가져옴.
+            val newLogEntry = logBuilder.toString()
+            // 2. 새 리스트로 _uiStateFlow 업데이트.
+            stateBuffer.updateUIState(newLogEntry)
+
+            ...(생략)...
+ }
+
+```
+끝. 아직까지는 잘 되는데, 역시나 삼성 폰에서 어떻게 될지.... 테스트를 해봐야겠다.

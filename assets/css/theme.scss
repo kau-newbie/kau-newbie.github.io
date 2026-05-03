@@ -623,7 +623,12 @@ figure.highlight, pre {
   margin: 20px 0;
   overflow: auto;
 }
-
+table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    word-break: keep-all; /* 단어가 중간에 끊기지 않게 설정 */
+}
 /* 코드 내부 언어별 색상 (Rouge 기본 클래스) */
 .highlight .k { color: #c678dd; font-weight: bold; } /* 키워드 (int, if 등) */
 .highlight .s { color: #98be65; }                /* 문자열 ("Hello") */
