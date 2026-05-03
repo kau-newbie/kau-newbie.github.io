@@ -9,7 +9,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 # 벡터 임베딩과 RAG 알아보기
 
 
-도중에 LLM이 처리할 입력을 줄일 방법이 필요했다. 처음 생각한 방법은, RAG model의 embedding 방식을 따라하는 것이다.
+앱 개발 도중에 LLM이 처리할 입력을 줄일 방법이 필요했다. 지금 LLM 서버로 보내는 프롬프트의 길이는 길어도 너무 길다. 처음 생각한 방법은, RAG model의 embedding 방식을 따라하는 것이다.
 
 먼저, ui 스냅샷을 embedding model이 벡터공간으로 변환한다. 그다음으로, 사용자의 프롬프트를(query) 벡터로 변환 후, 비교해 유사한 '관련 정보'를 가져오는 것이다. 
 
