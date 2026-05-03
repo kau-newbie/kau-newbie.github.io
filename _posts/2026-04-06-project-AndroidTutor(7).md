@@ -376,4 +376,7 @@ Constant Value: 6 (0x00000006)
 
 
 
-...writing....
+## 결론
+
+최종적으로 AccessibilityService 안에서 코드 상 필터링 로직을 손 봐준다.
+
