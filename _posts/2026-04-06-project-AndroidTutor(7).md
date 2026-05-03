@@ -176,18 +176,203 @@ getEventType()
 
 [event types](https://developer.android.com/reference/kotlin/android/view/accessibility/AccessibilityEvent?_gl=1*1qm1djr*_up*MQ..*_ga*MTQ1MTE1MDg5MS4xNzc3NzkxODMy*_ga_6HH9YJMN9M*czE3Nzc3OTE4MzEkbzEkZzAkdDE3Nzc3OTE5ODEkajYwJGwwJGg5NzQ2MjQ1NTA.#summary)
 
+TYPE_VIEW_로 시작하는 action들은 모두 사용자가 view를 조작했을 때 발생하는 이벤트들이다.
+- 우리 앱에서는 isTouched라는 flag 변수를 true로 바꾸는 데 사용하고 있다.
+
+사용자 행동 이벤트를 제외하고
+
 여기서 주목할 것들은 경험상 아래의 세 가지 정도이다.
 1. TYPE_WINDOW_STATE_CHANGED
+- 새로운 pane의 생성/삭제
+- pane의 title 변경
+    - window가 앱 화면 전체라면, pane은 window를 더 작은 영역 한 개 이상으로 나눈 것들.
+
 2. TYPE_WINDOW_CONTENT_CHANGED
+- 노드의(view) checked 정보가 변했을 때 (체크 표시가 활성화)
+- content description이 바뀌었을 때 - 예를 들어, 삼성 ui는 홈화면 페이지 수를 1/2 2/2 와 같이 description 해둔다.
+- 뷰 요소를 드래그 시작/중단/놓았을 때
+- 뷰 요소에 interact가 가능/불가 해졌을 때
+- 드롭 다운같이 펼치고/ 접을 수 있는 뷰가 펼쳐지고/ 접힐 때
+- 에러 메시지를 반환할 때
+- view의 text가 변경됐을 때
+- veiw의 자식 노드가 변경됐을 때
+
 3. TYPE_WINDOWS_CANGED
+- The window's AccessibilityWindowInfo.isActive() changed.
+    - An active window is the one the user is currently touching or the window has input focus and the user is not touching any window.
+- window가 추가/제거 됐을 때
+- his event implies the window's region changed. It's also possible that region changed but bounds doesn't.
+> 창의 위치가 변경됐을 때
+- window의 자식(하위 ui요소들)이 변경사항이 있을 때
+    - TYPE_WINDOW_CONTENT_CANGED도 바뀐다.
+- input focus가 변할 때 (id 박스에서 id적고 password 칸으로 옮겨갈 때)
+- `WINDOWS_CHANGE_LAYER` z-order가 바뀌었을 때! 이건 정말 유용해 보인다.
+- 윈도우의 부모가 바뀔 때: 이건 젬나이에게 물어봤더니, 다음과 같은 예시가 있다고 했다.
+> 다이얼로그가 다른 윈도우에 붙을 때
+>
+> 예: 앱 내에서 다이얼로그가 처음에는 Activity A의 윈도우에 붙어 있다가, Activity B로 전환되면서 부모 윈도우가 바뀌는 경우.
+>
+> 팝업 윈도우가 재배치될 때
+>
+> 예: 드롭다운 메뉴나 툴팁 같은 팝업 윈도우가 원래는 특정 뷰(Window)의 자식이었는데, UI 구조 변경으로 다른 부모 윈도우에 속하게 되는 경우.
+>
+> 멀티윈도우 모드에서 창 이동
+>
+> 예: 분할 화면 모드에서 앱 창을 드래그해서 다른 컨테이너 윈도우로 옮기면, 그 창의 부모가 바뀌게 됩니다.
+- wnidow의 title이 변경되는 경우: 역시 마찬가지로 젬나이에게 예시를 물어봤다.
+> 다이얼로그 제목 변경
+> 
+> 예: "로그인 오류" 다이얼로그가 처음에는 "Error"라는 제목을 가지고 있다가, 상황에 따라 "Network Error"로 바뀌는 경우.
+> 
+> 액티비티 창의 제목 변경
+> 
+> 예: 이메일 앱에서 처음에는 "Inbox"라는 제목을 가진 윈도우가, 사용자가 특정 폴더로 이동하면 "Sent Items"로 바뀌는 경우.
+> 
+> 팝업 윈도우 제목 변경
+> 
+> 예: 설정 팝업이 "Settings"에서 "Advanced Settings"로 바뀌는 경우.
+- 윈도우가 Pip모드로 변경될 때
 
+**그리고..., 미처 발견하지 못했던 새로운 이벤트 종류들을 발견했다.**
 
+바로, 
+- TYPE_GESTURE_DETECTION_END, TYPE_GESTURE_DETECTION_START
+- TYPE_TOUCH_EXPLORATION_GESTURE_END, TYPE_TOUCH_EXPLORATION_GESTURE_START
+- TYPE_TOUCH_INTERACTION_END, TYPE_TOUCH_INTERACTION_START
+
+이다. 그동안 삼성 ui 등의 런처에서 view가 touch를 감지 하지 못하는 상황에 골치가 아팠다.
+
+아, 근데 사용자의 순수한 '상호작용' 자체에도 이벤트를 발생시킨다니..., 이건 몰랐다.
+
+제미나이의 예시 흐름도를 보겠다.
+
+```
+사용자 화면 터치 시작
+        │
+        ├─ TYPE_TOUCH_INTERACTION_START
+        │
+        ├─ 손가락을 화면 위에 움직이며 탐색 (TalkBack 등)
+        │       ├─ TYPE_TOUCH_EXPLORATION_GESTURE_START
+        │       │
+        │       └─ 탐색 종료 → TYPE_TOUCH_EXPLORATION_GESTURE_END
+        │
+        ├─ 시스템이 특정 제스처 인식 시작
+        │       ├─ TYPE_GESTURE_DETECTION_START
+        │       │
+        │       └─ 인식 종료 → TYPE_GESTURE_DETECTION_END
+        │
+        └─ 손가락을 화면에서 뗌
+                └─ TYPE_TOUCH_INTERACTION_END
+
+```
+
+이때, TYPE_TOUCH_EXPLORATION_GESTURE_X는 주로 talkback에 사용되는 기능인데, 다음 영상을 보면 이해가 빠르다.
+- [다음 영상](https://www.youtube.com/watch?v=q8THhm0y1GA) 0:53~ 부분을 보면 된다.
+
+그렇다면 약간의 제약만 걸어둔 채로 TYPE_TOUCH_INTERACTION_END를 이용하면, isTouched 플래그가 터치를 했음에도 true로 바뀌지 않는 현상을 해결할 수 있겠다.
+
+아무튼 이렇게 여러가지 AccessbilityEvent를 알아보았다. 이 모든 Event들을 포함하는게 `typeAllMask`이다.
 
 typeAllMask외에도 여러 옵션들이 있었다.
 
 - typeGestureDetectionStart
-- 
+- typeAssistReadingContext
+- typeContextClicked
+- typeTouchInteractionEnd
+- typeViewClicked
 
+... 가만히 읽어보면 앞에서 살펴봤던 AccessibiltiyEvent들이란 것을 알 수 있겠다.
+- [문서](https://developer.android.com/reference/kotlin/android/accessibilityservice/AccessibilityServiceInfo?_gl=1*193qfvs*_up*MQ..*_ga*MTQ1MTE1MDg5MS4xNzc3NzkxODMy*_ga_6HH9YJMN9M*czE3Nzc3OTE4MzEkbzEkZzAkdDE3Nzc3OTE4MzEkajYwJGwwJGg5NzQ2MjQ1NTA.#xml-attributes)만 보아도, xml 버전의 AccessibiltiyEventTypes인 것을 알 수 있다.
+
+이제 세 번째 줄인 `android:accessibilityFlags`로 넘어가겠다.
+
+#### android:accessibilityFlags
+
+[다양한 flag들 공식문서 설명](https://developer.android.com/reference/kotlin/android/accessibilityservice/AccessibilityServiceInfo?_gl=1*1c3iep4*_up*MQ..*_ga*NjkzMDQ2NDIwLjE3Nzc3OTExMTE.*_ga_6HH9YJMN9M*czE3Nzc3OTExMTEkbzEkZzAkdDE3Nzc3OTExMTEkajYwJGwwJGg3Njg5NzIzNTI.#default)
+
+Additional flags as specified in android.accessibilityservice.AccessibilityServiceInfo. 
+
+생각보다 설명이 빈약한 것 같아서 더 찾아봤다. 나오질 않는다. 
+
+android:accessibilityFlags는 접근성 서비스가 어떤 이벤트를 수신하고, 어떤 제스처를 처리하며, 어떤 UI 요소를 탐색할 수 있는지를 시스템에 알려주는 설정이라고 한다. 
+
+각 flag는 아래와 같다.
+- 마찬가지로 상수로 flag들이 정의됐다.
+
+*!주의: copilot에게 받아온 답변 그 자체라 검증을 거치지 않았음.*
+
+| Flag | 값 | 설명 | 사용 예시 |
+| --- | --- | --- | --- |
+| **DEFAULT** | 1 | 기본 상태. 특별한 동작 없음. | 단순 접근성 서비스 기본 설정. |
+| **FLAG_ENABLE_ACCESSIBILITY_VOLUME** | 128 | 접근성 오디오 트랙을 별도의 볼륨 스트림(``STREAM_ACCESSIBILITY``)으로 제어. | TalkBack 음성 피드백 볼륨을 따로 조절. |
+| **FLAG_INCLUDE_NOT_IMPORTANT_VIEWS** | 2 | 접근성에 중요하지 않다고 표시된 뷰도 포함. | 레이아웃 매니저 같은 뷰까지 탐색 필요할 때. |
+| **FLAG_INPUT_METHOD_EDITOR** | 32768 | 접근성 서비스가 일부 IME 기능을 수행할 수 있게 함. | 텍스트 입력 연결, 선택 변경 알림 수신. |
+| **FLAG_REPORT_VIEW_IDS** | 16 | AccessibilityNodeInfo에 뷰 ID 포함. | UI 테스트 자동화, 특정 뷰 추적. |
+| **FLAG_REQUEST_2_FINGER_PASSTHROUGH** | 8192 | 멀티핑거 제스처 모드에서 두 손가락 제스처를 일반 제스처로 전달. | 두 손가락 스와이프를 단일 손가락처럼 처리. |
+| **FLAG_REQUEST_ACCESSIBILITY_BUTTON** | 256 | 내비게이션 영역에 접근성 버튼 표시 요청. | TalkBack에서 접근성 버튼 제공. |
+| **FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY** | 8 | 웹 접근성 향상 요청 (API 26 이후 Deprecated). | 예전 웹뷰 접근성 개선용. |
+| **FLAG_REQUEST_FILTER_KEY_EVENTS** | 32 | 키 이벤트 필터링 요청. | 서비스가 키 입력을 가로채 단축키 처리. |
+| **FLAG_REQUEST_FINGERPRINT_GESTURES** | 512 | 지문 센서 제스처 이벤트 수신. | 지문 센서로 제스처 제어. |
+| **FLAG_REQUEST_MULTI_FINGER_GESTURES** | 4096 | 멀티 핑거 제스처 활성화 요청. | 두 손가락 스와이프 등. |
+| **FLAG_REQUEST_SHORTCUT_WARNING_DIALOG_SPOKEN_FEEDBACK** | 1024 | 접근성 단축키 경고 대화상자에 음성 피드백 요청. | 단축키 활성화 시 사용자에게 음성 안내. |
+| **FLAG_REQUEST_TOUCH_EXPLORATION_MODE** | 4 | 터치 탐색 모드 요청. | TalkBack 같은 서비스가 화면 요소를 손가락으로 탐색할 수 있도록. |
+| **FLAG_RETRIEVE_INTERACTIVE_WINDOWS** | 64 | 모든 인터랙티브 윈도우 콘텐츠 접근. | 멀티윈도우 환경에서 각 창 탐색. |
+| **FLAG_SEND_MOTION_EVENTS** | 16384 | 제스처 탐지 시 MotionEvent도 서비스에 전달. | 제스처 인식 실패/패스스루 이벤트 분석. |
+| **FLAG_SERVICE_HANDLES_DOUBLE_TAP** | 2048 | 더블탭 제스처를 프레임워크 대신 서비스가 처리. | TalkBack이 더블탭을 직접 처리. |
+
+지금 우리 앱에서는
+
+```kotlin
+
+android:accessibilityFlags="flagDefault|flagReportViewIds|flagIncludeNotImportantViews|flagRetrieveInteractiveWindows"
+
+```
+로 쓰고 있다. 다만, 여기서 enhaned web accessibility가 궁금해서 더 찾아보았다. (구글, 유투브 등 일부 웹 페이지에서, 더보기 창을 눌러 조작할 때 인식을 못하는 현상이 빈번했기 때문이다.)
+- 마침 이 현상에 관해 LLM에게 물으니 다음과 같이 말했다. 
+> 현재의 관계
+> 
+> 뷰(View) 이벤트 체계와 웹 콘텐츠는 완전히 동일하지 않습니다.
+>
+> WebView는 DOM 요소를 AccessibilityNodeInfo로 변환해주지만, 이는 “뷰처럼 보이게 흉내내는 것”이지 실제 뷰 이벤트(TYPE_VIEW_CLICKED)와 1:1 대응은 아닙니다.
+>
+> 그래서 웹 페이지 버튼을 눌러도 TalkBack이 “버튼 클릭됨”이라고 읽어주지만, 내부적으로는 DOM 이벤트를 Accessibility 이벤트로 변환한 결과일 뿐입니다.
+
+어쩐지 인식을 못 하더라.... 일단 `flagSendMotionEvents`와 `flagRequestEnhancedWebAccessibility`도 추가해주기로 했다.
+- API26이후로는 deprecated라는데, 공식 문서에는 딱히 그런 내용이 없어 우선 flagRequestEnhancedWebAccessibility를 넣기로 했다.
+
+
+#### android:canRetrieveWindowContent
+
+서비스에서 UI 계층 구조를 검사해야 하는 경우 (예: 화면에서 텍스트를 읽기 위해) true여야 합니다. 
+
+그렇다고 한다. 당연히 계층 구조를 몽땅 뽑아와야 하는 우리 앱으로선, true로 설정해야 한다.
+
+
+#### android:accessibilityFeedbackType
+
+사용자에게 어떤 방식으로 화면 요소를 전달해주느냐, 인데, "feedbackSpoken"가 예시 그대로라 일단 그렇게 했다. 주로 시각 장애인을 위한 talkback기능을 위해서 있는 플래그 같다.
+
+
+####  android:notificationTimeout
+
+[문서 링크](https://developer.android.com/reference/android/R.styleable?_gl=1*1552zmx*_up*MQ..*_ga*MTc1Njc1NzM4MS4xNzc3ODA0ODYx*_ga_6HH9YJMN9M*czE3Nzc4MDQ4NjAkbzEkZzAkdDE3Nzc4MDQ4NjAkajYwJGwwJGg2NjQ4NTQyNjI.#AccessibilityService_notificationTimeout)에 나와있다.
+
+public static final int AccessibilityService_notificationTimeout
+
+The minimal period in milliseconds between two accessibility events of the same type are sent to this service. 
+
+This setting can be changed at runtime by calling android.accessibilityservice.AccessibilityService.setServiceInfo(android.accessibilityservice.AccessibilityServiceInfo).
+
+May be an integer value, such as "100".
+
+Constant Value: 6 (0x00000006)
+> 같은 타입의 접근성 이벤트가 서비스에게 보내질 최소 시간 간격(ms 단위)이다. 공식 문서 예시에서는 100이었으니, 0.1초라고 할 수 있겠다.
+
+이게 매우 중요한 설정값인게, 우리 앱의 경우, TYPE_WINDOW_CONTENT_CHANGED 이벤트가 너무 자주 발생한다. 새로운 창이 열리거나, 화면을 스와이프 할 때마다 우후죽순 동일 타입 이벤트들이 쏟아지는데, 어느정도 필터링하는 효과가 있겠다. 
+
+다만, 예를 들어 사용자가 빠르게 버튼을 왔다갔다 선택하는 식의 조작을 막지는 말아야겠다. 따라서 최대한 같은 타입의 이벤트는 막으면서, 사람의 의도적인 조작은 허용해야 하는데, 현재는 200으로 설정됐다.
+- isTouched의 원활한 true 변경을 위해, 사용자의 touch조작을 TYPE_VIEW_CLICKED --> TYPE_TOUCH_INTERACTION_X로 변경했으므로, 0.1초를 추가해준다.
+- 300으로 설정.
 
 
 
