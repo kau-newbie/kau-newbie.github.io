@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[project]AndroidTutor(5) 안드로이드 접근성 서비스에 관한 고찰"
+title:  "[project]AndroidTutor(7) 안드로이드 접근성 서비스에 관한 고찰"
 author: kau-newbie
 categories: [ android, project, accessibilityService, 접근성서비스]
 image: assets/images/prj-androidtutor-basicmodel.jpg

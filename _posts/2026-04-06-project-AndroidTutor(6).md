@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[project]Project: AndroidTutor(7) 접근성서비스 필터링을 원형큐로 해결해보자"
+title:  "[project]Project: AndroidTutor(6) 접근성서비스 필터링을 원형큐로 해결해보자"
 author: kau-newbie
 categories: [ android, os, project]
 image: assets/images/prj-androidtutor-basicmodel.jpg
