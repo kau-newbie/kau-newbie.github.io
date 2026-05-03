@@ -628,6 +628,11 @@ table {
     width: 100%;
     overflow-x: auto;
     word-break: keep-all; /* 단어가 중간에 끊기지 않게 설정 */
+    font-size: 0.7rem; /* 전체 본문보다 조금 작게 설정 */
+    border-collapse: collapse;
+}
+table th, table td {
+    padding: 8px 12px; /* 셀 간격을 좁혀서 전체 너비 확보 */
 }
 /* 코드 내부 언어별 색상 (Rouge 기본 클래스) */
 .highlight .k { color: #c678dd; font-weight: bold; } /* 키워드 (int, if 등) */
