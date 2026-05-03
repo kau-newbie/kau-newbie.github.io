@@ -1,12 +1,14 @@
 ---
 layout: post
-title:  "[project]Project: AndroidTutor(7) 접근성서비스 필터링 문제"
+title:  "[project]Project: AndroidTutor(7) 접근성서비스 필터링을 원형큐로 해결해보자"
 author: kau-newbie
 categories: [ android, os, project]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# 접근성 이벤트 필터링 로직 문제 (삼성 launcher v.s. android launcher)
+# 같은 리소스에서 반복 발생하는 접근성 이벤트 
+
+## 필터링 로직 문제 (삼성 launcher v.s. android launcher)
 
 지금 앱 개발을 하면서 테스트는 거의 항상 구글 안드로이드 폰으로 하고 있는데, 보통 이벤트 인식문제는 갤럭시 쪽에서 발생한다.
 
