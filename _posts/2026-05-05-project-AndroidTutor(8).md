@@ -199,5 +199,186 @@ override fun onAccessibilityEvent(event: AccessibilityEvent) {
 
 ### Handler
 
-`public class Handler`
+[public class Handler](https://developer.android.com/reference/android/os/Handler)
+
+```
+
+A Handler allows you to send and process Message and Runnable objects associated with a thread's MessageQueue. Each Handler instance is associated with a single thread and that thread's message queue. When you create a new Handler it is bound to a Looper. It will deliver messages and runnables to that Looper's message queue and execute them on that Looper's thread.
+
+There are two main uses for a Handler: 
+
+(1) to schedule messages and runnables to be executed at some point in the future; and 
+
+(2) to enqueue an action to be performed on a different thread than your own.
+
+```
+
+Handler는 기본적으로 Message나 Runnable 객체를 Thread의 MessageQueue로 보내고, 또 처리한다(process).
+- process? 의아헀는데, Looper가 들어가있는 Thread 안에서 어떻게 Looper가 이 message를 처리할지 정의한다. 전달 역할 뿐만 아니라, "어떻게 처리할지"도 정의한다는 것이다. 밑에 나온다.
+- 이때, message란, `public final class Message extends Object implements Parcelable`를 의미한다. 말 그대로 객체이다. 
+    - 익숙한 `Parcelable`이 보인다. 어? 프로세스끼리 소통할 때 쓰는 Message Passing model이 생각난다.
+    - 실제로 상황에 따라 IPC이기도 하댄다.(이때는 Binder 드라이버로 커널을 통해 간다.) 보통은 같은 프로세스 내에서 쓰지만, 지금은 '접근성 서비스'이므로, 시스템 프로세스와의 소통인 IPC인 것이다.
+
+Handler는 하나의 thread 그리고 그 thread의 Message Queue에 묶여있다.(bound) 아마 1대1 대응을 얘기한 것 같다.
+
+이때, handler가 새로 만들어질 떄마다, Looper라는 것에도 묶인다고 한다.(bound)
+- Looper는 별도로 Thread에 만들어줘야 하는 클래스이다.
+> Class used to run a message loop for a thread. Threads by default do not have a message loop associated with them; to create one, call prepare() in the thread that is > > to run the loop, and then loop() to have it process messages until the loop is stopped.
+>
+> Most interaction with a message loop is through the Handler class.
+>
+> This is a typical example of the implementation of a Looper thread, using the separation of prepare() and loop() to create an initial Handler to communicate with the Looper.
+- 해석하면, 만든 thread에는 자동으로 생성되지 않고, 반드시 Looper.prepare()로 생성, 그 후 Looper.loop()로 loop가 멈출 때까지 message들을 처리하도록 실행해주어야 한다.
+    - 단, main thead는 예외!
+- Message queue에도 묶이고 Looper에도 묶이나? 싶다. 이건 아래 예시코드를 보면 이해가 쉽다.
+
+```kotlin
+
+class LooperThread extends Thread {
+    public Handler mHandler;
+    public void run() {
+        Looper.prepare();
+        mHandler = new Handler(Looper.myLooper()) {
+            public void handleMessage(Message msg) {
+                // process incoming messages here
+            }
+        };
+        Looper.loop();
+    }
+}
+
+```
+
+일반적인 thread였다면 `run()`실행 후 종료된다. 하지만 이때 `Looper.prepare()`를 호출하면, 이 thread에는 MessageQueue와 Looper가 생성된다.
+- 메시지를 처리할 loop가 생기면서 오래 살게된다.(루프가 끝날 때까지)
+
+```kotlin
+
+mHandler = new Handler(Looper.myLooper()) {
+            public void handleMessage(Message msg) {
+                // process incoming messages here
+            }
+        };
+
+```
+
+Handler를 생성할 때 handleMessage를 overriding한 것인데, 나중에 이 Handler를 통해 메시지가 들어오면, 다음과 같이 처리할 것이라 정의한 것이다.
+
+처리할 작업 정의를 마친 뒤엔, `.loop()`를 실행하고, 이 코드 이후부터는 무한 루프를 돌며 메시지가 들어올 때마다(handler를 통해) handler에 정의해 놓은 작업대로 처리한다.
+
+이때, 외부에선 다음과 같이 LooperThread에 message를 넘긴다고 한다.
+
+```kotlin
+
+Message msg = mHandler.obtainMessage();
+msg.what = 1; // 메시지 종류 식별자
+mHandler.sendMessage(msg); // sending
+
+```
+
+이렇게 thread로 전달된 message는 Looper의 message queue안에 들어가고 (=thread의 message queue), Looper는 메시지를 꺼내 자신의 handler에게 `mHandler.handleMessage(msg)`로 전달한다.
+
+**즉, handler는 밖에서 이 스레드로 message를 받아오면서, 동시에 내부에서는 작업 수행을 하기까지 한다.** 
+- 이게 process를 한다고 설명한 이유인 것이다.
+
+
+### 2차 결론
+
+handler와 Runnable 구현을 통한 debouncing 구현을 시작해보자.
+
+제일 먼저, 자주 사용하게 될 인자들을 (접근성 서비스 처리를 여러 단계로 나누어서 필터링&디바운싱을 첫 phase로 두었다.) 먼저 `data class`로 정의한다.
+
+```kotlin
+
+private data class EventContext(
+    val event: AccessibilityEvent,
+    val pkg: String,
+    val node: AccessibilityNodeInfo,
+    val rootNode : AccessibilityNodeInfo,
+    val nodeClass: CharSequence,
+    val nodeName: CharSequence,
+)
+
+```
+
+그 후, handler와 Runnable 구현체를 담을 변수, 그리고 debouncing delay를 정의한다.
+
+```kotlin
+
+private val handler = Handler(Looper.getMainLooper())
+private var pendingCheckRunnable: Runnable? = null
+private val DEBOUNCE_DELAY = 200L 
+
+```
+
+handler 객체를 만드는데 (외부와의 IF이다.) 이때 Loooper는 Main의 Looper이다.
+
+접근성 서비스 구현체는 처음 `override fun onAccessibilityEvent(event: AccessibilityEvent?) {...` 이후, 우선 필터링 부터 거친다.
+
+```kotlin
+
+// 앱에서 나온 이벤트인지 필터링
+        if (pkg == this.packageName) { // 이 앱에서 발생하는 event면 return
+            return
+        }
+
+```
+
+다음과 같은 필터링 이후에 디바운싱 코드가 나온다.
+
+```kotlin
+
+ // 1. 이전에 예약된 작업이 있으면 취소
+pendingCheckRunnable?.let { handler.removeCallbacks(it) } // Runnable 객체가 있으면(?으로 나타냈다.) it이란 이름으로 handler.removeCallbacks에 넣는다.
+
+// 2. 새로운 작업 예약
+pendingCheckRunnable = Runnable {
+    processLatestState(context) // 3. 새로운 작업
+}
+
+handler.postDelayed(pendingCheckRunnable!!, DEBOUNCE_DELAY)
+
+```
+
+위 코드를 살펴보면, Runnable 구현체가 이미 있으면 remove하고, 새로운 작업 `processLatestState(context)`을 Runnable 객체에 정의, 
+
+그 후 pendingCheckRunnable 변수에 담아준다.
+
+마지막으로 postDelayed()를 통해 일정 시간 이후에 message queue에 전달하도록 한다.
+
+실행할 작업 processLatestState는
+
+
+```kotlin
+
+  private fun processLatestState(context: EventContext) {
+        //var init
+        val(event,pkg,node,rootNode,nodeClass,nodeName) = context
+        ...
+  }
+
+```
+
+과 같이 인자로 context data를 넘겨받아 사용하고, when()문으로 여러 이벤트 타입에 따른 플래그 조작을 한 후, 트리구조 순회하는 함수 `sendLatestState()`로 넘긴다.
+
+```kotlin
+
+ private fun sendLatestState(context: EventContext){
+        //var init
+        val event = context.event
+        val pkg = context.pkg
+        val rootNode = context.rootNode
+        /*
+            2. isUiChanged라면, UiState를 업데이트.
+         */
+        if ( isUiChanged.compareAndSet(true,false) ) { 
+            ....
+        }
+        ...
+ }
+
+```
+
+트리 구조 순회 후에는 Ui state를 담는 buffer(=stateFlow로 구현)에 담게 되겠다. 그 후, collect{}로 LLM에게 request를 보내는 반복이다.
+
 
