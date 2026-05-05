@@ -10,7 +10,7 @@ $blue:    #3d61fd !default;
 
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 /* add additional CSS rules below */
 html {
     scroll-behavior: smooth;
@@ -634,6 +634,12 @@ table {
 table th, table td {
     padding: 8px 12px; /* 셀 간격을 좁혀서 전체 너비 확보 */
 }
+body, input, textarea, button {
+  font-family: "Nanum Gothic", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* 코드 내부 언어별 색상 (Rouge 기본 클래스) */
 .highlight .k { color: #c678dd; font-weight: bold; } /* 키워드 (int, if 등) */
 .highlight .s { color: #98be65; }                /* 문자열 ("Hello") */
