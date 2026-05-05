@@ -382,3 +382,199 @@ handler.postDelayed(pendingCheckRunnable!!, DEBOUNCE_DELAY)
 트리 구조 순회 후에는 Ui state를 담는 buffer(=stateFlow로 구현)에 담게 되겠다. 그 후, collect{}로 LLM에게 request를 보내는 반복이다.
 
 
+
+### 문제점 발견
+
+이벤트를 잡지 못한다. 심지어는 app drawer가 열릴 때(android기준) `TYPE_WINDOW_STATE_CANGED`도 발생하지 않았다.
+
+원인을 찾아보았다.
+
+우선, 공식 문서에는 다음과 같은 내용이 있다.
+
+```
+Performance considerations when using Handler
+Beware that the "has" and "remove" methods of Handler can be very slow because these operations scan the entire queue of pending messages. If the underlying Looper's MessageQueue has many pending messages, this can be expensive.
+
+Instead of removing a message or a callback to cancel a pending operation, consider setting a flag to indicate cancellation and having the operation check the flag before proceeding.
+Instead of checking if the queue has a message or a callback to find if a pending operation has not yet occurred, consider having that operation set a flag to indicate that it has begun.
+See java.util.concurrent for standard concurrency primitives.
+
+```
+이 `removeCallbacks()`는 너무 무겁다는 뜻인데, 사실 로그를 살펴보면 60ms 정도의 간격으로 새로운 작업을 취소/실행예약 하고 있는 걸 볼 수 있다.
+
+시스템이 큐에 있는 이 왕창 쌓인 메시지를 처음부터 모두 확인하기 때문에 문제가 될 수도 있다.
+
+```
+2026-05-05 17:50:01.433 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 새로운 작업을 예약합니다.
+2026-05-05 17:50:01.433 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] delay후 실행합니다.
+2026-05-05 17:50:01.491 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 접근성 이벤트 실행 후 return 필터링을 모두 통과.
+2026-05-05 17:50:01.491 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 이전 작업을 취소합니다.
+2026-05-05 17:50:01.494 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 새로운 작업을 예약합니다.
+2026-05-05 17:50:01.494 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] delay후 실행합니다.
+2026-05-05 17:50:01.497 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [LayoutParams] animationplayer 초기화진행시점.
+2026-05-05 17:50:01.511 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 접근성 이벤트 실행 후 return 필터링을 모두 통과.
+2026-05-05 17:50:01.512 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 이전 작업을 취소합니다.
+2026-05-05 17:50:01.512 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 새로운 작업을 예약합니다.
+2026-05-05 17:50:01.512 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] delay후 실행합니다.
+2026-05-05 17:50:01.594 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 접근성 이벤트 실행 후 return 필터링을 모두 통과.
+2026-05-05 17:50:01.594 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 이전 작업을 취소합니다.
+2026-05-05 17:50:01.594 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 새로운 작업을 예약합니다.
+2026-05-05 17:50:01.594 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] delay후 실행합니다.
+2026-05-05 17:50:01.694 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 접근성 이벤트 실행 후 return 필터링을 모두 통과.
+2026-05-05 17:50:01.695 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 이전 작업을 취소합니다.
+2026-05-05 17:50:01.695 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 새로운 작업을 예약합니다.
+2026-05-05 17:50:01.695 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] delay후 실행합니다.
+2026-05-05 17:50:01.795 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 접근성 이벤트 실행 후 return 필터링을 모두 통과.
+2026-05-05 17:50:01.795 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 이전 작업을 취소합니다.
+2026-05-05 17:50:01.795 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 새로운 작업을 예약합니다.
+2026-05-05 17:50:01.795 19987-19987 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] delay후 실행합니다.
+
+```
+
+이것도 문제라면 문제겠지만 앱이 다운되지 않은 걸 보면 충분히 감당하고 있는 것 아닌가? (물론 공식문서의 조언에 따라 flag를 사용하려 한다.)
+
+진짜 문제는 "무조건적인 debouncing"에 있다.
+
+예를 들어, isTouched.set(ture)에다가 isUiStateChanged.set(true)를 실행할 우리가 찾는 '중요한 ui 상태 변경 이벤트'가 어느 시점에 들어왔다고 하자.
+
+하지만 곧바로 우리가 무시할, 즉 필터링에 걸러지는 이벤트가 들어왔다. 그 후 200ms 동안 아무런 이벤트가 들어오지 않았다.
+
+**결과적으로 아무런 이벤트 처리를 하지 않는다.**
+
+항상 제일 처음 단계에서부터 진행을 막는 방법은 듣기에는 좋지만 구현이 너무 어려운 것 같다.
+
+예를 들어 저번에 LLM 중복 응답을 막기 위해 signature를 설계할 때에도 그랬다. LLM이 또 똑같은 응답을 내놓을지 내가 어떻게 알 수 있는가?
+
+이번에도 마찬가지이다. "이게 필터링을 통과할지 어떻게 알 수 있지?"
+
+그렇다면 이제 flag 방식으로 `processLatestState`안에서 `sendLatestState`로 넘어가기 전 debouncing을 해야 한다.
+
+코드는 다음과 같겠다.
+
+```kotlin
+
+if ( isUiChanged.compareAndSet(true,false) ) {
+            // =================== 1) user의 view interaction이 선행됐음을 확신하면 바로 processLatestState로.
+            // 예정. 
+            // =================== 2) 확신하지 못하면 (TYPE_WINDOW_CONTENT_CHANGED 등) debouncing을 한다.
+            // 1. 새로운 Runnable 객체를 생성하여 변수에 담음
+            val currentRunnable = Runnable {
+                // 마지막으로 예약된 Runnable인지 self 확인
+                if (pendingCheckRunnable != this) return@Runnable
+                sendLatestState(context)
+                pendingCheckRunnable = null // 작업 완료 후 비우기
+            }
+            // 2. 관리 변수에 현재 객체 저장
+            pendingCheckRunnable = currentRunnable
+            // 3. 지연 실행
+            handler.postDelayed(currentRunnable, DEBOUNCE_DELAY)
+        }
+
+```
+
+이렇게 flag 변수를 하나 세워두고 (여기선 Runnable 객체변수를 사용한다.) flag에 대해 Boolean 검사를 진행한다.
+
+이 방식의 단점은 아무래도 공유변수로 Runnable을 쓴다는 건데, "atomic 해야 하나?"에 관해선 고민이 든다.
+
+하지만! 정말 다행히도, Thread는 main Thread 단 하나이다. 직렬 Thread 안의 큐에 쌓인 작업들을 하나하나 단일 Looper가 처리하므로, Race Condition은 신경 쓸 필요가 없겠다.
+> 사실 그런 의미에서 compareAndSet도 쓸 필요가 없다. isUiChanged도 경합이 일어날 일은 없다. 일단은 냅두겠다.
+
+이제 테스트의 시간이다. 프로그램을 돌려본다.
+
+앗, 중간에 로그를 넣어 살펴본 결과, ui state가 아예 buffer로 업데이트 되지 않는다.
+
+```kotlin
+
+val currentRunnable = Runnable {
+    log("test: 여기까지 오는지?")
+    // 마지막으로 예약된 Runnable인지 self 확인
+    if (pendingCheckRunnable != this) {
+        log("return됐습니다.======")
+        return@Runnable
+    }
+    log("sendLatestState실행시점")
+    sendLatestState(context)
+    pendingCheckRunnable = null // 작업 완료 후 비우기
+}
+
+
+//아래는 로그
+
+
+2026-05-05 19:13:56.473 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] =============isUiChanged:true->false====================
+
+2026-05-05 19:13:56.674 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] test: 여기까지 오는지?
+
+2026-05-05 19:13:56.674 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] return됐습니다.======
+
+2026-05-05 19:13:58.027 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [ChatRepository] ChatGPTModule 초기화되었습니다.
+
+2026-05-05 19:13:58.123 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] TYPE_WINDOW_STATE_CHANGED감지: class=com.google.android.apps.nexuslauncher.NexusLauncherActivity
+
+                                                                                                    view: ID가 없음.
+
+2026-05-05 19:13:58.123 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] =============isUiChanged:true->false====================
+
+2026-05-05 19:13:58.138 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] TYPE_WINDOW_STATE_CHANGED감지: class=com.google.android.apps.nexuslauncher.NexusLauncherActivity
+
+                                                                                                    view: ID가 없음.
+
+2026-05-05 19:13:58.138 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] =============isUiChanged:true->false====================
+
+2026-05-05 19:13:58.208 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [LayoutParams] animationplayer 초기화진행시점.
+
+2026-05-05 19:13:58.325 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] test: 여기까지 오는지?
+
+2026-05-05 19:13:58.325 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] return됐습니다.======
+
+2026-05-05 19:13:58.339 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] test: 여기까지 오는지?
+
+2026-05-05 19:13:58.340 22276-22276 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] return됐습니다.======
+
+```
+
+로그를 보면 몽땅 return 되는 걸 알 수 있다. 나는 ??? 하면서 젬나이에게 물어보았다.
+
+아무래도 SAM(Single Abstract Method, 즉 interface에 단일 추상 메서드만 정의돼있다.) 변환에 의해 이 { }블럭 내부 `this`는 Runnable 자기 자신이 아닌, 
+
+이 코드를 감싸고 있는 클래스(`AccessibilityServiece`)를 가리킨단다.
+
+아이고, 그럼 어떻게 해결하나 물어봤더니, 다음과 같은 **익명 객체** 방법을 추천했다.
+
+```kotlin
+
+val currentRunnable = object : Runnable {
+        override fun run() {
+            ...
+            if (pendingCheckRunnable !== this) {
+                log("return.")
+                return
+            }
+            ...
+        }
+        ...
+}
+
+```
+
+기존의 람다 {...} 방식에서 object : Runnable을 사용한 것이다. 와중에 주소값 비교로 !== 를 쓰라고도 조언해주었다. 착한 젬나이씨.
+
+다시 한 번 더 테스트해보자!
+
+```
+2026-05-05 19:24:37.413 22582-22582 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] 2026-05-05 10:24:37
+                                                                                                    ui 스냅샷 UIStateBuffer로 전송완료( 
+                                                                                                    isTouched:true, isMicUsed:true
+                                                                                                    event 발생 view: ID가 없음.
+                                                                                                    event 발생 class: android.widget.FrameLayout
+                                                                                                    event type: 32
+2026-05-05 19:24:37.419 22582-22582 KakaoTutor              com.mytutor.touchwhere               D  [MyAccessibilityService] test용 - content_changed 감지
+                                                                                                    class=android.widget.FrameLayout
+                                                                                                    view: com.google.android.apps.youtube.music:id/accessibility_layer_container"
+2026-05-05 19:24:37.419 22582-22582 KakaoTutor              com.mytutor.touchwhere               D  [DispatchedCoroutine] playAnimation 종료시점.
+2026-05-05 19:24:37.420 22582-22582 KakaoTutor              com.mytutor.touchwhere               D  [GoalGuide] ===================================
+                                                                                                    새로운 ui 스냅샷이 UIstateBuffer.LogFlow에 업데이트된 시점.
+                                                                                                    ===================================
+```
+
+훌륭히 ui state를 buffer에 보낸 걸 알 수 있다. 끝!
