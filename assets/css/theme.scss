@@ -300,7 +300,6 @@ span.post-name a,span.post-read-more a:hover {
 	color:rgba(0,0,0,.8);
     code {
         background-color: #f1f3f4 !important; /* 연한 회색 배경 (안드로이드 문서 스타일) */
-        color: #d81b60 !important;           /* 글자색 (취향에 따라 #333 등으로 변경 가능) */
         padding: 2px 6px !important;         /* 상하 2px, 좌우 6px 여백 */
         border-radius: 6px !important;       /* 모서리를 둥글게 (숫자가 커질수록 더 둥글어짐) */
         font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace !important; 

@@ -2,7 +2,7 @@
 layout: post
 title:  "[project]AndroidTutor(8) 안드로이드 접근성 서비스에 관한 고찰-2"
 author: kau-newbie
-categories: [ android, project, accessibilityService, 접근성서비스, Runnable, Handler]
+categories: [ android, project, accessibilityService, 접근성서비스, Runnable, Handler, Thread]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
@@ -198,4 +198,6 @@ override fun onAccessibilityEvent(event: AccessibilityEvent) {
 어쨌거나 나는 계속 Handler + Runnable로 가겠다. 이제 다음은 Handler차례이다.
 
 ### Handler
+
+`public class Handler`
 
