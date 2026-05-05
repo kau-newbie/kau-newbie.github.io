@@ -47,6 +47,8 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 
 따라서 서비스에서 collect(외부 컴포넌트의 코드 안 어딘가)까지 넘어오기 전에, 애초에 서비스에서부터 필터링을 해주는 게 좋다는게 결론이다.
 
+코린이인 나로서는 머리가 하얘진다. 젬나이 형님께 물어보자.
+
 아무튼 서비스 내 디바운싱을 하기 위해 젬나이한테 물어보니 `Runnable`과 `Handler`를 알아야 한다고 했다.
 
 ### Runnable
@@ -162,4 +164,38 @@ new Thread(p).start();
 > 위의 Runnable() 본문에서 보면, **단순히 run() 메서드만 재정의하려는 경우에는 Runnable을 구현하는 것이 권장됩니다.** 요게 핵심인 것 같은데, 
 > 
 > thread를 따로 만들지 않고, 이렇게 어떻게 분리된 실행 흐름이 *동작할지*만을 정하려면 Runnable을 쓰는 것 같다.
+> - 새 thread를 만드는 게 아닌, main thread에게 다음에 할 일을(delay를 준다.) 쥐어주는 것이다. 그러면서 새로운 이벤트 발생시마다 기존 일은 취소를 시키는 식으로 구현하면 되겠다.
+
+이쯤에서 깨달아요 젬나이 형님.... 멀티 스레딩이 중요한 게 아니고, main Thread에게 서비스 처리를 시키는 데, debouncing 동안 이전 작업을 계속 취소시키려고 그러신 거였군요.
+- 어쩐지 나는 계속 공부하면서 멀티 스레딩? 코루틴이 있지 않나?하고 의심하고 있었다.
+- 어차피 접근성 서비스는 Main Thread에서 동작한다. --> Main Thread만 관리하면 된다.
+- 반면 코루틴의 Job 객체 관리는 복잡하다고 한다.
+- LLM 말로는 Runnable객체 하나 재사용/ 교체 방식이 훨씬 가볍다고 하는데, 사실 이건 진지하게 고민해보아야 할 필요가 있을 것 같다.
+
+사실 코루틴이 더 낫지 않나, 생각이 들긴 하는데, 그냥 공부도 할 겸, Handler로 Main Thread에게 Runanble()객체를 쥐어주는 방식으로 도전해보겠다.
+
+코루틴 예시 코드는 대강 다음과 같이 이루어진다고 한다.
+
+```kotlin
+
+private var debounceJob: Job? = null
+private val serviceScope = CoroutineScope(Dispatchers.Main) // 서비스용 스코프
+
+override fun onAccessibilityEvent(event: AccessibilityEvent) {
+    // 이전 작업 취소
+    debounceJob?.cancel()
+
+    // 새로운 작업 예약
+    debounceJob = serviceScope.launch {
+        delay(150L) // 0.15초 대기
+        
+        // 실행할 로직
+        processEvent(event)
+    }
+}
+
+```
+어쨌거나 나는 계속 Handler + Runnable로 가겠다. 이제 다음은 Handler차례이다.
+
+### Handler
 
