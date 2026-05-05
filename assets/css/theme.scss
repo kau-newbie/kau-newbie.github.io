@@ -299,7 +299,20 @@ span.post-name a,span.post-read-more a:hover {
     line-height: 1.64;
 	color:rgba(0,0,0,.8);
     code {
-        font-size:15px;
+        background-color: #f1f3f4 !important; /* 연한 회색 배경 (안드로이드 문서 스타일) */
+        color: #d81b60 !important;           /* 글자색 (취향에 따라 #333 등으로 변경 가능) */
+        padding: 2px 6px !important;         /* 상하 2px, 좌우 6px 여백 */
+        border-radius: 6px !important;       /* 모서리를 둥글게 (숫자가 커질수록 더 둥글어짐) */
+        font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace !important; 
+        font-size: 0.9em !important;         /* 주변 글자보다 살짝 작게 해서 균형 맞춤 */
+        border: 1px solid #e0e0e0 !important; /* 아주 연한 테두리 추가 */
+        margin: 0 2px !important;            /* 옆 글자와의 미세한 간격 */
+    }   
+    /* 코드 블록(여러 줄) 속의 code 태그는 영향을 덜 받게 하고 싶을 때 */
+    pre code {
+      padding: 0 !important;
+      background-color: transparent !important;
+      border: none !important;
     }
     a {
         color:inherit; 
