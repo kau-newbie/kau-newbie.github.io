@@ -108,7 +108,7 @@ Container for a message (data and object references) that can be sent through an
 > IBinder를 통해 보내는 메시지를 담는 객체이다. 
 > - IBinder란, interface로, 이 IBinder를 구현한 구현체가 Binder이다.
 
-*| Binder?*
+**|Binder?**
 
 프로세스a가 프로세스b에게 객체를 보낼 때, 보통은 message passing 방식이기 때문에, 커널을 통해 커널 소유의 메모리 공간을 사용한다.
 
