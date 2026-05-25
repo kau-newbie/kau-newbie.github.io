@@ -1,0 +1,22 @@
+---
+layout: post
+title:  "ns-3 simulator를 알아보기"
+author: kau-newbie
+categories: [ Network, Data, transfer, simulator, ns3 ]
+image: assets/images/mainpicture.png
+---
+
+
+## 개요
+
+ns-3 라는 시뮬레이터는 공모전을 준비하면서 알게되었다. 
+
+대략적으로 하나의 시뮬레이션은,
+
+`NW를 nw layer에 따라 설정` -> `노드를 생성 후 nw 설정을 주입` -> `그 후 시뮬레이터를 run()`하는 순서를 가진다.
+
+
+
+(will be updated soon)
+
+
