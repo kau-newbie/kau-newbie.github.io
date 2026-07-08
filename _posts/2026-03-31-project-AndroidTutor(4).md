@@ -6,11 +6,13 @@ categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
-# 버전 카탈로그(libs.versions.toml)
+요약: 실제 앱에 hilt 적용 & 결과
+
+## 버전 카탈로그(libs.versions.toml)
 
 [Di-Hilt 문서](https://developer.android.com/training/dependency-injection/hilt-android?hl=ko&_gl=1*49kihh*_up*MQ..*_ga*MTU4ODYxOTE0LjE3NzQ4NjUwNDc.*_ga_6HH9YJMN9M*czE3NzQ4NjUwNDYkbzEkZzAkdDE3NzQ4NjUwNDYkajYwJGwwJGg0NDQyMzYzMjU.)와 유콩씨가 준 자료를 가지고 Hilt를 하나하나 적용해볼 것이다.
 
-## libs.versions.toml 파일에 대해서
+### libs.versions.toml 파일에 대해서
 
 사실 그동안은 gradle파일에 버전을 일일히 명시하곤 했었는데, 버전관리를 간편하게 하기 위해 `libs.versions.toml`파일을 사용하는게 대세라고 한다. 이를테면,
 ```
@@ -19,7 +21,9 @@ id("com.google.dagger.hilt.android") version "2.59.2" apply false
 이렇게, gradle (project level)에 써뒀었다. 아무튼 나도 대세에 따르기로 했다. (흐름을 거슬러선 안돼! 장자의 말이다.)
 
 그럼 libs.versions.toml 파일은 정확히 뭘까? 제미나이가 자세하게도 알려줘서 일단 복붙을 하겠다.
+
 ---
+
 안드로이드 개발에서 **버전 카탈로그(Version Catalog)**는 프로젝트에서 사용하는 라이브러리와 플러그인의 버전을 **한 곳(중앙)에서 관리하는 방식**을 말합니다.
 
 예전에는 각 모듈의 `build.gradle` 파일마다 버전을 일일이 적어주었지만, 이제는 `libs.versions.toml`이라는 설정 파일 하나로 통합하여 관리하는 것이 표준이 되었습니다.
@@ -31,8 +35,10 @@ id("com.google.dagger.hilt.android") version "2.59.2" apply false
 - [libraries]: 실제 라이브러리 경로와 위에서 정의한 버전을 연결합니다.
 - [plugins]: Gradle 플러그인들을 정의합니다.
 
-##### Step 1: `libs.versions.toml` 수정
+Step 1: `libs.versions.toml` 수정
+
 ```toml
+
 [versions]
 # 1. 버전 정의
 hilt = "2.51.1" 
@@ -45,20 +51,26 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 [plugins]
 # 3. 플러그인 정의
 hilt-gradle = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+
 ```
 
-##### Step 2: `build.gradle`에서 사용
+Step 2: `build.gradle`에서 사용
+
 이제 실제 Gradle 파일에서는 긴 버전 번호 대신 설정한 **별명(alias)**을 사용하여 간결하게 불러옵니다.
 
 **[Project 수준 build.gradle]**
+
 ```kotlin
+
 plugins {
     alias(libs.plugins.hilt.gradle) apply false
 }
 ```
 
 **[Module(app) 수준 build.gradle]**
+
 ```kotlin
+
 plugins {
     alias(libs.plugins.hilt.gradle)
 }
@@ -67,9 +79,10 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 }
+
 ```
 
-##### 3. 버전 카탈로그를 쓰면 무엇이 좋나요?
+Q) 버전 카탈로그를 쓰면 무엇이 좋나요?
 
 | 장점 | 설명 |
 | :--- | :--- |
@@ -91,7 +104,9 @@ Hilt 특성상, 둘 다 필요하기 때문에, 둘 다 적는다고 한다.
 두 번째 질문도 있다. ".toml파일 형식이란?" 아무래도 나한테는 생소했는데, yaml이나 json처럼 구글이 선택한 설정 파일 만들 형식(포맷)이라고 한다.
 
 계속해서 build.gradle.kts파일을 프로젝트 레벨부터 앱 레벨까지 모두 수정해주었다.
+
 ```kotlin
+
 //프로젝트 레벨
 plugins{
     ...
@@ -109,12 +124,55 @@ dependencies{
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 }
+
 ```
-다행히 sync를 누르고 나니 별다른 gradle 에러는 없었다. 계속해서, 공식문서에서는 Application을 만들어야 된다고 써있다. 알아보니 Hilt가 DI를 하기 위해선, 해당 앱의 시작점부터 파악하고 있어야 한다. 그리고 그 시작점이 Application 클래스를 상속받는 클래스이다. 별도로 파일을 만들어서 Application을 상속받았다.
+다행히 sync를 누르고 나니 별다른 gradle 에러는 없었다. 
+
+## @HiltAndroidApp
+
+계속해서, 공식문서에서는 Application을 만들어야 된다고 써있다. 알아보니 Hilt가 DI를 하기 위해선, 해당 앱의 시작점부터 파악하고 있어야 한다. 그리고 그 시작점이 Application 클래스를 상속받는 클래스이다. 
+> Application은 앱 프로세스가 올라올 때 가장 먼저 instance화 되는 클래스이다. 원래는 별도로 클래스를 정의하지 않아도 되지만, hilt에서는 hilt의 코드 생성을 시작하는 지점이라 아래와 같이 @HiltAndroidApp annotation과 함께 클래스를 (정확히 여기서는 Application을 상속받았으니 subclass) 선언해야 한다.
+
+별도로 파일을 만들어서 Application을 상속받은 클래스를 선언했다.
 
 ![application상속받기](/assets/images/forPost/AndroidTutor(4)/makingapplication.png)
 
+이때 적은 클래스 이름([공식 문서에서는 'specifying the fully qualified name'이라고 표현한다.](https://developer.android.com/reference/kotlin/android/app/Application?_gl=1*7ra5yf*_up*MQ..*_ga*NzU0MjQyMzkyLjE3ODM0OTQ3MTg.*_ga_6HH9YJMN9M*czE3ODM0OTQ3MTckbzEkZzAkdDE3ODM0OTQ3MTckajYwJGwwJGg1MzkzNTM3MDA.))은 그대로 AndroidManifest.xml에 들어가야 한다. 아래와 같다.
 
+```kotlin
 
+<application
+        android:name=".TouchWhereApplication"
+        android:allowBackup="true"
 
-...To Be Continue...
+        ...
+
+    <service
+    ...
+    />
+
+```
+
+## @AndroidEntryPoint
+
+이제 DI(Dpendency Injection)하고 싶은 클래스에 `@AndroidEntryPoint` annotation을 달아준다.
+
+공식 문서에서는 아래와 같이 적혀있다.
+
+```
+
+Application 클래스에 Hilt를 설정하고 애플리케이션 수준 구성요소를 사용할 수 있게 되면 Hilt는 @AndroidEntryPoint 주석이 있는 다른 Android 클래스에 종속 항목(Dependency)을 제공할 수 있습니다.
+
+```
+
+보니까 그렇다고 종속성이 필요한 클래스에만 달아주는 것도 꼭 아니다. 꼭 필요한 경우들이 몇 가지 있다.
+
+여기서 의문이 하나 생긴다. 그렇다면 @AndroidEntryPoint는 어디에 달아줘야 하나?
+
+![내 앱에서의 dependency graph](../assets/images/forPost/AndroidTutor(4)/TouchWhereApplication.svg)
+
+![내 앱에서의 dependency graph](../assets/images/forPost/AndroidTutor(4)/digraph1.png)
+
+![내 앱에서의 dependency graph](../assets/images/forPost/AndroidTutor(4)/digraph2.png)
+
+(HiltBluePrint로 그래프를 그렸다.)

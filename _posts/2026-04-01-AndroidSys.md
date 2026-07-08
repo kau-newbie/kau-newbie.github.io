@@ -1,10 +1,12 @@
 ---
 layout: post
-title:  "[Android]view filtering 기능에 대해서"
+title:  "[Android]anti-tab jacking 기능(View-filtering)에 대해서"
 author: kau-newbie
 categories: [ android, os, view, security]
 image: assets/images/forPost/android_logo.png
 ---
+
+요약: 공식문서의 tab jacking 문제로 인한 터치가 안 먹는 문제
 
 # Android OS system
 

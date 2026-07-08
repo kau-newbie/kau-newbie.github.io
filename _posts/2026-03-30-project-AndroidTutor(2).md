@@ -6,6 +6,10 @@ categories: [ project, android, app, DI, Hilt ]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
+
+요약: hilt를 위한 사전지식(DI, hilt)
+
+
 # DI란?
 
 여러모로 기워붙이며 기능을 추가한지 어언 몇 달째...,

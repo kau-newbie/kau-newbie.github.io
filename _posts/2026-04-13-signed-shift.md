@@ -6,6 +6,8 @@ categories: [ c, memory, system ]
 image: assets/images/forPost/c_logo.png
 ---
 
+요약: c에서 bit shift의 고려사항
+
 # signed 와 shift(bits shift)연산
 
 비트 연산시 꽤 재밌는 일이 많은데, 대부분 메모리 공간 크기 문제와 관련있다.

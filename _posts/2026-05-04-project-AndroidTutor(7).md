@@ -6,6 +6,8 @@ categories: [ android, project, accessibilityService, 접근성서비스]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
+요약: 접근성 서비스 문서 읽기
+
 [접근성 이벤트를 알아보았다.](https://developer.android.com/guide/topics/ui/accessibility?_gl=1*1x53esw*_up*MQ..*_ga*MTQ1MTE1MDg5MS4xNzc3NzkxODMy*_ga_6HH9YJMN9M*czE3Nzc3OTE4MzEkbzEkZzAkdDE3Nzc3OTIwNDkkajYwJGwwJGg5NzQ2MjQ1NTA.&hl=ko)
 
 # 안드로이드 접근성 서비스에 관한 고찰

@@ -6,6 +6,8 @@ categories: [ android, os, project]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
+요약: 같은 종류(ui 종류, eventType 등)의 ui 이벤트가 반복 발생 -> 원형 해시 큐로 중복검사
+
 # 같은 리소스에서 반복 발생하는 접근성 이벤트 
 
 ## 필터링 로직 문제 (삼성 launcher v.s. android launcher)
@@ -24,6 +26,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
 - 왜냐하면 현재 다음과 같은 코드로 같은 view id에서 온 이벤트는 일정시간동안 필터링하고 있기 때문이다.
 
 ```kotlin
+
 // 특정 resourceID별로 마지막 처리 시간을 저장 (ID : Timestamp)
     // 고정된 크기를 가진 원형 버퍼 형태의 맵
     private val viewEventTimestamps = object : LinkedHashMap<String, Long>(MAX_ENTRIES, 0.75f, true) {
@@ -44,6 +47,7 @@ image: assets/images/prj-androidtutor-basicmodel.jpg
         }
         // 2. 통과했다면 현재 시간 업데이트
         viewEventTimestamps[resourceId] = currentTime
+
 ```
 
 코드에 따르면 TYPE_WINDOW_CONTENT_CHANGED이고, 체크를 사용자가 하고 있는 게 아니라면, view의 id (viewIdResourcName)를 비교해 필터링한다.

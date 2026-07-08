@@ -6,6 +6,8 @@ categories: [ c, memory, system ]
 image: assets/images/forPost/c_logo.png
 ---
 
+요약: c에서 floating point 고려사항
+
 ## float 
 
 floating point(부동 소수점)은 IEEE에서 표준으로 비트 표기법을 정해놓았다.

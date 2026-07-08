@@ -1,10 +1,4 @@
----
-layout: post
-title:  "ns-3 simulator를 알아보기"
-author: kau-newbie
-categories: [ Network, Data, transfer, simulator, ns3 ]
-image: assets/images/mainpicture.png
----
+
 
 
 ## 개요

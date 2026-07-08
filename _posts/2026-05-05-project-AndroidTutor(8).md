@@ -6,6 +6,8 @@ categories: [ android, project, accessibilityService, 접근성서비스, Runnab
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
+요약: 접근성 이벤트 처리를 위해 Runnable과 handler를 통한 debouncing 구현.
+
 # 안드로이드 접근성 서비스에 관한 고찰-2
 
 큰 문제가 생겼다. 우선, LLM에게 넘겨주는 ui 상태가 사용자가 보고 있는 현재 화면보다 조금 이전의 화면이다.

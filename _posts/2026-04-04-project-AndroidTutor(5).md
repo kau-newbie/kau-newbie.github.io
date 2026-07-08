@@ -6,6 +6,8 @@ categories: [ android, os, coroutine, project]
 image: assets/images/prj-androidtutor-basicmodel.jpg
 ---
 
+요약: collect{}와 collectLatest{}의 차이로 인한 직전(아직 실행 중) 코루틴 취소 문제 해결
+
 # Android OS system
 
 ## 코루틴이 꼬이는 문제 및 flag 변수의 race condition
