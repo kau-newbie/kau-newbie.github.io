@@ -3,7 +3,7 @@ layout: post
 title:  "[Spring-Security] Spring Security 공부(1)"
 author: kau-newbie
 categories: [Spring-Security]
-image: assets/images/Springicon.png
+image: assets/images/forPost/Springicon.png
 ---
 
 요약: Spring Security란 무엇일까
@@ -19,11 +19,19 @@ image: assets/images/Springicon.png
 
 Spring에서 인증과 인가를 위한 기능들을 뜻한다. 물론 api로 제공하고 있다.
 
+여기서 인증(Authentication)이란, 사용자가 '누구인지' 확인하는 것을 말하고,
+
+인가(Authorization)란, 사용자가 '어떤 권한'을 갖는지 정하는 것을 말한다.
+
+즉, 예를 들면, 인증은 로그인이고, 인가란 해당 계정이 접근할 수 있는 리소스들(계정 정보조회 등등)을 관리(허용/거부 등)하는 것을 말한다.
+
+기본적으로 Spring의 한 부분으로(한 부분이란 말은 Spring에서 공식적으로 제공하는 기능 중 하나란 뜻이다.), Spring Container에서 동작한다.
+
 ## Container란
 
 여기서 말하는 container는 도커 컨테이너처럼 분리된 실행환경이 아닌,
 
-각종 객체를 적절한 시기에 만들고, DI하거나, 생명주기를 관리하는 시스템(프로그램)이다.
+각종 객체(Bean이라 부른다!)를 적절한 시기에 만들고, DI하거나, 생명주기를 관리하는 시스템(프로그램)이다.
 - 이런 정의에서는 안드로이드 os도 컨테이너로 봐도 된다.
 
 전통적으로 자바 웹 서버를 담당하던 '서블릿' 컨테이너가 있고, 이를 편리하게 사용하기 위해 나온 'Spring'만의 Spring 컨테이너가 있다.
@@ -100,6 +108,8 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 4. 최종 필터를 통과한 이후엔 드디어 서블릿을 실행한다.
 5. Spring에서는 `DispatcherServlet`이 요청에 맞는(e.g. "/home") controller를 실행함으로써 사용자 요청을 처리한다.
 6. 사용자 요청 처리(요청에 맞는 자바 코드 실행) 후, 응답은 이 역순으로 진행된다.
+
+
 
 
 (writing...)
