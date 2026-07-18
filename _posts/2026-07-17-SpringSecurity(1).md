@@ -17,15 +17,13 @@ image: assets/images/forPost/Springicon.png
 
 # Spring Security란
 
-Spring에서 인증과 인가를 위한 기능들을 뜻한다. 물론 api로 제공하고 있다.
+- Spring에서 인증과 인가를 위한 기능들을 뜻한다. 물론 api로 제공하고 있다.
 
-여기서 인증(Authentication)이란, 사용자가 '누구인지' 확인하는 것을 말하고,
+    - 여기서 인증(Authentication)이란, 사용자가 '누구인지' 확인하는 것을 말하고,
+    - 인가(Authorization)란, 사용자가 '어떤 권한'을 갖는지 정하는 것을 말한다.
+    > 예를 들면, 인증은 로그인이고, 인가란 해당 계정이 접근할 수 있는 리소스들(계정 정보조회 등등)을 관리(허용/거부 등)하는 것을 말한다.
 
-인가(Authorization)란, 사용자가 '어떤 권한'을 갖는지 정하는 것을 말한다.
-
-즉, 예를 들면, 인증은 로그인이고, 인가란 해당 계정이 접근할 수 있는 리소스들(계정 정보조회 등등)을 관리(허용/거부 등)하는 것을 말한다.
-
-기본적으로 Spring의 한 부분으로(한 부분이란 말은 Spring에서 공식적으로 제공하는 기능 중 하나란 뜻이다.), Spring Container에서 동작한다.
+- 기본적으로 Spring의 한 부분으로(한 부분이란 말은 Spring에서 공식적으로 제공하는 기능 중 하나란 뜻이다.), Spring Container에서 동작한다.
 
 ## Container란
 
@@ -71,11 +69,11 @@ public void doFilter(ServletRequest request, ServletResponse response,
 ```
 
 저 주석 `do something before the rest of the app`에서 원하는 작업을 하게 한 후, 계속해서 다음 필터(chainning에 속한 필터들)에게 FilterChain의 `doFilter`메서드를 통해 넘겨준다.
-([자바웹표준기술문서에 따르면](https://jakarta.ee/specifications/servlet/4.0/apidocs/javax/servlet/filter) this method allows the Filter to pass on the request and response to the next entity in the chain.라고 한다.)
+([자바웹표준기술문서에 따르면](https://jakarta.ee/specifications/servlet/4.0/apidocs/javax/servlet/filter) "this method allows the Filter to pass on the request and response to the next entity in the chain."이라고 한다.)
 - [FilterChain](https://docs.oracle.com/javaee/7/api/javax/servlet/FilterChain.html)은 일련의(chain) filter들을 가리킨다고 보면 될 것 같다.
 
 이때, Spring에서는 `DelegatingFilterProxy`란 특별한 필터를 제공한다.
-[공식문서설명](https://docs.spring.io/spring-security/reference/servlet/architecture.html)
+- [공식문서설명](https://docs.spring.io/spring-security/reference/servlet/architecture.html)
 
 ```java
 
@@ -91,13 +89,11 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 
 공식 문서의 pseudo code를 보면, servlet container에서 bean을 실행시키고 있음을 알 수 있다.
 
-정확히는
+정확히는 아래 그림과 같다.
 
 ### 서블릿 컨테이너와 스프링 컨테이너를 거치는 전반적인 과정
 
-아래 그림과 같다.
-
-![spring컨테이너와servlet컨테이너전체흐름1](./assets/images/forPost/Spring/spring-security.png)
+![spring컨테이너와servlet컨테이너전체흐름1](assets/images/forPost/Spring/spring-security.png)
 
 1. 사용자의 요청(http)이 tomcat으로 들어온다.
 2. tomcat에서는 필터링 기능(chain of filters)을 수행한다.
