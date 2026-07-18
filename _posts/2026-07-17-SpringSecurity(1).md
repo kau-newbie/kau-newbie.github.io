@@ -93,7 +93,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 
 ### 서블릿 컨테이너와 스프링 컨테이너를 거치는 전반적인 과정
 
-![spring컨테이너와servlet컨테이너전체흐름1](assets/images/forPost/Spring/spring-security.png)
+![spring컨테이너와servlet컨테이너전체흐름1](../assets/images/forPost/Spring/spring-security.png)
 
 1. 사용자의 요청(http)이 tomcat으로 들어온다.
 2. tomcat에서는 필터링 기능(chain of filters)을 수행한다.
