@@ -105,7 +105,157 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 5. Spring에서는 `DispatcherServlet`이 요청에 맞는(e.g. "/home") controller를 실행함으로써 사용자 요청을 처리한다.
 6. 사용자 요청 처리(요청에 맞는 자바 코드 실행) 후, 응답은 이 역순으로 진행된다.
 
+### 코드로 살펴보자.
+
+코드와 함께 이해해보자. 우선, 복잡한 것들은 다 무시하고, SecurityConfig 클래스 아래 @Bean으로 선언된(Spring Container에게 생명주기를 관리받는 객체라는 뜻이다.) `filterChain` 메서드를 주목하자.
+
+해당 메서드는 `SecurityFilterChain` 타입의 객체를 반환한다. 아래 코드를 살펴보자.
+
+```java
+
+package com.example.demo.config; 
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+	// 1. 비밀번호를 안전하게 암호화해주는 도구(BCrypt)
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // 비밀번호를 데이터베이스에 안전하게 암호화하여 저장하기 위한 인코더
+        return new BCryptPasswordEncoder();
+    }
+    // 2. 어떤 주소는 그냥 통과시키고, 어떤 주소는 로그인을 막을지 결정하는 필터 설정
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            // 1. 페이지 접근 권한 설정
+            .authorizeHttpRequests(auth -> auth
+                // 대시보드(/home), 정적 리소스(CSS, JS)는 로그인 없이도 누구나 접근 가능하도록 허용
+                .requestMatchers("/home", "/css/**", "/js/**", "/images/**","/bug-report/**").permitAll()
+                // 그 외 모든 요청은 로그인이 필요하도록 설정
+                .anyRequest().authenticated()
+            )
+            // 2. 로그인 설정
+            .formLogin(form -> form
+                .loginPage("/home")             // 커스텀 로그인 페이지를 따로 두지 않고 /home(대시보드)을 로그인 페이지로 활용
+                .loginProcessingUrl("/login")   // HTML의 <form action="/login" method="POST">가 던지는 로그인 요청을 가로채서 처리함
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/home", true) // 로그인 성공 시 대시보드로 이동
+                .permitAll()
+            )
+            // 3. 로그아웃 설정
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/home") // 로그아웃 성공 시 대시보드로 이동
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            )
+            // 4. 개발 편의를 위한 CSRF 보안 비활성화 (실무에선 활성화하지만 학습용으로는 꺼두는 게 편리합니다)
+            .csrf(csrf -> csrf.disable());
+
+        return http.build();
+    }
+}
+
+```
+
+SecurityFilterChain는 [공식문서](https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/web/SecurityFilterChain.html)에 따르면, "Defines a filter chain which is capable of being matched against an HttpServletRequest."라고 한다.
+
+즉, 사용자 http request에 대해 매칭된(사전에 request의 url과 매칭되는 필터묶음을 정의해놓는다.) 필터 chain(일련의 묶음)을 뜻한다.
+
+http는 빌더 패턴으로, 최종적으로 .build() 메서드를 통해 SecurityFilterChain을 반환하게 되는데, 이때 `FilterChainProxy`가 이 SecurityFilterChain의 
+- `matches(jakarta.servlet.http.HttpServletRequest request)`
+- `getFilters()`
+
+메서드들을 이용해서 각각 사용자의 http request의 url이 '이 SecurityFilterChain과 매칭되는지' 확인하고, true일 때 getFilters로 Filter들을 불러와서 필터링을 하게 되는 것이다. (마찬가지로 doFilter()로 계속 chainning할 것이다.)
+
+`FilterChainProxy`는 또 뭔가, 할 수 있는데,
+
+### FilterChainProxy와 DelegatingFilterProxy
+
+
+
+
+
+
+이때, 의문이 들 수 있는 점이, SecurityFilterChain을 만들기도 전에 http의 메서드를 보면
+
+```java
+
+ http
+
+            // 1. 페이지 접근 권한 설정
+
+            .authorizeHttpRequests(auth -> auth
+
+                // 대시보드(/home), 정적 리소스(CSS, JS)는 로그인 없이도 누구나 접근 가능하도록 허용
+
+                .requestMatchers("/home", "/css/**", "/js/**", "/images/**","/bug-report/**").permitAll()
+
+                // 그 외 모든 요청은 로그인이 필요하도록 설정
+
+                .anyRequest().authenticated()
+
+            )
+
+```
+
+와 같이 url들("/home", "/css/**", "/js/**", "/images/**","/bug-report/**")에 대해 매칭을 수행하는 것처럼 보인다.
+
+하지만 이는 '매칭을 설정'해 놓는 것이다. 나중에 request가 들어왔을 때 이렇게 매칭하라는(.requestMathcers()) 메서드인 것이다.
+
+마친 `authorizeHttpRequests()` 메서드의 공식 문서 설명도 다음과 같다.
+> "Allows restricting access based upon the HttpServletRequest using RequestMatcher implementations (i.e. via URL patterns)."
+
+공식 문서에 SecurityFilterChain은 interface로 정의됐고, 이 interface의 구현체(implements)는 DefaultSecurityFilterChain라고 써있다.
+
+제미나이가 쉬운 설명을 위해 이 DefaultSecurityFilterChain을 간단히 코드로 적어보면 아래와 같다고 한다.
+
+```java
+
+// 빌더가 최종적으로 찍어내는 실제 구현체 모양 (DefaultSecurityFilterChain)
+public class DefaultSecurityFilterChain implements SecurityFilterChain {
+
+private final RequestMatcher requestMatcher; // 👈 1. 빌더가 넣어준 URI 기준 책갈피
+private final List<Filter> filters; // 👈 2. 빌더가 넣어준 보안 필터 묶음
+
+// 생성자
+public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
+this.requestMatcher = requestMatcher;
+this.filters = filters;
+}
+
+@Override
+public boolean matches(HttpServletRequest request) {
+// 실제 유저 요청이 들어왔을 때, 빌더가 넣어줬던 그 기준과 일치하는지 판별!
+return this.requestMatcher.matches(request);
+}
+
+@Override
+public List<Filter> getFilters() {
+return this.filters;
+}
+
+```
+
+저렇게 final 멤버변수(필드)로 requestMatcher와 filters라는 Filter의 List가 들어있음을 확인할 수 있다.
+
+아무튼, 다시 돌아와서,
 
 
 
 (writing...)
+
+[httpsecurity](https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/config/annotation/web/builders/HttpSecurity.html)
