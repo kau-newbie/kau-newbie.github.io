@@ -1,10 +1,12 @@
-
+---
 layout: post
 title:  "[project]AndroidTutor(9) Gemma4:e2b Fine Tunning-1"
 author: kau-newbie
 categories: [ gemma4, project, Ai, finetunning]
 image: assets/images/prj-androidtutor-basicmodel.jpg
+---
 
+한줄 요약: 아직 작성 중...
 
 # gemma4 파인튜닝
 
