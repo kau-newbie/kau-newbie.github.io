@@ -3,7 +3,7 @@ layout: post
 title:  "[Spring-Security] Spring Security 공부(1)"
 author: kau-newbie
 categories: [Spring-Security]
-image: ./assets/images/Springicon.png
+image: assets/images/Springicon.png
 ---
 
 요약: Spring Security란 무엇일까
