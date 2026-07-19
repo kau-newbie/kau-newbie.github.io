@@ -280,6 +280,17 @@ VirtualFilterChain에서는 똑같이 필터 chain을 다 통과할 때까지 do
 
 ```
 
+이때, DelegatingFilterProxy와 FilterChainProxy는 각 1개씩만 존재하고, 
+
+둘을 분리한 이유는 각각 만들어지는 시점이 다르기 떄문이다.
+
+- DelegatingFilterProxy는 Servlet Container(TomCat)이 실행되는 시점에 web.xml 같은 설정파일을 보고 만듦.
+- FilterChainProxy는 애초에 Spring Container가 Tomcat이 먼저 구동 된 뒤에 @Component 같은 annotation을 보면서 만드는 Bean 중에 하나.
+
+만약 톰캣이 바로 FilterChainProxy를 filter Chain에 넣었다면, 아직 존재하지도 않은(메모리에 올라오지 않은) 객체를 참조하게 된다.
+
+결과적으로 둘을 따로 만들었기에, Servlet Container와 Spring Container를 분리시킬 수 있다.
+
 ## Spring Security를 프로젝트에 적용해보기
 
 ### 코드
@@ -352,13 +363,117 @@ public class SecurityConfig {
 
 #### @Configuration, @EnableWebSecurity, @EnableMethodSecurity
 
-1. @Configuration
+1.**@Configuration**
+
+이걸 설명하기에 앞서, Spring에서는 Bean을 등록하는 방법이 두 개로 나뉜다.
+1. 자동 등록하기(@Component 계열)
+2. 수동 등록하기(@Configuration + @Bean)
+
+자동 등록하기는 @Component 계열, 즉 @Controller나 @Service 등을 내가 만든 자바 클래스 위에 붙이면,
+
+Spring이 알아서 싱글톤 객체로 생성 후, Spring Container에 넣어 생명주기를 관리한다.
+
+반면에 수동 등록은 @Configuration이 붙은 클래스 안에서, 외부 라이브러리의 객체를 직접 생성하는 메서드를 작성한 후 @Bean을 붙여주면,
+
+Spring이 해당 메서드 실행 후 반환된 객체를 Container에 담는다.
+
+Bean 자동 등록과 수동 등록을 비교한 표는 아래와 같다.
+
+|비교 기준|자동 빈 등록 (@Component)|수동 빈 등록 (@Bean)|
+|---|---|---|
+|등록 대상|내가 직접 만든 클래스 (소스 코드 수정 가능)|"외부 라이브러리 클래스, 또는 특별한 설정이 필요한 클래스"|
+|어노테이션 위치|클래스 선언부|@Configuration 클래스 내부의 메서드|
+|객체 생성(new) 주체|스프링이 알아서 생성|개발자가 자바 코드로 직접 생성|
+|초기화 세팅|불가능 (기본 생성자로 단순 생성만 됨)|가능 (메서드 안에서 setter나 생성자로 값 주입 가능)|
+|유지보수성|클래스가 늘어날 때마다 자동으로 등록되므로 편리함|빈이 많아지면 설정 파일 코드가 길어져서 관리가 번거로움|
+
+제미나이가 만들어준 예시코드는 아래와 같다.
+
+```java
+// [위치 1] 설정 역할을 할 클래스 위에 붙입니다.
+@Configuration
+public class MyManualConfig {
+
+    // [위치 2] 객체를 생성해서 반환하는 '메서드' 위에 붙입니다.
+    @Bean 
+    public ExternalService externalService() {
+        // 개발자가 직접 객체를 생성(new)하는 코드를 작성합니다!
+        ExternalService service = new ExternalService();
+        service.setTimeout(5000); // 초기 설정도 직접 제어 가능
+        return service; 
+    }
+}
+```
+
+정리하자면, 
+
+- '데이터 및 자바 설정 관련 애너테이션'이다.
+-  해당 클래스가 스프링의 설정을 위한 자바 클래스임을 선언한다. 내부에서 @Bean을 사용해 외부 라이브러리 객체들을 Bean으로 등록한다.
+> 즉, 외부 라이브러리 객체들은 Spring이 모르니까 처리할 수 없다. 
+> 
+> 따라서 보통 @Configuration이 붙은 클래스 안에서, @Bean이 붙은 메서드 형태로 원하는 외부 라이브러리 객체를 반환한다.
+> - return하는 객체를 해당 외부 라이브러리 객체로 한다는 것이다.
+
+위 코드로 예시를 들면,
+
+```java
+@Configuration        // <----------- 이렇게 @Configuration이 붙은 클래스에서,
+// ...
+public class SecurityConfig {
+	
+    @Bean                      // <----------------- 이렇게 @Bean이 붙은
+    public PasswordEncoder passwordEncoder() {  // <---- 메서드의 반환 객체가 PasswordEncoder라는 외부라이브러리 객체이다.
+        return new BCryptPasswordEncoder();
+    }
+
+```
+참고로, @Configuration은 단순 @Bean의 빈 등록 이외에도 **싱글톤**으로 만들어주는 의미가 있다.
+
+> 특히, CGLIB라는 라이브러리에 의해 @Configuration이 붙은 클래스를 상속받은 **'프록시(Proxy) 객체'**를 만들어서 Spring Container에 넣고,
+> 매번 메서드 호출(Bean 생성을 위한)이 될 때마다 Spring에서 호출을 가로챈 다음(intercept), 만들어둔 프록시 객체를 사용한다. 싱글톤을 만들고 재사용한다는 것이다.
+> - [공식문서](https://docs.spring.io/spring-framework/reference/core/beans/java/basic-concepts.html)에 나와 있다.
+> - 반대로 @Configuration을 붙이지 않고 @Bean만 쓰면(이를 Lite 모드라고 표현한다.), 매번 빈 객체를 생성하게 된다.
+
+2.**@EnableWebSecurity**
+
+[공식문서](https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-enablewebsecurity)를 보면,
+
+SpringMVC와 intergration(통합)을 하기 위한 annotation이라고 써있다.
+> SpringMVC는 Spring Framework의 여러 모듈(기능 단위)중 하나이고, Spring Security 역시 이 모듈 중 하나이다.
+
+intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
+
+**Q) Spring MVC와의 Integration(연동)이라는 게 정확히 무슨 뜻인가요?**
+
+웹 엔진인 Spring MVC와 보안 엔진인 Spring Security는 서로 다른 모듈이기 때문에, 아무 설정을 안 하면 둘이 따로 놀게 돼. @EnableWebSecurity를 켜서 둘을 연동(Integration)한다는 건 다음과 같은 구체적인 편리함을 준다는 뜻이야.
+
+1. 컨트롤러 매개변수에서 로그인 유저 바로 꺼내기
+스프링 시큐리티가 로그인된 유저 정보를 가지고 있어도, Spring MVC 컨트롤러가 그걸 모르면 코드가 복잡해지겠지? 연동이 되면 컨트롤러 메서드에서 이렇게 바로 꺼낼 수 있어.
+
+```Java
+@GetMapping("/dashboard")
+public String dashboard(@AuthenticationPrincipal UserDetails user) {
+    // Spring MVC 컨트롤러 내부에서 시큐리티가 인증한 유저 정보를 바로 사용!
+    return "dashboard";
+}
+```
+2. CSRF 토큰을 스프링 MVC 폼(Form) 태그에 자동으로 심어주기
+스프링 MVC가 HTML 화면을 그릴 때, 스프링 시큐리티의 CSRF 보안 토큰을 자동으로 <form> 태그 안에 숨겨진 필터(_csrf)로 끼워 넣어주는 상호작용이 일어나.
+
+3. 스프링 MVC의 비동기(Async) 요청 시 보안 컨텍스트 공유
+컨트롤러에서 비동기 작업(Callable, DeferredResult 등)을 수행할 때, 스프링 시큐리티의 로그인 세션 정보가 비동기 쓰레드로도 안전하게 복사되도록 연동해 줘.
 
 
-2. @EnableWebSecurity
+**더욱이** [공식문서](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/configuration/EnableWebSecurity.html)를 보면,
+
+`Add this annotation to an @Configuration class to have the Spring Security configuration defined in any WebSecurityConfigurer or more likely by exposing a SecurityFilterChain bean:`라고 나와있는데, "이 애노테이션을 @Configuration 클래스에 추가하면, Spring Security 설정을 WebSecurityConfigurer에서 정의하거나, 더 일반적으로는 SecurityFilterChain 빈을 컨테이너로 보냄으로써 정의할 수 있다."라는데, 이때, WebSecurityConfigurer는 `Allows customization to the WebSecurity. In most instances users will use EnableWebSecurity and create a Configuration that exposes a SecurityFilterChain bean. This will automatically be applied to the WebSecurity by the EnableWebSecurity annotation.`라고 한다. "Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다. 그런 다음 필요한 빈들을 내보냅니다. WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, WebSecurityCustomizer 빈을 노출(expose)함으로써 WebSecurity를 커스터마이징할 수 있습니다. 이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다."라는 뜻이다.
+
+여기서 WebSecurity란, `The WebSecurity is created by WebSecurityConfiguration to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to.`라고 하낟.
 
 
-3. @EnableMethodSecurity
+
+
+3.**@EnableMethodSecurity**
 
 
 
@@ -369,7 +484,9 @@ public class SecurityConfig {
 
 ## +부록
 
-본문 중에서 의문이 들 수 있는 점이, SecurityFilterChain을 만들기도 전에 http의 메서드를 보면
+1. [Spring Security 공식튜토리얼](https://docs.spring.io/spring-security/reference/servlet/getting-started.html)
+
+2. 본문 중에서 의문이 들 수 있는 점이, SecurityFilterChain을 만들기도 전에 http의 메서드를 보면
 
 ```java
 
