@@ -11,6 +11,7 @@ image: assets/images/forPost/Springicon.png
 <details>
 <summary>막간 상식</summary>
 
+
 > jakarta가 뭘까?
 > 
 > 젬나이의 말에 따르면, 
@@ -18,6 +19,7 @@ image: assets/images/forPost/Springicon.png
 > Oracle에서 처음 JAVA를 만들었을 때는 기술 표준의 이름을 `JAVAX EE`로 지었다. 그 후, Eclipse로 서블릿(Servlet), JSP, JPA 등의 표준 자바 웹 기술들을 넘길 때 `javax` 말고 다른 이름을 쓰도록 했다. (JAVA EE라고 한다.)
 > 
 > --> 결국 바꾼 이름이 `JAKARTA EE` 때문에 라이브러리 자체도 javax.xx --> jakarta.xx로 바꿨다고 한다.
+
 
 </details>
 
@@ -53,7 +55,7 @@ image: assets/images/forPost/Springicon.png
 여기서 **서블릿**이란, 자바 프로그램(.java --> .class)으로 사용자 요청에 대응하는 프로그램이 서블릿 컨테이너에 의해 컴파일 된 후, 실행되는 구조이다.
 
 <details>
-<summary>서블릿이란, 더 자세하게 알아보자면</summary>
+<summary>더 자세한 서블릿 설명</summary>
 
 
 
@@ -61,13 +63,10 @@ image: assets/images/forPost/Springicon.png
 
 ### Filter, doFilter
 
-서블릿 컨테이너는 기존에 사용자 요청 한 개 당 서블릿을 한 개씩 실행했다. 이때, 사용자 요청의 이상탐지 같은 공통적인 일종의 '필터링' 기능들을 따로 빼서, 앞단에서 먼저 실행하게 했다. 
+서블릿 컨테이너는 기존에 사용자 요청 한 개 당 서블릿을 한 개씩 실행했다. 이때, 사용자 요청의 이상탐지 같은 공통적인 일종의 **'필터링'** 기능들을 따로 빼서, 앞단에서 먼저 실행하게 했다. 
+- 이때, 필터들은 용도에 따라 여러개가 연달아 존재하고, 이 일련의 필터링 과정을 `FilterChain` 이라고 한다.
 
-이때, 필터들은 용도에 따라 여러개가 연달아 존재하고, 이 일련의 필터링 과정을 `FilterChain` 이라고 한다.
-
-이때 서블릿 컨테이너에서 filtering 기능들은, 즉 FilterChain을 활용하는 예시코드를 다음과 같이 소개한다.
-
-[Spring공식문서(SpringSecurity)](https://docs.spring.io/spring-security/reference/servlet/architecture.html)
+[공식문서(SpringSecurity)](https://docs.spring.io/spring-security/reference/servlet/architecture.html)에서 서블릿 컨테이너에서 filtering 기능들, 즉 FilterChain을 활용하는 예시코드를 다음과 같이 소개한다.
 
 ```java
 
@@ -82,8 +81,9 @@ public void doFilter(ServletRequest request, ServletResponse response,
 ```
 
 저 주석 `do something before the rest of the app`에서 원하는 작업을 하게 한 후, 계속해서 다음 필터(chainning에 속한 필터들)에게 FilterChain의 `doFilter`메서드를 통해 넘겨준다.
-([자바웹표준기술문서에 따르면](https://jakarta.ee/specifications/servlet/4.0/apidocs/javax/servlet/filter) "this method allows the Filter to pass on the request and response to the next entity in the chain."이라고 한다.)
-- [FilterChain](https://docs.oracle.com/javaee/7/api/javax/servlet/FilterChain.html)은 일련의(chain) filter들을 가리킨다고 보면 될 것 같다.
+> ([자바웹표준기술문서에 따르면](https://jakarta.ee/specifications/servlet/4.0/apidocs/javax/servlet/filter) "this method allows the Filter to pass on the request and response to the next entity in the chain."이라고 한다.)
+> 
+> - 즉, [FilterChain](https://docs.oracle.com/javaee/7/api/javax/servlet/FilterChain.html)은 일련의(chain) filter들을 가리킨다고 보면 된다.
 
 이때, Spring에서는 `DelegatingFilterProxy`란 특별한 필터를 제공한다.
 - [공식문서설명](https://docs.spring.io/spring-security/reference/servlet/architecture.html)
