@@ -568,6 +568,95 @@ FilterChainProxy를 만든다고 한다!
 
 **3. @EnableMethodSecurity**
 
+위의 *@EnableWebSecurity*가 url 기반인 것과 달리(예를 들면, /post/bugreport/**는 admin만 접근가능),
+
+*@EnableMethodSecurity*는 '메서드' 기반이라고 한다.
+
+왜 메서드 기반이 필요하냐, ~~젬나이씨에게 많이 배운다....~~ 젬나이씨에 따르면, 다음과 같은 경우들이 있다고 한다.
+- URL은 똑같은 /api/posts/edit인데, "자기가 쓴 글만" 수정할 수 있어야 할 때
+- 컨트롤러(Controller) 단이 아니라 서비스(Service)나 리포지토리(Repository) 레이어의 특정 메서드에 직접 보안을 걸고 싶을 때
+- 하나의 URL 안에서 로그인한 유저의 세부 등급(VIP, 일반, 블랙리스트 등)에 따라 호출할 수 있는 자바 함수를 쪼개고 싶을 때
+
+이때 자바 소스 코드의 메서드 바로 위에 어노테이션을 붙여서 권한을 통제할 수 있게 해주는 게 *@EnableMethodSecurity*라고 한다.
+
+[코드](#exampleCode-section)를 보면,
+
+```java
+
+@Configuration
+@EnableWebSecurity           <--  우선 url 기반으로 필터링 등의 보안 작업후,
+@EnableMethodSecurity           <-- 메서드 기반으로도 보안 작업을 하겠다는 뜻이 된다.
+public class SecurityConfig {
+
+```
+
+저렇게 `@Configuration` 클래스에 `@EnableMethodSecurity`를 같이 적어두면, 어플리케이션 내 어디든 `@PreAuthorized`, `@PostAuthorized`,`@Secured` 등의 메서드 보안 어노테이션을 붙일 수 있게 된다. 
+
+예시를 들면 아래와 같다.
+
+```java
+
+@Service
+public class PostService {
+
+    // 1. 단순 권한 체크: 'ADMIN' 권한이 있는 유저만 이 메서드를 호출할 수 있음
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteEverything() {
+        // 모든 데이터 삭제 로직
+    }
+
+    // 2. 동적 파라미터 체크: 로그인한 유저의 이름(principal.username)과 
+    //    메서드로 넘어온 글 작성자(writer)가 같을 때만 메서드 실행 허용!
+    @PreAuthorize("#writer == authentication.principal.username")
+    public void updatePost(String writer, String content) {
+        // 글 수정 로직
+    }
+}
+
+```
+위의 @PreAuthorize는 메서드를 실행하기 전에(Pre) 권한을 검사하겠다는 의미이다.(Authorize)
+
+우리가 만들고자 하는 서비스에서는 ADMIN 만이 bug report를 읽고자 한다. BugReportController 코드에 적용해본다.
+
+```java
+
+@Controller
+@RequiredArgsConstructor
+public class BugReportController {
+	
+	private final BugReportService bugReportService; // 서비스 계층을 호출
+	
+	@GetMapping("/bug-report/new")
+	public String showBugReportPage() {
+		return "bug-report/new";
+	}	
+	
+	@PostMapping("/bug-report/create")
+	public String postBugReport(BugReportForm form) { // dto인 BugReportForm을 Spring이 할 것.
+		System.out.println(form.toString());
+		
+		// dto를 엔티티로 변환
+		// 1. 비즈니스 로직 처리는 서비스에게 완전히 떠넘깁니다.
+        bugReportService.createReport(form, "current_user");
+		// 2. repository로 엔티티를 db에 저장
+		
+		return "redirect:/home";
+	}
+	
+	// 일반 USER 권한 유저가 접근하면 시큐리티가 403 Forbidden 에러로 튕겨냅니다.
+    @GetMapping("/bug-report/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')") 
+    public String showReportDetail(@PathVariable Long id, Model model) {
+        BugReport report = bugReportService.findReportById(id);
+        model.addAttribute("report", report);
+        return "bug-report/detail";
+    }
+}
+
+```
+
+`@PreAuthorize("hasRole('ROLE_ADMIN')")`와 같이 `@GetMapping("/bug-report/{id}")` 이후에 메서드 기반 권한 검사를 사용한 것을 확인할 수 있다.
+
 
 
 
