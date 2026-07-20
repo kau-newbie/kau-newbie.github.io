@@ -120,7 +120,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 5. Spring에서는 `DispatcherServlet`이 요청에 맞는(e.g. "/home") controller를 실행함으로써 사용자 요청을 처리한다.
 6. 사용자 요청 처리(요청에 맞는 자바 코드 실행) 후, 응답은 이 역순으로 진행된다.
 
-### 예시 코드로 살펴보자.
+### 예시 코드로 살펴보자. 
 
 코드와 함께 이해해보자. 우선, 복잡한 것들은 다 무시하고, SecurityConfig 클래스 아래 @Bean으로 선언된(Spring Container에게 생명주기를 관리받는 객체라는 뜻이다.) `filterChain` 메서드를 주목하자.
 
@@ -497,7 +497,7 @@ intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
 **더욱이** [공식문서](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/configuration/EnableWebSecurity.html)를 보면,
 
 <details>
-<summary>(자세한 과정)</summary>
+<summary>(자세한 설명)</summary>
 <br>
 
 <strong>@EnableSecurity는 공식문서에서</strong><br><br>
@@ -514,13 +514,13 @@ intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
 </ul>
 
 <blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
-  <a href="#exampleCode-section" style="color: #0066cc; text-decoration: underline;">👉 아래를 보면 @Bean 밑에 SecurityFilterChain을 반환하는 메서드가 존재하는 것을 확인할 수 있다.</a>
+  <a href="#exampleCode-section" style="color: #0066cc; text-decoration: underline;"> 이 코드를 보면 @Bean 밑에 SecurityFilterChain을 반환하는 메서드가 존재하는 것을 확인할 수 있다.</a>
 </blockquote><br>
 
 이때, <strong>WebSecurityConfigurer</strong>는 아래와 같이 설명한다.<br><br>
 
 <ul>
-  <li>Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다.</li>
+  <li>Spring Security의 웹 기반 보안을 수행하는 <strong>FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다.</strong></li>
   <li>그런 다음 필요한 빈들을 내보냅니다.</li>
   <li>WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, <em>WebSecurityCustomizer</em> 빈을 노출(expose)함으로써 <em>WebSecurity</em>를 커스터마이징할 수 있습니다. <em>이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다.</em>"</li>
 </ul><br>
@@ -539,7 +539,10 @@ intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
   <li><a href="#confi-websecurity-dff-section" style="color: #0066cc; text-decoration: underline;">[configuration과 WebSecurity의 차이]</a></li>
 </ul><br>
 
-<strong>종합하면,</strong> 사용자는 원하는 security 설정을 <em>WebSecurityConfigurer</em>에 하고, 이 설정은 <em>WebSecurityConfiguration</em>에서 알아서 반영한 뒤, <em>WebScurity</em> 빌더를 통해 최종적으로 <em>FilterChainProxy</em>를 <code>build()</code>한다.<br><br>
+<strong>종합하면,</strong><br> 
+<li>사용자는 원하는 security 설정을 <em>WebSecurityConfigurer</em>에 하고,</li> 
+<li>이 설정은 <em>WebSecurityConfiguration</em>에서 알아서 반영한 뒤,</li>
+<li><em>WebScurity</em> 빌더를 통해 최종적으로 <em>FilterChainProxy</em>를 <code>build()</code>한다.</li><br><br>
 
 젬나이씨의 요약 schema는 아래와 같다.<br><br>
 
