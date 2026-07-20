@@ -447,11 +447,13 @@ public class SecurityConfig {
 
 <blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
 
-특히, CGLIB라는 라이브러리에 의해 @Configuration이 붙은 클래스를 상속받은 **'프록시(Proxy) 객체'**를 만들어서 Spring Container에 넣고,<br><br>
+특히, CGLIB라는 라이브러리에 의해 <code>@Configuration</code>이 붙은 클래스를 상속받은 <strong>'프록시(Proxy) 객체'</strong>를 만들어서 Spring Container에 넣고,<br><br>
 
-매번 메서드 호출(Bean 생성을 위한)이 될 때마다 Spring에서 호출을 가로챈 다음(intercept), 만들어둔 프록시 객체를 사용한다. 싱글톤을 만들고 재사용한다는 것이다.<br>
-- [공식문서](https://docs.spring.io/spring-framework/reference/core/beans/java/basic-concepts.html)에 나와 있다.<br>
-- 반대로 @Configuration을 붙이지 않고 @Bean만 쓰면(이를 Lite 모드라고 표현한다.), 매번 빈 객체를 생성하게 된다.
+매번 메서드 호출(Bean 생성을 위한)이 될 때마다 Spring에서 호출을 가로챈 다음(intercept), 만들어둔 프록시 객체를 사용한다. 싱글톤을 만들고 재사용한다는 것이다.<br><br>
+
+- <a href="https://docs.spring.io/spring-framework/reference/core/beans/java/basic-concepts.html" target="_blank" style="color: #0066cc; text-decoration: underline;">공식문서</a>에 나와 있다.<br><br>
+
+- 반대로 <code>@Configuration</code>을 붙이지 않고 <code>@Bean</code>만 쓰면(이를 Lite 모드라고 표현한다.), 매번 빈 객체를 생성하게 된다.
 
 </blockquote>
 </details>
@@ -495,56 +497,74 @@ intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
 **더욱이** [공식문서](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/configuration/EnableWebSecurity.html)를 보면,
 
 <details>
-<summary>(자세한 과정)</summary>은 생략하고,<br>
+<summary>(자세한 과정)</summary>
+<br>
 
 <strong>@EnableSecurity는 공식문서에서</strong><br><br>
+
 <blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
-"Add this annotation to an @Configuration class to have the Spring Security configuration defined in any WebSecurityConfigurer or more likely by exposing a SecurityFilterChain bean:"<br><br>
+"Add this annotation to an @Configuration class to have the Spring Security configuration defined in any WebSecurityConfigurer or more likely by exposing a SecurityFilterChain bean:"
 </blockquote><br>
-라고 나와있는데, 정리하자면 이 어노테이션(<code>@EnableWebSecurity</code>)을 @Configuration 클래스에 추가하면,<br>
-- Spring Security 설정을 **WebSecurityConfigurer**에서 정의한다.<br>
-- 더 일반적으로는 SecurityFilterChain 빈을 컨테이너에 등록한다.<br>
-> [코드](#exampleCode-section) 아래를 보면 @Bean 밑에 SecurityFilterChain을 반환하는 메서드가 존재하는 것을 확인할 수 있다.<br><br>
 
-이때, **WebSecurityConfigurer**는 아래와 같이 설명한다.<br>
-- Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다. <br>
-- 그런 다음 필요한 빈들을 내보냅니다. <br>
-- WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, *WebSecurityCustomizer* 빈을 노출(expose)함으로써 *WebSecurity*를 커스터마이징할 수 있습니다. *이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다.*"<br><br>
+라고 나와있는데, 정리하자면 이 어노테이션(<code>@EnableWebSecurity</code>)을 @Configuration 클래스에 추가하면,<br><br>
 
+<ul>
+  <li>Spring Security 설정을 <strong>WebSecurityConfigurer</strong>에서 정의한다.</li>
+  <li>더 일반적으로는 SecurityFilterChain 빈을 컨테이너에 등록한다.</li>
+</ul>
 
-여기서 **WebSecurity**란,<br>
 <blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
-"The WebSecurity is created by <strong>WebSecurityConfiguration</strong> to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to."</quote><br>
+  <a href="#exampleCode-section" style="color: #0066cc; text-decoration: underline;">👉 아래를 보면 @Bean 밑에 SecurityFilterChain을 반환하는 메서드가 존재하는 것을 확인할 수 있다.</a>
+</blockquote><br>
 
-라고 한다. 실제 문서 메서드를 보면, <br>
-- ~~~`addSecurityFilterChainBuilder`같이 여러 FilterChain을 만들 수도 있다. WebSecurityConfiguration에서 자동 호출하는 메서드이다.~~<br>
-- builder 타입으로, `build()`메서드를 통해 <strong>FilterChainProxy를 반환한다.</strong><br>
-- [configuration과 WebSecurity의 차이](#confi-websecurity-dff-section)<br>
+이때, <strong>WebSecurityConfigurer</strong>는 아래와 같이 설명한다.<br><br>
 
-**종합하면,** 사용자는 원하는 security 설정을 *WebSecurityConfigurer*에 하고, 이 설정은 *WebSecurityConfiguration*에서 알아서 반영한 뒤, *WebScurity* 빌더를 통해 최종적으로 *FilterChainProxy*를 `build()`한다.<br><br>
+<ul>
+  <li>Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다.</li>
+  <li>그런 다음 필요한 빈들을 내보냅니다.</li>
+  <li>WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, <em>WebSecurityCustomizer</em> 빈을 노출(expose)함으로써 <em>WebSecurity</em>를 커스터마이징할 수 있습니다. <em>이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다.</em>"</li>
+</ul><br>
+
+여기서 <strong>WebSecurity</strong>란,<br><br>
+
+<blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
+"The WebSecurity is created by <strong>WebSecurityConfiguration</strong> to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to."
+</blockquote><br>
+
+라고 한다. 실제 문서 메서드를 보면, <br><br>
+
+<ul>
+  <li><del>addSecurityFilterChainBuilder같이 여러 FilterChain을 만들 수도 있다. WebSecurityConfiguration에서 자동 호출하는 메서드이다.</del></li>
+  <li>builder 타입으로, <code>build()</code>메서드를 통해 <strong>FilterChainProxy를 반환한다.</strong></li>
+  <li><a href="#confi-websecurity-dff-section" style="color: #0066cc; text-decoration: underline;">[configuration과 WebSecurity의 차이]</a></li>
+</ul><br>
+
+<strong>종합하면,</strong> 사용자는 원하는 security 설정을 <em>WebSecurityConfigurer</em>에 하고, 이 설정은 <em>WebSecurityConfiguration</em>에서 알아서 반영한 뒤, <em>WebScurity</em> 빌더를 통해 최종적으로 <em>FilterChainProxy</em>를 <code>build()</code>한다.<br><br>
 
 젬나이씨의 요약 schema는 아래와 같다.<br><br>
 
-<code>
+<pre style="padding: 15px; background-color: #f4f4f4; border-radius: 5px; font-family: monospace; line-height: 1.5; overflow-x: auto;">
 [ @EnableWebSecurity ]
         │ (이 어노테이션이 아래 공장장을 불러옴)
         ▼
 [ WebSecurityConfiguration ] (공장장)
         │
         ├─▶ 1. [ WebSecurity ] builder 객체를 준비한다.
-        ├─▶ 2. 개발자가 준 커스텀 설정(WebSecurityCustomizer 등 <-- 과거에는 WebSecurityConfigurer)을 주입한다.
+        ├─▶ 2. 개발자가 준 커스텀 설정(WebSecurityCustomizer 등 &lt;-- 과거에는 WebSecurityConfigurer)을 주입한다.
         │
         ▼ (빌드 시작!)
 [ FilterChainProxy ] 객체 탄생! 
 (이 녀석의 스프링 빈 이름이 바로 'springSecurityFilterChain' 입니다.)
-</code>
+</pre><br>
 
-+ 제미나이 말로는 이제 WebSecurityConfigurer는 예전 방식이고(예전에는 이 interface를 상속받은 custom configuration을 만드는 방식으로 custom WebSecurity를 정했다고 한다.),<br>
-- WebSecurity를 커스텀하고 싶다? ➔ WebSecurityCustomizer Bean 등록<br> 
-- HTTP 보안 규칙을 정하고 싶다? ➔ SecurityFilterChain Bean 등록  Java//  최신 방식 (Bean 등록 구조)<br><br>
++ 제미나이 말로는 이제 WebSecurityConfigurer는 예전 방식이고(예전에는 이 interface를 상속받은 custom configuration을 만드는 방식으로 custom WebSecurity를 정했다고 한다.),<br><br>
 
-<code>
+<ul>
+  <li>WebSecurity를 커스텀하고 싶다? ➔ WebSecurityCustomizer Bean 등록</li>
+  <li>HTTP 보안 규칙을 정하고 싶다? ➔ SecurityFilterChain Bean 등록  Java//  최신 방식 (Bean 등록 구조)</li>
+</ul><br>
 
+<pre style="padding: 15px; background-color: #f4f4f4; border-radius: 5px; font-family: monospace; line-height: 1.5; overflow-x: auto;">
 @Configuration
 @EnableWebSecurity
 public class ModernSecurityConfig {
@@ -555,9 +575,8 @@ public class ModernSecurityConfig {
         return (web) -> web.ignoring().requestMatchers("/css/**");
     }
 }
+</pre><br>
 
-</code>
-<br>
 이렇게 component 기반(Bean 기반)으로 바꿨다고 한다.<br>
 
 </details>
@@ -744,7 +763,7 @@ public class BugReportController {
 
     ---
 
-    ## 1. WebSecurity (웹 보안의 큰 틀)
+    #### 1. WebSecurity (웹 보안의 큰 틀)
 
     Spring Security 공식 문서에서 `WebSecurity`는 **웹 기반 보안을 설정하기 위한 최상위 가리개(Filter)** 역할을 합니다.
 
@@ -755,7 +774,7 @@ public class BugReportController {
 
     ---
 
-    ## 2. Configuration (보안 설정)
+    #### 2. Configuration (보안 설정)
 
     `Configuration`은 영어 단어 뜻 그대로 '설정'입니다. Spring Security에게 "우리 서비스의 보안 규칙은 이렇게 해줘"라고 지시서(Configuration Class)를 작성하는 행위입니다.
 
@@ -770,7 +789,7 @@ public class BugReportController {
 
     ---
 
-    ## 💡 한눈에 비교하기
+    #### 💡 한눈에 비교하기
 
     | 개념 | 비유 | 공식 문서에서의 주 역할 | 헷갈리지 않는 팁 |
     | --- | --- | --- | --- |
@@ -779,7 +798,7 @@ public class BugReportController {
 
     ---
 
-    ## 💻 코드로 보는 차이점
+    #### 💻 코드로 보는 차이점
 
     실제 Spring Security 설정 코드(Configuration)를 보면 이해가 훨씬 쉽습니다.
 
