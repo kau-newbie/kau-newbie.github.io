@@ -308,7 +308,7 @@ VirtualFilterChain에서는 똑같이 필터 chain을 다 통과할 때까지 do
 
 ## Spring Security를 프로젝트에 적용해보기
 
-### 코드{#exampleCode-section}
+### 코드 {#exampleCode-section}
 
 우선, com.example.demo 밑에 패키지(폴더)를 하나 만들고 config로 이름을 정한다.
 
