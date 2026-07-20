@@ -8,12 +8,18 @@ image: assets/images/forPost/Springicon.png
 
 요약: Spring Security란 무엇일까
 
-막간 상식
+<details>
+<summary>막간 상식</summary>
+
 > jakarta가 뭘까?
 > 
-> 젬나이의 말에 따르면, Oracle에서 Eclipse로 서블릿(Servlet), JSP, JPA 등의 표준 자바 웹 기술들을 넘길 때 javax 말고 다른 이름을 쓰라함. (JAVA EE라고 한다.)
+> 젬나이의 말에 따르면, 
+>
+> Oracle에서 처음 JAVA를 만들었을 때는 기술 표준의 이름을 `JAVAX EE`로 지었다. 그 후, Eclipse로 서블릿(Servlet), JSP, JPA 등의 표준 자바 웹 기술들을 넘길 때 `javax` 말고 다른 이름을 쓰도록 했다. (JAVA EE라고 한다.)
 > 
-> --> 투표로 바꾼 이름이 JAKARTA EE. 때문에 라이브러리 자체도 javax.xx --> jakarta.xx로 바꿨다고 한다.
+> --> 결국 바꾼 이름이 `JAKARTA EE` 때문에 라이브러리 자체도 javax.xx --> jakarta.xx로 바꿨다고 한다.
+
+</details>
 
 # Spring Security란
 
@@ -29,13 +35,13 @@ image: assets/images/forPost/Springicon.png
 
 여기서 말하는 **container**는 도커 컨테이너처럼 분리된 실행환경이 아닌,
 
-각종 객체(`Bean`이라 부른다!)를 적절한 시기에 만들고, DI하거나, 생명주기를 관리하는 시스템(프로그램)이다.
+각종 객체(**Bean**이라 부른다!)를 적절한 시기에 만들고, DI하거나, 생명주기를 관리하는 시스템(프로그램)이다.
 - 이런 정의에서는 안드로이드 os도 컨테이너로 봐도 된다.
 
-전통적으로 자바 웹 서버를 담당하던 '서블릿' 컨테이너가 있고, 이를 편리하게 사용하기 위해 나온 'Spring'만의 Spring 컨테이너가 있다.
+전통적으로 자바 웹 서버를 담당하던 **서블릿 컨테이너**가 있고, 이를 편리하게 사용하기 위해 나온 'Spring'만의 **Spring 컨테이너**가 있다.
 - 대표적인 서블릿 컨테이너로는 '톰캣(Tomcat)'이 있다.
 
-둘은 별개이므로, Spring Container에서 사용하는 개념인 '빈(Bean)'을 서블릿 컨테이너는 다루지 못한다. 
+둘은 별개이므로, Spring Container에서 사용하는 개념인 **'빈(Bean)'을 서블릿 컨테이너는 다루지 못한다.**
 - 예를 들면, Spring에서는 @Controller 처럼 annotation을 써두면, Spring 컨테이너가 이를 bean으로 만들어(객체 인스턴스) 가지고 있다가, 적절하게 DI하는 등, 알아서 사용해준다. 이를 서블릿 컨테이너는 하지 못한다.
 
 바로 아래에서 이 문제의 해결책을 제시하고 있다.
@@ -45,6 +51,13 @@ image: assets/images/forPost/Springicon.png
 기본적으로 자바 웹 서버는 사용자 요청에 대해 **서블릿(Servlet)**을 실행하는 구조로 동작한다.
 
 여기서 **서블릿**이란, 자바 프로그램(.java --> .class)으로 사용자 요청에 대응하는 프로그램이 서블릿 컨테이너에 의해 컴파일 된 후, 실행되는 구조이다.
+
+<details>
+<summary>서블릿이란, 더 자세하게 알아보자면</summary>
+
+
+
+</details>
 
 ### Filter, doFilter
 
@@ -445,30 +458,49 @@ intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
 
 **Q) Spring MVC와의 Integration(연동)이라는 게 정확히 무슨 뜻인가요?**
 
-웹 엔진인 Spring MVC와 보안 엔진인 Spring Security는 서로 다른 모듈이기 때문에, 아무 설정을 안 하면 둘이 따로 놀게 돼. @EnableWebSecurity를 켜서 둘을 연동(Integration)한다는 건 다음과 같은 구체적인 편리함을 준다는 뜻이야.
+- 웹 엔진인 Spring MVC와 보안 엔진인 Spring Security는 서로 다른 모듈이기 때문에, 아무 설정을 안 하면 둘이 따로 놀게 됩니다. 
+- @EnableWebSecurity를 켜서 둘을 연동(Integration)한다는 건 다음과 같은 구체적인 편리함을 준다는 뜻입니다.
 
 1. 컨트롤러 매개변수에서 로그인 유저 바로 꺼내기
-스프링 시큐리티가 로그인된 유저 정보를 가지고 있어도, Spring MVC 컨트롤러가 그걸 모르면 코드가 복잡해지겠지? 연동이 되면 컨트롤러 메서드에서 이렇게 바로 꺼낼 수 있어.
 
-```Java
-@GetMapping("/dashboard")
-public String dashboard(@AuthenticationPrincipal UserDetails user) {
-    // Spring MVC 컨트롤러 내부에서 시큐리티가 인증한 유저 정보를 바로 사용!
-    return "dashboard";
-}
-```
+    스프링 시큐리티가 로그인된 유저 정보를 가지고 있어도, Spring MVC 컨트롤러가 그걸 모르면 코드가 복잡해지겠죠? 
+
+    연동이 되면 컨트롤러 메서드에서 이렇게 바로 꺼낼 수 있습니다.
+
+    ```Java
+    @GetMapping("/dashboard")
+    public String dashboard(@AuthenticationPrincipal UserDetails user) {
+        // Spring MVC 컨트롤러 내부에서 시큐리티가 인증한 유저 정보를 바로 사용!
+        return "dashboard";
+    }
+    ```
 2. CSRF 토큰을 스프링 MVC 폼(Form) 태그에 자동으로 심어주기
-스프링 MVC가 HTML 화면을 그릴 때, 스프링 시큐리티의 CSRF 보안 토큰을 자동으로 <form> 태그 안에 숨겨진 필터(_csrf)로 끼워 넣어주는 상호작용이 일어나.
+
+    스프링 MVC가 HTML 화면을 그릴 때, 스프링 시큐리티의 CSRF 보안 토큰을 자동으로 <form> 태그 안에 숨겨진 필터(_csrf)로 끼워 넣어주는 상호작용이 일어납니다.
 
 3. 스프링 MVC의 비동기(Async) 요청 시 보안 컨텍스트 공유
-컨트롤러에서 비동기 작업(Callable, DeferredResult 등)을 수행할 때, 스프링 시큐리티의 로그인 세션 정보가 비동기 쓰레드로도 안전하게 복사되도록 연동해 줘.
+
+    컨트롤러에서 비동기 작업(Callable, DeferredResult 등)을 수행할 때, 스프링 시큐리티의 로그인 세션 정보가 비동기 쓰레드로도 안전하게 복사되도록 연동해 줍니다.
 
 
 **더욱이** [공식문서](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/configuration/EnableWebSecurity.html)를 보면,
 
-`Add this annotation to an @Configuration class to have the Spring Security configuration defined in any WebSecurityConfigurer or more likely by exposing a SecurityFilterChain bean:`라고 나와있는데, "이 애노테이션을 @Configuration 클래스에 추가하면, Spring Security 설정을 WebSecurityConfigurer에서 정의하거나, 더 일반적으로는 SecurityFilterChain 빈을 컨테이너로 보냄으로써 정의할 수 있다."라는데, 이때, WebSecurityConfigurer는 `Allows customization to the WebSecurity. In most instances users will use EnableWebSecurity and create a Configuration that exposes a SecurityFilterChain bean. This will automatically be applied to the WebSecurity by the EnableWebSecurity annotation.`라고 한다. "Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다. 그런 다음 필요한 빈들을 내보냅니다. WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, WebSecurityCustomizer 빈을 노출(expose)함으로써 WebSecurity를 커스터마이징할 수 있습니다. 이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다."라는 뜻이다.
+> "Add this annotation to an @Configuration class to have the Spring Security configuration defined in any WebSecurityConfigurer or more likely by exposing a SecurityFilterChain bean:"
 
-여기서 WebSecurity란, `The WebSecurity is created by WebSecurityConfiguration to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to.`라고 하낟.
+라고 나와있는데, 
+
+이 애노테이션(`@EnableWebSecurity`)을 @Configuration 클래스에 추가하면,
+- Spring Security 설정을 WebSecurityConfigurer에서 정의한다.
+- 더 일반적으로는 SecurityFilterChain 빈을 컨테이너에 등록한다.
+
+
+
+이때, WebSecurityConfigurer는
+> "Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다. 그런 다음 필요한 빈들을 내보냅니다. WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, WebSecurityCustomizer 빈을 노출(expose)함으로써 WebSecurity를 커스터마이징할 수 있습니다. 이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다."
+
+라고 한다.
+
+여기서 WebSecurity란, `The WebSecurity is created by WebSecurityConfiguration to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to.`라고 한다.
 
 
 
