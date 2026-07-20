@@ -248,7 +248,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
 ```
 
 - (이때, filterchain은 생각해보면 Servlet Container의 filterchain으로, Spring Container의 filterchain은 아니다.)
-    - 그 이유는 Spring Container에서 Spring security filterchain을 거친 뒤, 다시 마저 남은 Servlet Container의 filterchain으로 돌아가야 하기 때문이다.
+> 그 이유는 Spring Container에서 Spring security filterchain을 거친 뒤, 다시 마저 남은 Servlet Container의 filterchain으로 돌아가야 하기 때문이다.
 
 그 후, 이번에는 FilterChainProxy(delegate)의 doFilter()의 예시는 아래와 같다.
 
@@ -306,7 +306,7 @@ VirtualFilterChain에서는 똑같이 필터 chain을 다 통과할 때까지 do
 
 ## Spring Security를 프로젝트에 적용해보기
 
-### 코드
+### 코드{#exampleCode-section}
 
 우선, com.example.demo 밑에 패키지(폴더)를 하나 만들고 config로 이름을 정한다.
 
@@ -376,7 +376,7 @@ public class SecurityConfig {
 
 #### @Configuration, @EnableWebSecurity, @EnableMethodSecurity
 
-1.**@Configuration**
+**1. @Configuration**
 
 이걸 설명하기에 앞서, Spring에서는 Bean을 등록하는 방법이 두 개로 나뉜다.
 1. 자동 등록하기(@Component 계열)
@@ -442,12 +442,20 @@ public class SecurityConfig {
 ```
 참고로, @Configuration은 단순 @Bean의 빈 등록 이외에도 **싱글톤**으로 만들어주는 의미가 있다.
 
+<details>
+<summary>(@Configuration과 singleton 방식 설명)</summary>
+
+
 > 특히, CGLIB라는 라이브러리에 의해 @Configuration이 붙은 클래스를 상속받은 **'프록시(Proxy) 객체'**를 만들어서 Spring Container에 넣고,
+>
 > 매번 메서드 호출(Bean 생성을 위한)이 될 때마다 Spring에서 호출을 가로챈 다음(intercept), 만들어둔 프록시 객체를 사용한다. 싱글톤을 만들고 재사용한다는 것이다.
 > - [공식문서](https://docs.spring.io/spring-framework/reference/core/beans/java/basic-concepts.html)에 나와 있다.
 > - 반대로 @Configuration을 붙이지 않고 @Bean만 쓰면(이를 Lite 모드라고 표현한다.), 매번 빈 객체를 생성하게 된다.
 
-2.**@EnableWebSecurity**
+
+</details>
+
+**2. @EnableWebSecurity**
 
 [공식문서](https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-enablewebsecurity)를 보면,
 
@@ -485,24 +493,58 @@ intergration의 의미가 뭔가, 하고 젬나이씨에게 물어봤다.
 
 **더욱이** [공식문서](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/configuration/EnableWebSecurity.html)를 보면,
 
+<details>
+<summary>(자세한 과정)</summary>은 생략하고,
+
+
 > "Add this annotation to an @Configuration class to have the Spring Security configuration defined in any WebSecurityConfigurer or more likely by exposing a SecurityFilterChain bean:"
 
-라고 나와있는데, 
-
-이 애노테이션(`@EnableWebSecurity`)을 @Configuration 클래스에 추가하면,
-- Spring Security 설정을 WebSecurityConfigurer에서 정의한다.
+라고 나와있는데, 정리하자면 이 어노테이션(`@EnableWebSecurity`)을 @Configuration 클래스에 추가하면,
+- Spring Security 설정을 **WebSecurityConfigurer**에서 정의한다.
 - 더 일반적으로는 SecurityFilterChain 빈을 컨테이너에 등록한다.
+> [코드](#exampleCode-section) 아래를 보면 @Bean 밑에 SecurityFilterChain을 반환하는 메서드가 존재하는 것을 확인할 수 있다.
+
+이때, **WebSecurityConfigurer**는 아래와 같이 설명한다.
+> - Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다. 
+> - 그런 다음 필요한 빈들을 내보냅니다. 
+> - WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, *WebSecurityCustomizer* 빈을 노출(expose)함으로써 *WebSecurity*를 커스터마이징할 수 있습니다. *이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다.*"
+
+
+여기서 **WebSecurity**란,
+> The WebSecurity is created by *WebSecurityConfiguration* to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to."
+
+라고 한다. 실제 문서 메서드를 보면, 
+- ~~~`addSecurityFilterChainBuilder`같이 여러 FilterChain을 만들 수도 있다. WebSecurityConfiguration에서 자동 호출하는 메서드이다.~~
+- builder 타입으로, `build()`메서드를 통해 **FilterChainProxy를 반환한다.**
+
+**종합하면,** 사용자는 원하는 security 설정을 *WebSecurityConfigurer*에 하고, 이 설정은 *WebSecurityConfiguration*에서 알아서 반영한 뒤, *WebScurity* 빌더를 통해 최종적으로 *FilterChainProxy*를 `build()`한다.
+
++ 제미나이 말로는 이제 WebSecurityConfigurer는 예전 방식이고(예전에는 이 interface를 상속받은 custom configuration을 만드는 방식으로 custom WebSecurity를 정했다고 한다.), 
+- WebSecurity를 커스텀하고 싶다? ➔ WebSecurityCustomizer Bean 등록  
+- HTTP 보안 규칙을 정하고 싶다? ➔ SecurityFilterChain Bean 등록  Java//  최신 방식 (Bean 등록 구조)
+
+```java
+
+@Configuration
+@EnableWebSecurity
+public class ModernSecurityConfig {
+
+    // 더 이상 WebSecurityConfigurer를 구현(상속)하지 않고, 단독 Bean으로 등록!
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/css/**");
+    }
+}
+
+```
+
+이렇게 component 기반(Bean 기반)으로 바꿨다고 한다.
 
 
 
-이때, WebSecurityConfigurer는
-> "Spring Security의 웹 기반 보안을 수행하는 FilterChainProxy를 만들기 위해 WebSecurity를 사용합니다. 그런 다음 필요한 빈들을 내보냅니다. WebSecurityConfigurer를 구현해 Configuration으로 등록하거나, WebSecurityCustomizer 빈을 노출(expose)함으로써 WebSecurity를 커스터마이징할 수 있습니다. 이 설정은 @EnableWebSecurity를 사용할 때 자동으로 가져와(import)집니다."
+</details>
 
-라고 한다.
-
-여기서 WebSecurity란, `The WebSecurity is created by WebSecurityConfiguration to create the FilterChainProxy known as the Spring Security Filter Chain (springSecurityFilterChain). The springSecurityFilterChain is the Filter that the DelegatingFilterProxy delegates to.`라고 한다.
-
-
+FilterChainProxy를 만든다고 한다!
 
 
 3.**@EnableMethodSecurity**
