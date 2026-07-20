@@ -11,15 +11,15 @@ image: assets/images/forPost/Springicon.png
 <details>
 <summary>막간 상식</summary>
 
+<blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
+<strong>jakarta가 뭘까?</strong><br><br>
 
-> jakarta가 뭘까?
-> 
-> 젬나이의 말에 따르면, 
->
-> Oracle에서 처음 JAVA를 만들었을 때는 기술 표준의 이름을 `JAVAX EE`로 지었다. 그 후, Eclipse로 서블릿(Servlet), JSP, JPA 등의 표준 자바 웹 기술들을 넘길 때 `javax` 말고 다른 이름을 쓰도록 했다. (JAVA EE라고 한다.)
-> 
-> --> 결국 바꾼 이름이 `JAKARTA EE` 때문에 라이브러리 자체도 javax.xx --> jakarta.xx로 바꿨다고 한다.
+젬나이의 말에 따르면, <br><br>
 
+Oracle에서 처음 JAVA를 만들었을 때는 기술 표준의 이름을 <code>JAVAX EE</code>로 지었다. 그 후, Eclipse로 서블릿(Servlet), JSP, JPA 등의 표준 자바 웹 기술들을 넘길 때 <code>javax</code> 말고 다른 이름을 쓰도록 했다. (JAVA EE라고 한다.)<br><br>
+
+--> 결국 바꾼 이름이 <code>JAKARTA EE</code> 때문에 라이브러리 자체도 <code>javax.xx</code> --> <code>jakarta.xx</code>로 바꿨다고 한다.
+</blockquote>
 
 </details>
 
