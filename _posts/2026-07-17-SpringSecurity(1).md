@@ -457,7 +457,7 @@ public class SecurityConfig {
 
 </blockquote>
 </details>
-
+<br><br>
 **2. @EnableWebSecurity**
 
 [공식문서](https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-enablewebsecurity)를 보면,
@@ -584,7 +584,7 @@ public class ModernSecurityConfig {
 
 </details>
 
-FilterChainProxy를 만든다고 한다!
+FilterChainProxy를 만든다고 한다!<br><br>
 
 
 **3. @EnableMethodSecurity**
