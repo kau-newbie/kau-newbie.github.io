@@ -3,11 +3,16 @@
         <h5 class="mb-3"><span>Category</span></h5>
         
         <div class="category-buttons" style="display: flex; flex-wrap: wrap; gap: 6px;">
-            {% assign sorted_categories = site.categories | sort %}
+            {% comment %} 
+              카테고리 이름(0번째 인덱스) 기준 알파벳순 정렬
+              대소문자 차이 없이 정렬하려면 sort_natural 사용도 가능합니다.
+            {% endcomment %}
+            {% assign sorted_categories = site.categories | sort_natural: 0 %}
+            
             {% for category in sorted_categories %}
             {% assign category_name = category[0] %}
             
-           <a href="{{ '/categories/'}}#{{ category_name | replace: ' ','-' }}" 
+            <a href="{{ '/categories/' | relative_url }}#{{ category_name | replace: ' ','-' }}" 
                style="
                 display: inline-block;
                 padding: 2px 8px;
@@ -23,8 +28,8 @@
                "
                onmouseover="this.style.backgroundColor='#e9e9e9'; this.style.borderColor='#ccc';"
                onmouseout="this.style.backgroundColor='#f4f4f4'; this.style.borderColor='#ddd';">
-                {{ category_name | downcase }} </a>
-            
+                {{ category_name | downcase }}
+            </a>
             {% endfor %}
         </div>
 
