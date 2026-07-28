@@ -9,7 +9,7 @@ image: assets/images/forPost/Springicon.png
 요약: Spring Security란 무엇일까
 
 <details>
-<summary>막간 상식</summary>
+<summary>막간 상식: jakarta란?</summary>
 
 <blockquote style="padding: 10px 15px; border-left: 4px solid #cbcbcb; background-color: #f9f9f9; color: #555;">
 <strong>jakarta가 뭘까?</strong><br><br>
@@ -308,11 +308,14 @@ VirtualFilterChain에서는 똑같이 필터 chain을 다 통과할 때까지 do
 
 ## Spring Security를 프로젝트에 적용해보기
 
-### 코드 {#exampleCode-section}
+실제 프로젝트에 적용할 예시 코드를 보면서 더 자세히 알아보자.
+
+### 예시 코드 {#exampleCode-section}
 
 우선, com.example.demo 밑에 패키지(폴더)를 하나 만들고 config로 이름을 정한다.
 
-그 후, config 아래에 SecurityConfig.java 파일을 만든다. 코드는 위에서 잠깐 나왔던 코드와 동일한 코드이다.
+그 후, config 아래에 SecurityConfig.java 파일을 만든다. 
+- (코드는 위에서 잠깐 나왔던 코드와 동일한 코드이다.)
 
 ```java
 
