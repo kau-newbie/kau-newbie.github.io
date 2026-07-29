@@ -3,7 +3,7 @@ layout: post
 title:  "[project]AndroidTutor(3) Hilt로 migration하자-2"
 author: kau-newbie
 categories: [ project, android, app, DI, Hilt ]
-image: assets/images/prj-androidtutor-basicmodel.jpg
+image: assets/images/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: hilt를 위한 종속성 해결 (AGP, kapt, ksp)
