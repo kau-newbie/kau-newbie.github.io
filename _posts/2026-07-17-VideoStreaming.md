@@ -3,7 +3,7 @@ layout: post
 title:  "[project] video-streaming 공부"
 author: kau-newbie
 categories: [project, video, streaming]
-image: assets/images/forPost/Springicon.png
+image: /assets/images/forPost/videostreaming/videoStreamingExample.png
 ---
 
 요약: video streaming이란 무엇인가
