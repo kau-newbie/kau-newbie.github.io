@@ -3,7 +3,7 @@ layout: post
 title:  "[project]AndroidTutor(4) Hilt로 migration하자-3"
 author: kau-newbie
 categories: [ project, android, app, DI, Hilt ]
-image: ../assets/images/AndroidTutor/prj-androidtutor-basicmodel.jpg
+image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: 실제 앱에 hilt 적용 & 결과

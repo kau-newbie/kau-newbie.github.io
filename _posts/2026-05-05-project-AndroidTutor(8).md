@@ -3,7 +3,7 @@ layout: post
 title:  "[project]AndroidTutor(8) 안드로이드 접근성 서비스에 관한 고찰-2"
 author: kau-newbie
 categories: [ android, project, accessibilityService, 접근성서비스, Runnable, Handler, Thread]
-image: ../assets/images/AndroidTutor/prj-androidtutor-basicmodel.jpg
+image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: 접근성 이벤트 처리를 위해 Runnable과 handler를 통한 debouncing 구현.
