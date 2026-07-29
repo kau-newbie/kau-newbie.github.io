@@ -640,11 +640,19 @@ table {
     width: 100%;
     overflow-x: auto;
     word-break: keep-all; /* 단어가 중간에 끊기지 않게 설정 */
-    font-size: 0.7rem; /* 전체 본문보다 조금 작게 설정 */
+    font-size: 0.95rem; /* 기존 0.7rem에서 가독성 좋은 크기로 확대 (약 15px) */
     border-collapse: collapse;
+    margin: 1.5rem 0;
 }
+
 table th, table td {
-    padding: 8px 12px; /* 셀 간격을 좁혀서 전체 너비 확보 */
+    padding: 10px 14px; /* 읽기 편하도록 패딩 살짝 확대 */
+    border: 1px solid #e0e0e0; /* 경계선을 추가하여 구분감 명확화 */
+}
+
+table th {
+    background-color: #f8f9fa; /* 테이블 헤더 배경색 추가 */
+    font-weight: 600;
 }
 body, input, textarea, button {
   font-family: "Nanum Gothic", sans-serif;
