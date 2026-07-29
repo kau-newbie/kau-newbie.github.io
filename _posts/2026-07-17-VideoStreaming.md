@@ -194,6 +194,10 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 [기가 막힌 영상을 하나 찾았다.](https://www.youtube.com/watch?v=MqP8ur-FNuA) 몹시 전체적으로 잘 설명해주는 것 같다.
 > 나도 이걸 보고 공부해서, 정말 그런지는 확인을 못해주겠다.
 
+[기가 막힌 영상을 또 하나 찾았다.](https://www.youtube.com/watch?v=-4NXxY4maYc) 포맷과 컨테이너에 대해 설명해준다.
 
+아무튼, 영상들을 정리해보겠다.
+
+[infra-frame관련 영상](https://www.youtube.com/watch?v=DljGCnNzkag)
 
 
