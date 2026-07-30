@@ -202,16 +202,16 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 
 **1. I-Frame**
 
-i-frame은 자체적으로 모든 픽셀 정보를 포함한다. jpeg로 압축하는 intra-frame 방식이다.
+  i-frame은 자체적으로 모든 픽셀 정보를 포함한다. jpeg로 압축하는 intra-frame 방식이다.
 
 **2. P-Frame**
 
-p-frame은 이전의 frame으로부터 **예측**한 motion이나 작은 변화에 관한 정보만을 저장한다.
+  p-frame은 이전의 frame으로부터 **예측**한 motion이나 작은 변화에 관한 정보만을 저장한다.
 
 **3. B-Frame**
 
-b-frame은 이전 & 이후의 양 방향 frame으로부터 **예측**한 변화 정보를 저장한다.
-> 제미나이보고 비유를 들어달랬더니, b-frame을 기준으로 이전 프레임에선 인물을 가져오고, 이후 프레임에선 배경을 가져온댄다.
+  b-frame은 이전 & 이후의 양 방향 frame으로부터 **예측**한 변화 정보를 저장한다.
+  > 제미나이보고 비유를 들어달랬더니, b-frame을 기준으로 이전 프레임에선 인물을 가져오고, 이후 프레임에선 배경을 가져온댄다.
 
 영상에서 소개하기로는, 모든 압축은
 
@@ -260,11 +260,78 @@ TCP 기반이니 핸드셰이크를 거쳐 연결을 유지한다.
 
 애플사에서 만든, High quality & reliability 를 보장하는 프로토콜이라고 한다.
 
+특정 포트만을 사용해야하는 RTMP, RTSP와 달리, HTTP 기반이라 **DRM**이란 기술을 사용할 수 있다고 한다.
 
+<details>
+  <summary>(DRM이란)</summary>
+    <blockquote>
+    제미나이한테 물어봤더니 다음과 같다고 한다.<br>
+    DRM(디지털 저작권 관리)은 디지털 콘텐츠(동영상, 음악, 전자책, 소프트웨어 등)의 무단 복제, 유출, 불법 공유를 막고 저작권을 보호하는 종합 기술 및 시스템입니다.<br>
+
+    <strong> 핵심 동작 원리 </strong><br><br>
+
+    콘텐츠 암호화: 원본 영상이나 데이터를 강력한 암호 알고리즘(AES 등)으로 패키징하여 암호화합니다.<br>
+
+    라이선스 발급: 암호화된 콘텐츠를 해석(복호화)할 수 있는 '암호화 키(Key)'를 라이선스 서버에 보관합니다.v
+
+    권한 검증: 사용자가 구매/인증을 완료하면, 정해진 조건(재생 기간, 재생 가능 기기 수 등)이 담긴 라이선스와 키를 유저 기기로 전송합니다.<br>
+
+    안전한 재생: 승인된 플레이어(보안 영역)에서만 키를 사용해 영상이 재생되며, 화면 캡처나 녹화를 원천 차단합니다.<br><br>
+
+    <strong>대표적인 DRM 솔루션:</strong><br>
+
+    Google Widevine (안드로이드, 크롬, 스마트 TV 등)<br>
+
+    Apple FairPlay (iOS, Safari, Apple TV 등)<br>
+
+    Microsoft PlayReady (Windows, Edge 등)
+    </blockquote>
+</details>
+
+그 외에도 **bitrate streaming**을 사용한다고 한다.
+
+인터넷 환경에 따라 *bitrate*를 조절한다는 건데, 실제로 유투브의 경우, 다양한 codec으로 encoding한 뒤 
+
+사용자의 인터넷 환경에 따라 알아서 적절한 *bitrate*, 즉 적절한 codec의 streaming으로 교체해준다고 한다.
+
+마지막으로 **대부분의 modern web browser**에서 지원한다고 한다!
 
 #### DASH
 
+DASH는 ISO에서 정한 기술로, HLS와 마찬가지로 multiple codec을 지원하며, 또 adaptive bitrate streaming을 지원한다.
+
+다만, 구조적 유연성이 DASH 쪽이 더 좋다고 한다. 또, 영상에 따르면 latency도 HLS에 비해 낮았다.
+
+<br><br>
+여기까지 보면 내 홈캠 프로젝트에 맞는 프로토콜은 DASH가 아닌가? 싶었다.
+
+RTSP나 RTMP는 브라우저 지원이 안돼고, HLS보다는 DASH가 빠르댄다.
+> 물론 앱으로 볼 것을 염두해 둬야 하기에, 아이폰 유저인 나는 HLS를 써야할 것 같다.
+
 #### WebRTC (Web Real-Time Communication - 초저지연 P2P 통신)
+
+[참고]
+
+[인도 분의 webRTC역사와 기술설명](https://www.youtube.com/watch?v=Kn_3uHaKz7Q)
+[webRTC와 SPD와 TURN서버까지](https://www.youtube.com/watch?v=bWcNEk0H4Y0)
+
+그동안 real-time communication을 위해 다양한 브라우저에서 다양한 별도 프로그램을 사용했다.
+
+- activeX
+- FLash
+- JAVA Applet
+- 기타
+
+그리고 2011년, 구글에서 오픈한 `WebRTC`는 현대의 대부분 브라우저에서 Built-in(자체내장)돼있다.
+
+
+
+
+
+
+
+
+
 
 
 
