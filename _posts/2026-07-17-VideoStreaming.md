@@ -152,7 +152,7 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 
 #### 압축 알고리즘
 
-<참고>
+\<참고>
 
 - [기가 막힌 영상을 하나 찾았다.](https://www.youtube.com/watch?v=MqP8ur-FNuA) 압축에 대해 전체적으로 잘 설명해주는 것 같다.
 - [기가 막힌 영상을 또 하나 찾았다.](https://www.youtube.com/watch?v=-4NXxY4maYc) 포맷과 컨테이너에 대해 설명해준다.
@@ -227,6 +227,10 @@ b-frame은 이전 & 이후의 양 방향 frame으로부터 **예측**한 변화 
 이제 비디오 스트리밍 **프로토콜**에 대해 알아보겠다.
 
 ### 비디오 스트리밍 프로토콜 비교:
+
+**비디오 스트리밍 프로토콜**은, video streaming data의 format과 전송과 그 절차 모두를 정한 약속이다.
+
+프로토콜이 보낸 사람과 받을 사람간 호환이 돼야 영상을 보내고, 또 시청할 수 있다.
 
 #### RTSP (Real-Time Streaming Protocol - CCTV/IP카메라 표준)
 
