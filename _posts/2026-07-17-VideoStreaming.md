@@ -14,19 +14,19 @@ image: assets/images/forPost/multimedia.png
 
 rasberypi 3 a+라는, 충분하다면 충분하고 모자라다면 모자랄 미니 컴퓨터를 통해 비디오 스트리밍을 쏘려고 하니,
 
-제미나이가 webRTC라는 기술을 추천해줬다. 그게 뭔데? 참을 수 없었다. 그래서 공부를 시작하려 한다.
+제미나이가 `webRTC`라는 기술을 추천해줬다. 그게 뭔데? 참을 수 없었다. 그래서 공부를 시작하려 한다.
 
 ## 제미나이의 로드맵
 
-당장 1도 몰라 막막한데, webRTC는 전문서적이 인터넷에 쳐보니 국내서적으로 1권 나와있었다.
+당장 1도 몰라 막막한데, webRTC는 전문서적이 (인터넷에 쳐보니) 국내서적으로 1권 있었다.
 
-이건, 그냥 인터넷으로 하는게 좋을 것 같다 생각이 들었다.
+이건, 그냥 인터넷으로 공부하는게 좋을 것 같다.
 
-그래도, 로드맵 정도는 있으면 좋겠다 싶어서 제미나이에게 짜달라고 했다. 아래와 같다.
+그래도 로드맵 정도는 있으면 좋겠다 싶어서 제미나이에게 로드맵을 짜달라고 했다. 아래와 같다.
 
 ---
 
-### 🗺️ 미디어 스트리밍 전문가 로드맵
+#### 미디어 스트리밍 전문가 로드맵
 
 ```
 [1단계: 스트리밍 기초 & 코덱] ──> [2단계: FFmpeg 마스터] ──> [3단계: WebRTC & NAT 트래버설] ──> [4단계: 파이프라인 통합]
@@ -34,7 +34,7 @@ rasberypi 3 a+라는, 충분하다면 충분하고 모자라다면 모자랄 미
 
 ```
 
-#### 1단계: 미디어 스트리밍 기초 & 프로토콜 이해
+##### 1단계: 미디어 스트리밍 기초 & 프로토콜 이해
 
 영상/음성 데이터가 어떻게 압축되고 네트워크를 통해 전달되는지 기본 원리를 파악하는 단계입니다.
 
@@ -47,7 +47,7 @@ rasberypi 3 a+라는, 충분하다면 충분하고 모자라다면 모자랄 미
 * WebRTC (Web Real-Time Communication - 초저지연 P2P 통신)
 
 
-#### 2단계: FFmpeg 마스터하기
+##### 2단계: FFmpeg 마스터하기
 
 FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다. 입출력 스트림 제어와 CLI 명령어를 익히는 단계입니다.
 
@@ -58,7 +58,7 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 * RTSP/RTMP/HLS 프로토콜 변환 및 가상 테스트 스트림 생성 (`testsrc`)
 
 
-#### 3단계: WebRTC & NAT 트래버설 깊이 파기
+##### 3단계: WebRTC & NAT 트래버설 깊이 파기
 
 웹 브라우저에서 딜레이 없이 실시간으로 영상/음성을 주고받는 WebRTC 심화 단계입니다.
 
@@ -68,7 +68,7 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 * **STUN & TURN 서버:** P2P 직통로 형성(STUN) 및 방화벽 우회 중계 서버(TURN/Coturn)
 * **WHEP (WebRTC HTTP Egress Protocol):** HTTP REST API로 WebRTC 미디어 수신을 주고받는 현대적 표준 프로토콜
 
-#### 4단계: 실전 파이프라인 구축 & 서비스 통합
+##### 4단계: 실전 파이프라인 구축 & 서비스 통합
 
 개념들을 묶어서 라즈베리파이(엣지 디바이스)부터 우분투(미디어 서버), 웹 대시보드까지 완성하는 단계입니다.
 
@@ -78,46 +78,7 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 * HTML5 `<video>` 태그 및 JavaScript `RTCPeerConnection` / WHEP Client 라이브러리 연동
 * 서비스 확장: OpenCV 연동을 통한 실시간 모션 감지 및 AI 객체 인식 추가
 
-
-### 📚 추천 학습 링크 & 공식 문서
-
-#### 1. WebRTC 전문 학습 자료
-
-* **[HTML5 Rocks - Getting Started with WebRTC](https://www.html5rocks.com/en/tutorials/webrtc/basics/)**
-* 구글 개발자들이 직접 작성한 WebRTC의 가장 기본적이면서 완벽한 입문 아티클입니다.
-
-
-* **[WebRTC Weekly & Blog by Tsahi Levent-Levi (bloggeek.me)](https://bloggeek.me/)**
-* 전 세계 WebRTC 업계에서 가장 유명한 전문가의 블로그입니다. NAT 트래버설, STUN/TURN, SFU/MCU 개념이 완벽하게 정리되어 있습니다.
-
-
-* **[W3C WebRTC 1.0 공식 명세 및 MDN 문서](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)**
-* JavaScript에서 `RTCPeerConnection`, `getUserMedia` 등을 다룰 때 참조하는 MDN 공식 기술 문서입니다.
-
-
-
-#### 2. FFmpeg 학습 자료
-
-* **[FFmpeg Official Documentation](https://ffmpeg.org/documentation.html)**
-* 공식 문서로, 모든 옵션과 필터에 대한 상세 설명이 들어있습니다.
-
-
-* **[FFmpeg Wiki (H.264 Encoding Guide)](https://trac.ffmpeg.org/wiki/Encode/H.264)**
-* H.264 코덱의 프리셋(`ultrafast`, `veryfast` 등), 비트레이트 설정, CRF 값 조절 등 실무 가이드가 잘 나와 있습니다.
-
-
-
-#### 3. 미디어 서버 및 라이브러리 (MediaMTX & Picamera2)
-
-* **[MediaMTX GitHub (bluenviron/mediamtx)](https://github.com/bluenviron/mediamtx)**
-* README 및 Wiki 문서에 RTSP, WebRTC(WHEP), HLS 설정을 위한 환경변수와 샘플이 매우 깔끔하게 다뤄져 있습니다.
-
-
-* **[Raspberry Pi Picamera2 Official Manual](https://www.google.com/search?q=https://datasheets.raspberrypi.com/picamera2/picamera2-python-manual.pdf)**
-* 라즈베리파이 재단에서 공식 제공하는 Python 카메라 제어 라이브러리 `Picamera2`의 PDF 메뉴얼입니다.
-
-
-### 💡 학습 진행 팁
+#### 학습 진행 팁
 
 1. 처음부터 C++ API를 직접 건드리지 마시고, **FFmpeg CLI 명령어로 영상을 변환하고 송출하는 실습**부터 편하게 시작해 보세요.
 2. WebRTC 연결이 안 될 때는 항상 크롬 브라우저의 내부 디버그 탭인 **`chrome://webrtc-internals/`** 페이지를 열어두고 ICE 수신 상태를 눈으로 보면서 공부하시면 훨씬 이해가 잘 됩니다.
@@ -152,7 +113,7 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 
 이때 복원하는 프로그램이 곧 *디코더*가 되겠다.
 
-그림으로 보면 아래와 같겠다.
+그림으로 보면 아래와 같다.
 
 ![그림으로 보자면](/assets/images/forPost/videostreaming/videoStreamingExample.png) 
 
@@ -191,13 +152,95 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 
 #### 압축 알고리즘
 
-[기가 막힌 영상을 하나 찾았다.](https://www.youtube.com/watch?v=MqP8ur-FNuA) 몹시 전체적으로 잘 설명해주는 것 같다.
-> 나도 이걸 보고 공부해서, 정말 그런지는 확인을 못해주겠다.
+<참고>
 
-[기가 막힌 영상을 또 하나 찾았다.](https://www.youtube.com/watch?v=-4NXxY4maYc) 포맷과 컨테이너에 대해 설명해준다.
+- [기가 막힌 영상을 하나 찾았다.](https://www.youtube.com/watch?v=MqP8ur-FNuA) 압축에 대해 전체적으로 잘 설명해주는 것 같다.
+- [기가 막힌 영상을 또 하나 찾았다.](https://www.youtube.com/watch?v=-4NXxY4maYc) 포맷과 컨테이너에 대해 설명해준다.
 
 아무튼, 영상들을 정리해보겠다.
 
-[infra-frame관련 영상](https://www.youtube.com/watch?v=DljGCnNzkag)
+디지털 비디오 파일들을 보면 extension(확장자)로 `.mov`, `mp4` 등이 붙어있다.
+
+##### Container
+
+이때, 이 확장자들은 **Container**를 나타내는 것이다.
+> Container는 Codec과 다르다.
+> - video steram과 함께 그 contents를 담고있는 *wrapper*를 나타낸다.
+
+그리고 **비디오 format**은 **Codec** + **Container**를 나타내는 말이다.
+
+*Codec*으로는 위에서 봤던 H. 시리즈가 있고, *Container*로는 `AVI`, `MOV`, `MP4`, `MTS` 등이 있다.
+
+##### Intra Frame, Inter Frame
+
+다시 압축 알고리즘으로 돌아와서, 압축 알고리즘의 두 가지 방식에 대해 정리하겠다.
+1. Intra Frame
+2. Inter Frame
+
+<details>
+  <summary>(참고)</summary>
+    <blockquote>디지털 영상은 많은 수의 프레임의 연속 재생이고, 이 하나하나의 프레임들은 010101010.....의 디지털 데이터로 변환한다. encoding이라고 부르는 이 과정에는 압축 알고리즘이 적용된다. 이 변환 과정을 수행하는 SW 혹은 HW를 Codec이라고도 한다.
+    </blockquote>
+</details>
+
+**1. Intra Frame**
+
+각 프레임 별로 압축을 진행한다. 
+- 영상에 나온 가장 쉬운 예시가 `M-JPEG`(Motion-JPEG)이다. 각 프레임을 `JPEG` 형식으로 저장한다.
+- 그 외에 `ProRes`, `DNxHD` 등이 있다.
+
+**2. Inter Frame**
+
+중간 중간의 프레임을 *key 프레임*으로 삼고, 나머지 프레임들은 *delta frame*이라는, 변화에 해당하는 정보를 저장한다고 한다.
+- 더 작은 용량으로 저장할 수 있게 된다.
+- 대표적으로 내가 이번에 프로젝트에 사용할 `H.264`(AVC)가 있다!
+> 단, H.264는 `i-frame h.263`라는, intra-frame로 구현된 경우가 있다고도 한다.
+
+##### I-Frame, P-Frame, B-Frame
+
+이런 압축 기술(Compression)에서는 세 타입의 frame이 쓰인다고 한다.
+
+**1. I-Frame**
+
+i-frame은 자체적으로 모든 픽셀 정보를 포함한다. jpeg로 압축하는 intra-frame 방식이다.
+
+**2. P-Frame**
+
+p-frame은 이전의 frame으로부터 **예측**한 motion이나 작은 변화에 관한 정보만을 저장한다.
+
+**3. B-Frame**
+
+b-frame은 이전 & 이후의 양 방향 frame으로부터 **예측**한 변화 정보를 저장한다.
+> 제미나이보고 비유를 들어달랬더니, b-frame을 기준으로 이전 프레임에선 인물을 가져오고, 이후 프레임에선 배경을 가져온댄다.
+
+영상에서 소개하기로는, 모든 압축은
+
+1. 프레임을 블럭 단위로 쪼개고
+2. 블럭 별로 변화를 예측해서
+3. 잔차(변화 후 픽셀 값 변화)를 계산한 뒤
+4. 압축
+
+의 과정들을 블럭마다 반복한다고 말한다.
+
+시간에 따라 전송 매체도 발전하고, 요구사항도 달라지면서(늘어나면서) 매 기술 표준의 발전마다 블럭 사이즈를 더욱 유연하게 정하고, 또 어떤 원리가 들어가고, 이런 식으로 발전해왔다.
+
+이제 비디오 스트리밍 **프로토콜**에 대해 알아보겠다.
+
+### 비디오 스트리밍 프로토콜 비교:
+
+#### RTSP (Real-Time Streaming Protocol - CCTV/IP카메라 표준)
+
+#### RTMP (Real-Time Messaging Protocol)
+
+#### HLS (HTTP Live Streaming - 유튜브/넷플릭스 등 HTTP 기반 스트리밍)
+
+#### DASH
+
+#### WebRTC (Web Real-Time Communication - 초저지연 P2P 통신)
+
+
+
+
+
 
 
