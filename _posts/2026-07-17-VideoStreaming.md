@@ -352,7 +352,7 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 | OSI 계층|프로토콜/ 기술|역할 |
 |---|---|---|
-|7. 응용 계층 (Application)||WebRTC (JavaScript API)|"미디어 캡처, PeerConnection 제어, DataChannel 제어"|
+|7. 응용 계층 (Application)|WebRTC (JavaScript API)|"미디어 캡처, PeerConnection 제어, DataChannel 제어"|
 |6. 표현 계층 (Presentation)|"Codecs (Opus, VP8/VP9, H.264)"|오디오/비디오 압축 및 복호화|
 |5. 세션 계층 (Session)|SDP / ICE / STUN / TURN,"미디어/네트워크 정보 협상| P2P NAT 통과 세션 수립"|
 |4. 전송 계층 (Transport)|DTLS / SRTP / SCTP(기기 간 기반: UDP)|SRTP: 미디어 데이터(음성/영상) 암호화 전송SCTP: 데이터 채널(텍스트/파일) 전송DTLS: 키 교환 및 보안 터널 형성|
@@ -403,6 +403,8 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
       "문 다 열렸으니 영상/음성 스트림 직접 쏜다!" (P2P 미디어 송수신)
 
 ```
+
+이때! 서버와 user간의 프로토콜은 `http`, `webSocket` 등을 사용한다.
 
 그 외에도 UDP를 위한 security protocol인 `DTLS` (패킷 암호화를 진행한다.), 그리고 연결간 참가자 id 식별이나 QoS 상태, 그리고 이 상태에 따라 bitrate를 조정하는 `RTCP`가 있다.
 
