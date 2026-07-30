@@ -2,7 +2,7 @@
 layout: post
 title:  "[project]AndroidTutor(9) Gemma4:e2b Fine Tunning-1"
 author: kau-newbie
-categories: [ gemma4, project, Ai, finetunning]
+categories: [ gemma4, project, ai, finetunning]
 image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 
