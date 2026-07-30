@@ -228,15 +228,39 @@ b-frame은 이전 & 이후의 양 방향 frame으로부터 **예측**한 변화 
 
 ### 비디오 스트리밍 프로토콜 비교:
 
+[참고 영상](https://www.youtube.com/watch?v=KX-_fvvmwlA)
+
 **비디오 스트리밍 프로토콜**은, video streaming data의 format과 전송과 그 절차 모두를 정한 약속이다.
 
 프로토콜이 보낸 사람과 받을 사람간 호환이 돼야 영상을 보내고, 또 시청할 수 있다.
 
 #### RTSP (Real-Time Streaming Protocol - CCTV/IP카메라 표준)
 
+RTP(Real-Time Transport Protocol)을 기반으로 동작하며, 받는 쪽에서 Play, Stop, Pause 로 조작할 수 있도록 한다.
+- RTP는 UDP를 기반으로하며, 대신 순서를 제어하고, 타임스탬프로 음성&영상 간의 동기화를 맞추며, 전송되는 영상의 코덱 종류를 포함한다.
+
+단, 브라우저에서 재생을 지원하지 않는다고 한다. (특정 종류의 플레이어가 필요하다.)
+
+client 쪽에서 SETUP 신호 후 OK REPLY를 받았을 때, PLAY 신호를 보낸 뒤, OK REPLY 이후 미디어 데이터를 받는다. 
+
 #### RTMP (Real-Time Messaging Protocol)
 
+Adobe에서 만든 TCP기반의 low-latency audio/video 등등 미디어 전송 프로토콜이다.
+
+지금은 없어진 Flash Player로만 브라우저에서도 비디오를 볼 수 있게끔 한다.
+
+TCP 기반이니 핸드셰이크를 거쳐 연결을 유지한다. 
+
+1. Encoder인 비디오 송출 측에서 RTMP를 통해 압축된 영상을 서버로 보내준다.
+2. 서버는 중계 역할을 한다.
+3. 서버에서 RTMP로 Client에게 바로 보내주거나, CDN을 통해 다른 HLS 등의 프로토콜로 Client들에게 보낸다.
+  > 보통 실시간 방송 스트리밍은 다수를 대상으로 보내야하므로 서버가 중계해주는 것일 뿐, Encoder --> Server 간에서 RTMP를 사용한다 생각하면 된다.
+
 #### HLS (HTTP Live Streaming - 유튜브/넷플릭스 등 HTTP 기반 스트리밍)
+
+애플사에서 만든, High quality & reliability 를 보장하는 프로토콜이라고 한다.
+
+
 
 #### DASH
 
