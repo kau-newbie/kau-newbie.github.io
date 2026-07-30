@@ -327,9 +327,26 @@ RTSP나 RTMP는 브라우저 지원이 안돼고, HLS보다는 DASH가 빠르댄
 WebRTC는 session 방식이다. 즉, 한 번 연결을 만든 뒤, 계속해서 통신을 이어간다. (Stateful)
 > UDP를 사용한다.
 
-이때! `SDP`(Session Description Protocol)이라는 protocol을 통해 서로의 통신 설정을 주고 받는다.
+<details>
+  <summary>(udp란)</summary>
+  <pre>강의 자료를 긁어왔다.
 
-프로토콜이 자주 등장하는데, 여기서 잠깐 짚고 넘어가자면, WebRTC는 단일 응용 계층 프로토콜이 아니다.
+  ▪ Process-to-process communication using socket addresses
+  ▪ Connectionless Services
+    ✓ Independency between datagrams
+    ✓ no numbering of datagrams
+    ✓ no connection establishment, no connection termination.
+    ✓ Message less than 65,507(65535-8(UDP header)-20(IP header)) bytes can use UDP.
+  ▪ No flow control, no window mechanism
+  ▪ No error control : if the receiver detects an error through the checksum, the datagram is discarded.
+  ▪ Checksum
+    ✓ A pseudo header, UDP header, application layer data
+  ▪ No congestion control
+  ▪ UDP is a connectionless simple protocol with optional checksum.
+  </pre>
+</details>
+
+webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여기서 잠깐 짚고 넘어가자면, WebRTC는 단일 응용 계층 프로토콜이 아니다.
 
 다음과 같이 여러 계층 프로토콜을 묶은 기술 스택이다.
 
@@ -340,6 +357,55 @@ WebRTC는 session 방식이다. 즉, 한 번 연결을 만든 뒤, 계속해서 
 |5. 세션 계층 (Session)|SDP / ICE / STUN / TURN,"미디어/네트워크 정보 협상| P2P NAT 통과 세션 수립"|
 |4. 전송 계층 (Transport)|DTLS / SRTP / SCTP(기기 간 기반: UDP)|SRTP: 미디어 데이터(음성/영상) 암호화 전송SCTP: 데이터 채널(텍스트/파일) 전송DTLS: 키 교환 및 보안 터널 형성|
 |3. 네트워크 계층 (Network)|IP (IPv4 / IPv6)|패킷 주소 지정 및 라우팅|
+
+예를 들어보자. 두 명의 user가 연결을 맺으려고 시도한다. 이걸 **signaling**이라고 한다.
+> 이 signaling은 '서버'가 주선해주어야 가능하다.
+
+서버에서는 두 user간 signaling을 위해 `SDP`나 `ICE Candidate`를 주고 받는 것을 돕는다.
+
+  - `SDP`란 무엇일까? 
+    > SDP는 *Session Description Protocol*의 약자로, 서로 통신시 사용할 설정을 주고받는 방식이다.
+    > - 미디어 유형, codec, 화면해상도, ice 등의 정보가 들어있다.
+
+  - `ICE`란 무엇일까? 
+    > *Interactive Connectivity Establishment*의 약자로, p2p 연결시 여러 가능한 루트 candidate 중에서 어느 루트로 연결할 것인지 정하는 알고리즘이다.
+
+    - **Host candidate**: 같은 로컬 네트워크에 속해있는 경우. 같은 공유기를 타고 나가기 때문에 *사설 ip*와 *포트 번호*만으로도 쉽게 통신 가능하다.
+    - **Server Reflexive candidate**: 서로 다른 네트워크에 속해있어서 상대방의 IP 주소를 알아낼 **중계 서버(STUN 서버)**가 필요하다.
+    - **Relay Candidate**: 네트워크 환경에 따라 (방화벽 등등의 요인으로) STUN 서버가 안될 때, **TURN 서버**를 두고, 아예 스트리밍 자체를 중계로 하는 경우이다. 그만큼 delay가 생긴다고 한다.
+
+    <details>
+      <summary>(hls의 상대적으로 높은 latency == turn 서버의 latency?)</summary>
+      HLS의 지연은 "데이터를 만드는 방식(애플리케이션/프로토콜 구조)" 때문이고, TURN 서버의 지연은 "데이터가 이동하는 경로(네트워크 라우팅/패킷 처리)" 때문입니다.
+    </details>
+
+예를 들어, 대부분의 user들은 "집 안 공유기 --> 모뎀 --> 아파트 공용 아이피 --> 외부 인터넷" 의 루트로 인터넷을 사용할텐데, 이때 꼭 **public ip**가 필요하고, 이를 서버에서 알아봐주기 때문이다. 
+- NAT(사설 ip와 공인 ip를 변환해주는 기술)에는 여러 보안 기술이 적용되는데, 그 중 하나가 "일단 내가 상대방에게 패킷을 보내야지만" 그쪽으로부터 오는 패킷을 받을 수 있게끔 해놓은 기술이다.
+
+즉, 중앙에서 signaling을 중계할 서버가 필요한 이유는, 연결이 설정되기 전까지는 SDP나 ICE candidate을 서버가 중계해서 전달해줘야 하기 때문이다.
+> 이때! SDP교환 이후 서버를 통해 알아내는 것은 본인의 공인 IP임으로, 서버가 중계해서 서로에게 상대방의 IP와 포트 번호를 알려준다.
+> - 이게 바로 ICE Candidate를 주고 받은 것이다.
+
+제미나이의 요약 흐름도는 아래와 같다.
+
+```
+
+[1단계] SDP Offer / Answer 교환 (시그널링 서버)
+   │  "미디어 종류는? 무슨 코덱 쓸까? 해상도는? 오디오는 포함해?" (미디어 스펙 합의)
+   ▼
+[2단계] STUN 서버 조회
+   │  "내 공인 IP랑 포트 번호가 몇 번이지?" (각자 자기 주소 확인)
+   ▼
+[3단계] ICE Candidate 교환 (시그널링 서버)
+   │  "나 211.x.x.x:10000 으로 문 열 수 있어!" (서로의 주소 명함 교환)
+   ▼
+[4단계] P2P 직통로 연결 완료 (UDP Hole Punching)
+      "문 다 열렸으니 영상/음성 스트림 직접 쏜다!" (P2P 미디어 송수신)
+
+```
+
+그 외에도 UDP를 위한 security protocol인 `DTLS` (패킷 암호화를 진행한다.), 그리고 연결간 참가자 id 식별이나 QoS 상태, 그리고 이 상태에 따라 bitrate를 조정하는 `RTCP`가 있다.
+
 
 
 
