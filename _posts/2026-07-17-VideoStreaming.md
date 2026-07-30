@@ -369,10 +369,9 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
   - `ICE`란 무엇일까? 
     > *Interactive Connectivity Establishment*의 약자로, p2p 연결시 여러 가능한 루트 candidate 중에서 어느 루트로 연결할 것인지 정하는 알고리즘이다.
-
-    - **Host candidate**: 같은 로컬 네트워크에 속해있는 경우. 같은 공유기를 타고 나가기 때문에 *사설 ip*와 *포트 번호*만으로도 쉽게 통신 가능하다.
-    - **Server Reflexive candidate**: 서로 다른 네트워크에 속해있어서 상대방의 IP 주소를 알아낼 **중계 서버(STUN 서버)**가 필요하다.
-    - **Relay Candidate**: 네트워크 환경에 따라 (방화벽 등등의 요인으로) STUN 서버가 안될 때, **TURN 서버**를 두고, 아예 스트리밍 자체를 중계로 하는 경우이다. 그만큼 delay가 생긴다고 한다.
+    > - **Host candidate**: 같은 로컬 네트워크에 속해있는 경우. 같은 공유기를 타고 나가기 때문에 *사설 ip*와 *포트 번호*만으로도 쉽게 통신 가능하다.
+    > - **Server Reflexive candidate**: 서로 다른 네트워크에 속해있어서 상대방의 IP 주소를 알아낼 **중계 서버(STUN 서버)**가 필요하다.
+    > - **Relay Candidate**: 네트워크 환경에 따라 (방화벽 등등의 요인으로) STUN 서버가 안될 때, **TURN 서버**를 두고, 아예 스트리밍 자체를 중계로 하는 경우이다. 그만큼 delay가 생긴다고 한다.
 
     <details>
       <summary>(hls의 상대적으로 높은 latency == turn 서버의 latency?)</summary>
