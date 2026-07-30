@@ -324,6 +324,23 @@ RTSP나 RTMP는 브라우저 지원이 안돼고, HLS보다는 DASH가 빠르댄
 
 그리고 2011년, 구글에서 오픈한 `WebRTC`는 현대의 대부분 브라우저에서 Built-in(자체내장)돼있다.
 
+WebRTC는 session 방식이다. 즉, 한 번 연결을 만든 뒤, 계속해서 통신을 이어간다. (Stateful)
+> UDP를 사용한다.
+
+이때! `SDP`(Session Description Protocol)이라는 protocol을 통해 서로의 통신 설정을 주고 받는다.
+
+프로토콜이 자주 등장하는데, 여기서 잠깐 짚고 넘어가자면, WebRTC는 단일 응용 계층 프로토콜이 아니다.
+
+다음과 같이 여러 계층 프로토콜을 묶은 기술 스택이다.
+
+| OSI 계층|프로토콜/ 기술|역할 |
+|---|---|---|
+|7. 응용 계층 (Application)||WebRTC (JavaScript API)|"미디어 캡처, PeerConnection 제어, DataChannel 제어"|
+|6. 표현 계층 (Presentation)|"Codecs (Opus, VP8/VP9, H.264)"|오디오/비디오 압축 및 복호화|
+|5. 세션 계층 (Session)|SDP / ICE / STUN / TURN,"미디어/네트워크 정보 협상| P2P NAT 통과 세션 수립"|
+|4. 전송 계층 (Transport)|DTLS / SRTP / SCTP(기기 간 기반: UDP)|SRTP: 미디어 데이터(음성/영상) 암호화 전송SCTP: 데이터 채널(텍스트/파일) 전송DTLS: 키 교환 및 보안 터널 형성|
+|3. 네트워크 계층 (Network)|IP (IPv4 / IPv6)|패킷 주소 지정 및 라우팅|
+
 
 
 

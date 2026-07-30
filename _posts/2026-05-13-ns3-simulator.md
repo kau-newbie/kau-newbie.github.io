@@ -75,7 +75,11 @@ NrDlRlcStatsE2E.txt   UlInterferenceStats.txt      drone-output.tr
 
 ```
 
-여러 xml 파일들이 존재하는 것을 확인할 수 있다. (설정하기 나름에 따라 txt파일 등등이 가능하다. `netanim`을 이용해 애니메이션 실행도 가능하다.)
+build된 my-animation-test.xml 외에도 여러 xml 파일들이 존재하는 것을 확인할 수 있다. 
+
+(설정하기 나름에 따라 txt파일 등등이 가능하다. `netanim`을 이용해 애니메이션 실행도 가능하다.)
+
+아래는 tutorial 코드 중 하나를 일부 수정 및 주석을 단 코드이다.
 
 ## basic-twosides.cc 코드 예시
 
@@ -178,6 +182,8 @@ main(int argc, char* argv[])
 }
 
 ```
+
+끝!
 
 
 
