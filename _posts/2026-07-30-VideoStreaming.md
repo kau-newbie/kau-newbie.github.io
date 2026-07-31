@@ -572,7 +572,33 @@ webRTC를 이용할 아키텍처는 완성됐고, 그럼 이제 FFmpeg은 어떤
 
 decode, encode, transcode, mux, demux, stream, filter and play 를 지원하는 프레임워크라고 한다.
 
-[h.264](https://trac.ffmpeg.org/wiki/Encode/H.264)에 관한 문서를 읽어보면,
+[공식문서](https://ffmpeg.org/ffmpeg.html#Synopsis)를 읽어보면,
+
+```
+
+ffmpeg [global_options] {[input_file_options] -i input_url} ... {[output_file_options] output_url} ...
+
+```
+
+라는 기본 명령어를 기준으로 설명하고 있다. 글로벌 옵션이란 모든 인풋/아웃풋에 적용되는 옵션이고, 그 외 옵션은 그 다음 나오는 파일에만 적용된다고 한다.
+
+```
+
+입력은 -i 옵션으로 지정하고, 출력은 그냥 URL이나 파일명으로 지정합니다.
+
+명령줄에서 옵션으로 해석되지 않는 문자열은 모두 출력 URL로 간주됩니다.
+
+```
+라는데, 다음고 같은 예시를 두고 있다.
+
+Set the video bitrate of the output file to 64 kbit/s:
+> ffmpeg -i input.avi -b:v 64k -bufsize 64k output.mp4
+
+Force the frame rate of the output file to 24 fps:
+> ffmpeg -i input.avi -r 24 output.mp4
+
+-i 옵션 뒤에는 input 파일이 나오고,  -b로 bitrate를 설정하거나, -r로 frame rate를 설정한다.
+- input으로 넘어오는 스트림에 대해 30fps로 강제하는 상황도 생각해볼 수 있겠다.(물론 통신환경을 고려해서, 적용하진 않을 것이다.)
 
 
 
