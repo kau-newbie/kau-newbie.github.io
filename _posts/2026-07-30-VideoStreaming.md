@@ -407,7 +407,7 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 그 외에도 UDP를 위한 security protocol인 `DTLS` (패킷 암호화를 진행한다.), 그리고 연결간 참가자 id 식별이나 QoS 상태, 그리고 이 상태에 따라 bitrate를 조정하는 `RTCP`가 있다.
 
-##### 아키텍처{:#architecture-section}
+##### 아키텍처 {#architecture-section}
 
 지금까지 나온 내용들로 홈캠 프로젝트에 적용해보자면, 다음과 같은 아키텍처를 그릴 수 있을 것 같다.
 
