@@ -537,7 +537,7 @@ output = FfmpegOutput("test.mp4", audio=True)
 이런식으로 FfmpegOutput을 쓰면서, 파일로 저장하고, audio도 마찬가지로 인코딩해서 저장한다.
 
 우리는 `FFmpeg`을 외부에서 호출한 뒤 이용하는 `FfmpegOutput`을 최대로 활용하기 위해서, 외부의 mediaMTX 서버로 Ffmpeg을 통해 보낼 것이다.
-- 코파일럿씨 말을 들어보니 FfmpegOutput() 자체가 Ffmpeg에게 url을 넘겨주는 것 같았다.(?)
+- 코파일럿씨 말을 들어보니, **FfmpegOutput() 자체가 Ffmpeg에게 실행할 명령어 옵션들을 넘겨주는 것이다.**
 - 다시한번 상기하자면, 나는 `rtsp`를 이용할 것이다.
 
 예제 코드는 아래와 같다.
@@ -569,6 +569,10 @@ output = FfmpegOutput("rtsp://mediamtx-server:8554/mystream")
 webRTC를 이용할 아키텍처는 완성됐고, 그럼 이제 FFmpeg은 어떤 것이고, 어떻게 적용될까?
 
 ### FFmpeg이란?
+
+decode, encode, transcode, mux, demux, stream, filter and play 를 지원하는 프레임워크라고 한다.
+
+[h.264](https://trac.ffmpeg.org/wiki/Encode/H.264)에 관한 문서를 읽어보면,
 
 
 
