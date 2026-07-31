@@ -307,6 +307,9 @@ DASH는 ISO에서 정한 기술로, HLS와 마찬가지로 multiple codec을 지
 
 RTSP나 RTMP는 브라우저 지원이 안돼고, HLS보다는 DASH가 빠르댄다.
 > 물론 앱으로 볼 것을 염두해 둬야 하기에, 아이폰 유저인 나는 HLS를 써야할 것 같다.
+> 
+> 미리 스포일러를 하자면, FFMPEG에서는 webRTC를 제공하는 기능이 없다. 따라서 FFMPEG에서 MediaMTX 서버로 보낸 뒤, MediaMTX서버에서 WebRTX로 사용자에게 video streaming을 보낸다. 
+> 그리고 ffmpeg에서는 RTSP, RTMP, HLS를 제공한다. 따라서 제일 빠른 RTSP나 RTMP가 이득인 것 같다.
 
 #### WebRTC (Web Real-Time Communication - 초저지연 P2P 통신)
 
@@ -407,11 +410,159 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 그 외에도 UDP를 위한 security protocol인 `DTLS` (패킷 암호화를 진행한다.), 그리고 연결간 참가자 id 식별이나 QoS 상태, 그리고 이 상태에 따라 bitrate를 조정하는 `RTCP`가 있다.
 
-##### 아키텍처 {#architecture-section}
+##### WebRTC in JavaScript
+
+추가로, **JavaScript에서 API 형태로 webRTC를 지원한다.**
+
+## 각 라이브러리는 대체 여기서 무엇을 하지? {:#question1-section}
+
+이때, architecture를 보면, 궁금한 점이 생긴다.
+
+제미나이가 추천해준 mediaMTX, FFmpeg, rasberypi의 카메라 라이브러리 등은 각각 어떤 용도인가? 하는 것인데, 
+
+우선, rasberypi 3a+에서 쓰고 있는 `picamera2`가 할 수 있는 일/ 없는 일부터 나눠야 하겠다.
+
+**picamera2**란, [pdf](https://pip-assets.raspberrypi.com/categories/652-raspberry-pi-camera-module-2/documents/RP-008156-DS-3-picamera2-manual.pdf)에 따르면,
+
+USB 포트로 연결하는 rasberypi 보다는, 길다란 납작 케이블 형태의 카메라를 python으로 조작하기 위해 만들어진 라이브러리라고 한다.
+> 문서에 따르면 아주아주 고수준의 api들도 제공한다고 한다.
+
+Video 파트 문서를 읽어보자.
+
+### Encoder와 start_recording, start_encoding
+
+```py
+from picamera2.encoders import H264Encoder
+from picamera2 import Picamera2
+import time
+picam2 = Picamera2()
+video_config = picam2.create_video_configuration()
+picam2.configure(video_config)
+encoder = H264Encoder(bitrate=10000000)
+"""혹은,
+  encoder = H264Encoder()
+  picam2.start_recording(encoder, 'test.h264', quality=Quality.HIGH)
+"""
+output = "test.h264"
+picam2.start_recording(encoder, output)
+time.sleep(10)
+picam2.stop_recording()
+
+```
+코드가 몹시 예쁘다. 단순히 Picamera2()라는 객체에서 `encoder`와 `ouput 종류`를 정해주고 `start_recording`이라는 편리한 메서드를 사용해 시작할 수 있다.
+> 원칙적으로 camer에서 나오는 every frame은 encoder로 간다고 한다. 단, `encoder.frame_skip_count = `같은 설정으로 몇 개의 frame을 건너띄게 설정할 수도 있다고 한다.
+
+<details>
+  <summary>프로젝트에 적절한 인코더인 <strong>h264encoder</strong>도 찾을 수 있었다.</summary>
+  <pre>
+    7.1.1. H264Encoder
+
+    The H264Encoder class implements an H.264 encoder using the Pi’s in-built hardware, accessed through the V4L2 kernel drivers, 
+    supporting up to 1080p30. The constructor accepts the following optional parameters:
+
+    • bitrate (default None) - the bitrate (in bits per second) to use. The default value 
+      appropriate bitrate according to the Quality when it starts.
+
+    • repeat (default None will cause the encoder to choose an False) - whether to repeat the stream’s sequence headers with every    Intra frame (I-frame). 
+      This can be sometimes be useful when streaming video over a network, when the client may not receive the start of the stream where the sequence headers would normally be located.
+
+    • iperiod (default None) - the number of frames from one I-frame to the next. 
+      The value None leaves this at the discretion of the hardware, which defaults to 60 frames.
+    This encoder can accept either 3-channel RGB...
+  </pre>
+</details>
+
+### Output
+
+출력 방식에 대한 내용도 찾을 수 있었다. 이 부분이 상당히 중요했다!
+
+```
+Output objects: 인코더가 만든 인코딩된 비디오 프레임을 직접 받아서 파일이나 네트워크 소켓으로 전달하는 역할을 합니다.
+
+생성 방식:
+
+  보통은 생성자(Constructor)를 이용해 직접 Output 객체를 만듭니다.
+
+  하지만 start_encoder()나 start_recording() 같은 함수에 단순 문자열(파일 이름 등)을 넘기면, 내부적으로 자동으로 FileOutput 객체가 만들어져서 파일에 기록됩니다.
+
+```
+
+다양한 output fotamt이 있었다.
+
+1. FileOutput
+  - 데이터를 파일로 저장.
+  - 예: 사진을 .jpg, 영상은 .mp4 같은 파일로 저장.
+  - 간단히 결과물을 남기고 싶을 때 사용.
+
+2. CircularOutput
+  - 데이터를 메모리에 원형 버퍼 형태로 저장.
+  - 최근 몇 초간의 영상만 유지 → “타임머신”처럼 직전 순간을 저장 가능.
+  - 보안 카메라나 이벤트 감지용으로 유용.
+
+3. NullOutput
+  - 데이터를 버려버리는 출력.
+  - 실제 저장은 안 하고, 단순히 카메라 파이프라인을 유지할 때 사용.
+
+4. FfmpegOutput
+  - 데이터를 FFmpeg 프로세스에 전달.
+  - FFmpeg은 강력한 영상 처리 도구로, 인코딩·스트리밍·변환을 담당.
+  - Picamera2에서 찍은 영상을 실시간으로 서버로 스트리밍하거나, 다른 포맷으로 변환할 때 사용.
+
+사실 여기에 넣진 않았지만, `PyavOutput`라는 포맷도 있다. 설명을 보면,
+  > The PyavOutput is a more recent integration of Picamera2 with FFmpeg. Rather than passing frames to an external FFmpeg process, 
+  > we pass them directly to the FFmpeg libraries running in the same Python process using the PyAV Python bindings.
+
+라고 하는데, `PyAV`에 대한 기반지식이 필요하다고 한다....
+
+이 `PyavOutput`와 `FfmpegOutput` 각각 내부적/ 외부적으로 ffmpeg을 호출해 streaming하는 기능을 제공한다. 일종의 파이프라인이다!
+> 내가 직접 ffmpeg 프로그램을 짤 필요가 없다. 해당 output으로 설정해두면, 알아서 ffmpeg 호출 후 메모리에 올려 실행까지 해주는 아주 편리한 기능이었다! 감사합니다...
+
+다만, **우리 코파일럿씨의 의견으로는,** `FFMPEG`**이 훨씬 프로젝트에 적합하다고 한다.**
+
+다음과 같은 이유가 있다.
+
+1. 편의성: FFmpeg은 패킷 손실 복구, 버퍼링, 재연결 같은 기능을 이미 구현해두었다. 따라서 `PyAV`는 직접 코드를 짜야한다고 한다.
+2. 프로토콜 제공폭: `PyAV`는 RTMP, RTSP, HLS, SRT 등 스트리밍 표준 프로토콜을 지원하지 않았다. -> 단순 소켓통신을 위한 tcp, udp는 제공하나, 핸드셰이킹부터 이것저것 구현해야한다. 반면, `FFMPEG`은 지원한다!
+3. 하드웨어 가속: 하드웨어 가속 측면에서도 `PyAV`는 python 레벨에서 다루기 때문에 제한적이라고 한다.
+
+그럼 FFMPEG output으로 가야겠다. 예제 코드를 살펴본다.
+
+```py
+
+from picamera2.outputs import FfmpegOutput
+output = FfmpegOutput("test.mp4", audio=True)
+
+```
+
+이런식으로 FfmpegOutput을 쓰면서, 파일로 저장하고, audio도 마찬가지로 인코딩해서 저장한다.
+
+우리는 `FFmpeg`을 외부에서 호출한 뒤 이용하는 `FfmpegOutput`을 최대로 활용하기 위해서, 외부의 mediaMTX 서버로 Ffmpeg을 통해 보낼 것이다.
+- 코파일럿씨 말을 들어보니 FfmpegOutput() 자체가 Ffmpeg에게 url을 넘겨주는 것 같았다.(?)
+- 다시한번 상기하자면, 나는 `rtsp`를 이용할 것이다.
+
+예제 코드는 아래와 같다.
+
+```py
+
+output = FfmpegOutput("rtsp://mediamtx-server:8554/mystream")
+
+```
+
++ 생각보다 별 도움이 안됐던(?) 참고: [picamera2 예제들](https://github.com/raspberrypi/picamera2/blob/main/examples/capture_stream_udp.py)
+
+#### 아키텍처 {#architecture-section}
 
 지금까지 나온 내용들로 홈캠 프로젝트에 적용해보자면, 다음과 같은 아키텍처를 그릴 수 있을 것 같다.
 
 ![홈캠프로젝트](/assets/images/forPost/videostreaming/prj-homecam-architecture.drawio.png)
+
+##### pi 에서는,
+- cam -> picamera2 -> Ffmpeg 을 거치며 최종적으로 rtsp 프로토콜을 통해 mediaMTX 서버로 스트리밍을 보낸다.
+
+##### mediaMTX에서는, 
+- 스트리밍을 받아서 webRTC로 변환한 뒤, client들에게 뿌릴 것이다.
+- 물론, signaling 서버를 겸한다. (mediaMTX에 내장돼있다고 한다.)
+
 
 ## 2단계: FFmpeg 마스터하기
 
