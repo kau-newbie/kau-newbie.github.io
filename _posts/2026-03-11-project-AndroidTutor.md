@@ -46,11 +46,31 @@ LLM으로부터 한줄 지시사항과 함께 행동을 받아오면, 그 행동
 그 다음 LLM응답을 받기위해 마찬가지로 LLM에게 프롬프트를 전송하게 된다.
 
 
-## 문제와 해결책
+## 실제 예시
+
+실제 예시는 아래와 같다.
+
+![듣기중](/assets/images/forPost/AndroidTutor/듣기중.png) ==> ![안내1](/assets/images/forPost/AndroidTutor/안내중.png) ==>
+![화면변경1](/assets/images/forPost/AndroidTutor/화면변경1.png) ==> ![안내2](/assets/images/forPost/AndroidTutor/안내중2.png)
+
+1. 사용자의 "엄마에게 문자 보내고 싶어." 음성 입력 (최초 목표 입력)
+2. LLM으로부터 안내 및 가이드 .gif 띄우기
+3. 사용자의 조작으로 화면 ui state 변경
+4. (3번에 의해 자동으로) LLM으로부터의 새 안내 및 가이드 .gif 띄우기
+
+(3~4번을 목표달성시까지 반복)
+
+## 그 외
 
 사실 이것저것 문제점들이 많았는데, 뒤의 포스팅들에 그때마다의 해결과정들을 써놓았다.
 
-(뒤의 포스팅들을 쓰고 다시 돌아와 작성 중이다....)
+- [힐트로 migration](https://kau-newbie.github.io/project-AndroidTutor(2)/)
+- [view-filtering 으로 애니메이션이 취소되는 문제](https://kau-newbie.github.io/AndroidSys/)
+- [코루틴과 collect()메서드](https://kau-newbie.github.io/project-AndroidTutor(5)/)
+- [이벤트를 줄이기위한 노력1](https://kau-newbie.github.io/project-AndroidTutor(6)/)
+- [이벤트를 줄이기위한 노력2](https://kau-newbie.github.io/project-AndroidTutor(7)/)
+- [이벤트를 줄이기위한 노력3](https://kau-newbie.github.io/project-AndroidTutor(8)/)
 
-(still writing...)
+요약하자면, "Hilt 사용해보기 + coroutine이 치밀하지 못해서 생긴 문제 + `collect()`메서드와 `collectLatest()`의 선택 문제 + 이벤트를 줄이기 위한 문제" 가 있었고, 
 
+결론적으로 Hilt를 잘 적용했을 뿐더러, Coroutine을 전반적으로 점검하고, collect()를 사용하는 대신, 이벤트도 줄일겸 decouncing을 main thread에게 delay된 runnable()로 넘겨주었다.
