@@ -10,7 +10,7 @@ image: assets/images/forPost/multimedia.png
 
 # Video Streaming 공부
 
-프로젝트를 진행하다보니, 홈캠으로부터 비디오 스트리밍을 받아올 필요가 있었다.
+홈캠 프로젝트를 진행하다보니, 홈캠으로부터 비디오 스트리밍을 받아올 필요가 있었다.
 
 rasberypi 3 a+라는, 충분하다면 충분하고 모자라다면 모자랄 미니 컴퓨터를 통해 비디오 스트리밍을 쏘려고 하니,
 
@@ -328,7 +328,7 @@ WebRTC는 session 방식이다. 즉, 한 번 연결을 만든 뒤, 계속해서 
 > UDP를 사용한다.
 
 <details>
-  <summary>(udp란)</summary>
+  <summary>(udp의 특징들)</summary>
   <pre>강의 자료를 긁어왔다.
 
   ▪ Process-to-process communication using socket addresses
@@ -407,13 +407,37 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 그 외에도 UDP를 위한 security protocol인 `DTLS` (패킷 암호화를 진행한다.), 그리고 연결간 참가자 id 식별이나 QoS 상태, 그리고 이 상태에 따라 bitrate를 조정하는 `RTCP`가 있다.
 
+##### 아키텍처{:#architecture-section}
 
+지금까지 나온 내용들로 홈캠 프로젝트에 적용해보자면, 다음과 같은 아키텍처를 그릴 수 있을 것 같다.
+
+![홈캠프로젝트](/assets/images/forPost/videostreaming/prj-homecam-architecture.drawio.png)
 
 ## 2단계: FFmpeg 마스터하기
 
+webRTC를 이용할 아키텍처는 완성됐고, 그럼 이제 FFmpeg은 어떤 것이고, 어떻게 적용될까?
+
+### FFmpeg이란?
 
 
 
+2. FFmpeg 학습 자료
+FFmpeg Official Documentation
+
+공식 문서로, 모든 옵션과 필터에 대한 상세 설명이 들어있습니다.
+
+FFmpeg Wiki (H.264 Encoding Guide)
+
+H.264 코덱의 프리셋(ultrafast, veryfast 등), 비트레이트 설정, CRF 값 조절 등 실무 가이드가 잘 나와 있습니다.
+
+3. 미디어 서버 및 라이브러리 (MediaMTX & Picamera2)
+MediaMTX GitHub (bluenviron/mediamtx)
+
+README 및 Wiki 문서에 RTSP, WebRTC(WHEP), HLS 설정을 위한 환경변수와 샘플이 매우 깔끔하게 다뤄져 있습니다.
+
+Raspberry Pi Picamera2 Official Manual
+
+라즈베리파이 재단에서 공식 제공하는 Python 카메라 제어 라이브러리 Picamera2의 PDF 메뉴얼입니다.
 
 
 
