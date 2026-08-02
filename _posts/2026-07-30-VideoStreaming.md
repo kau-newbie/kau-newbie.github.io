@@ -691,7 +691,7 @@ mediaMTX는 `rtsp`, `rtmp`, `srt`, 혹은 `WHIP`으로 들어온 스트리밍을
 
 ```
 
-docker run -it \
+docker run -it(혹은 -d나 -dit 등등) \
 -e MTX_RTSPTRANSPORTS=tcp \
 -e MTX_WEBRTCADDITIONALHOSTS=192.168.x.x \    
 -p 8554:8554 \
@@ -717,19 +717,280 @@ bluenviron/mediamtx:1
 > 보통은 서버를 두고 해결하지만, 여기서는 이 `MTX_WEBRTCADDITIONALHOSTS`에 적어준 public ip 주소를 통해 클라이언트가 접속할 수 있게끔 하는 추가적인 public ip주소인 것이다.
 
 
-#### publish
+#### mediaMTX architecture
+
+아래는 mediaMTX architecture 페이지를 그대로 직역했다.
+
+##### MediaMTX의 네트워크 동작
+
+- 외부 소스와 연결 (클라이언트 역할)  
+> 설정 파일에 정의된 외부 소스로부터 스트림을 가져온다. 즉, MediaMTX가 클라이언트처럼 동작해 외부에서 영상을 pull 해온다.
+
+- 서버 역할  
+> RTSP, RTMP, WebRTC, SRT, HLS 같은 여러 프로토콜을 지원하는 서버를 열어, 클라이언트가 스트림을 publish(송출)하거나 read(시청)할 수 있게 한다.
+
+- 재생 서버  
+> 디스크에 저장된 스트림을 읽어올 수 있는 playback 서버를 제공한다.
+
+- 관리 서비스  
+> metrics, pprof, Control API 같은 관리용 서비스도 노출한다.
+
+##### 내부 구성 요소
+
+- Path Manager  
+> 경로(path)를 관리하고, 인증을 수행하며, 클라이언트를 해당 경로에 연결해준다.
+
+- Paths  
+> 각 path는 하나의 스트림을 담고 있으며, 이는 단일 publisher(송출자) 또는 단일 외부 소스가 제공하고, 여러 reader(시청자)에게 방송된다.
+
+- Recorder  
+> 스트림을 디스크에 저장하는 역할을 한다. --> 현재 프로젝트에선 필요 없는 기능.
+
+- 구성 관리  
+> 모든 동작은 설정 파일이나 환경 변수로 제어된다.
+
+- 인증 기능
+> 필요하다면 MediaMTX 서버를 identity 서버와 연동해서 인증을 수행할 수 있다. --> 상당히 중요한 부분일 것이다.
+
+#### publish & read
 
 [공식문서](https://mediamtx.org/docs/features/basic-usage)에 따르면,
 
+간단히 mediaMTX서버를 향해 (위에서 ffmpegOutput()에 적었듯)
+
+```
+
+ffmpeg rtsp://localhost:8554/mystream
+
+```
+
+만으로 publish를 한 것이라고 한다. 읽을 때(read)도 어떤 프로그램을 이용하든 마찬가지로 읽을 수 있다.
+
+예를 들면, `ffmpeg`을 이용해서,
+
+```
+
+ffmpeg -i rtsp://localhost:8554/mystream -c copy output.mp4
+
+```
+
+와 같이 input(`-i`)을 mediaMTX server로 설정해서 받을 수 있다.
+
+##### publish 파트
+
+더 자세히 들어가보자. 먼저, **publish** 부분이다.
+
+[publish](https://mediamtx.org/docs/features/publish)문서는 재밌는 게 있었다.
+
+Live streams can be published to the server with the following protocols:
+
+```
+
+Media-over-QUIC clients
+SRT clients
+SRT cameras and servers
+WebRTC clients
+WebRTC servers
+RTSP clients
+RTSP cameras and servers
+RTMP clients
+RTMP cameras and servers
+HLS cameras and servers
+MPEG-TS
+RTP
+
+```
+라는데, 여길 보면 *rtsp client*도 있고, *cameras and servers*도 있었다.
+
+차이점은 `client`는 직접 mediaMTX server로 `push(publish)` 하는 것이고, `cameras and servers`는 통로만 열어두고 mediaMTX 쪽에서 `pull`해가는 것이다.
+
+client 방식은 위에서 한 ffmpeg rtsp://100.x.x.x 이고, server 방식은 아래와 같다. mediaMTX의 `mediamtx.yaml`파일에서 아래와 같이 작성한다.
+
+```yaml
+
+paths:
+  proxied:
+    # url of the source stream, in the format rtsp://user:pass@host:port/path
+    source: rtsp://original-url
 
 
+```
+
+여기서 또 선택의 기로가 생겼는데, 막상 듣기로는 mediaMTX로 '쏴주는' 게 훨씬 보안 측면에서 유리할 것 같았다.
+
+이건 코파일럿씨에게 한 번 비교해달라고 부탁했다.
+
+```
+
+🔐 Push 방식 (Client → Server)
+- 장점
+  - 서버 쪽에서 외부 카메라에 접속할 필요가 없음 → 외부 네트워크에 대한 접근 권한을 최소화.
+  - 서버는 단순히 “받는 입장”이라서 공격 표면이 줄어듦.
+  - 클라이언트가 인증을 거쳐 송출하도록 설계하면, 서버는 인증된 소스만 받음 → 접근 제어가 명확.
+  - NAT, 방화벽 환경에서도 클라이언트가 outbound 연결만 하면 되므로 보안 정책과 잘 맞음.
+- 단점
+  - 클라이언트 장치(라즈베리파이)가 직접 서버에 연결해야 하므로, 송출 장치가 노출될 수 있음.
+  - 네트워크가 불안정하면 송출이 끊길 수 있음.
+
+---
+
+🔐 Pull 방식 (Server → External Source)
+- 장점
+  - 서버가 직접 외부 카메라를 관리하므로 중앙집중적 제어가 쉬움.
+  - 클라이언트 장치가 단순히 RTSP 서버만 열어두면 되므로 설정이 단순할 수 있음.
+- 단점
+  - 서버가 외부 네트워크로 접속해야 하므로, 방화벽/보안 정책에서 inbound rule을 열어야 함 → 공격 표면 확대.
+  - 외부 카메라가 인터넷에 노출되어야 하므로, 카메라 자체가 공격 대상이 될 수 있음.
+  - 인증을 제대로 구성하지 않으면 서버가 아무나 접근 가능한 카메라를 가져오게 될 위험.
+
+---
+
+📌 결론
+- 보안 관점에서는 Push 방식이 더 유리합니다.  
+  - 서버는 외부에 불필요하게 접속할 필요가 없고, 단순히 인증된 클라이언트가 보내주는 스트림만 받으면 되니까요.  
+  - 특히 라즈베리파이 같은 장치가 내부망에 있고, MediaMTX 서버가 중앙에 있다면 Push 구조가 더 안전하고 관리하기 쉽습니다.  
+
+---
+
+즉, Picamera2를 쓰고 계신 상황이라면 라즈베리파이가 FFmpeg 클라이언트로 MediaMTX에 push하는 구조가 보안적으로도 더 낫습니다.  
+
+```
+
+push 방식으로 가도록 하겠다. 계속해서 `read` 파트로 넘어가본다.
+
+##### read 파트
+
+```html
+
+<iframe src="http://mediamtx-ip:8889/mystream" scrolling="no"></iframe>
+
+```
+와 같이 손쉽게 html의 \<iframe> 태그로 띄울 수 있었다.
+
+그 외에 javascript를 통해 token이나 유저명 등 인증체계를 거칠 수 있는 기능들이 있었는데, 이럼 차피 개발자 도구에서 다 보이지 않나? 하고 생각이 들었다.
+> 보안 문제는 추후에 지속적인 공부와 함께 수정해나가야할 것이다.
+
+#### Configuration
+
+이제 configuration이다. 여러 방법이 있는데, 바로 실행중인 도커 컨테이너에 설정 파일만 덮어씌울 수 있다고 한다. 아래는 직역이다.
+
+```bash
+
+MediaMTX는 기본적으로 설정 파일(mediamtx.yml)을 포함해서 배포됩니다.
+
+Docker 이미지 안에서는 루트 폴더(/mediamtx.yml)에 이 파일이 들어 있습니다.
+
+이 설정 파일은 호스트의 파일로 덮어씌울 수 있습니다. 예를 들어:
+
+bash
+docker run --rm -it --network=host \
+  -v "$PWD/mediamtx.yml:/mediamtx.yml:ro" \
+  bluenviron/mediamtx:1
+
+→ 이렇게 하면 현재 디렉토리($PWD)에 있는 mediamtx.yml을 컨테이너 내부의 /mediamtx.yml로 마운트해서, 내가 수정한 설정이 적용됩니다.
+
+서버가 실행 중일 때도 설정 파일을 수정하면 자동으로 감지(hot reloading) 됩니다.
+
+가능한 경우, 기존 클라이언트 연결을 끊지 않고 변경 사항을 적용합니다.
+
+```
+
+참고: `-v <호스트 경로>:<컨테이너 경로>:<옵션>` 으로, :ro는 read-only로 마운트한다는 것이다.
 
 
+이제 보안 설정이다.
 
+##### 보안
 
+Validate credentials
 
+Credentials can be validated through one of these methods:
 
+##### 1. Internal database: credentials are stored in the configuration file
+##### 2. External HTTP server: an external HTTP URL is contacted for each authentication request
+##### 4. External JWT provider: credentials are signed tokens released by an external identity server
 
+JWT는 사실 어제 [애플코딩님의 영상](https://www.youtube.com/watch?v=XXseiON9CV0)을 하나 봤어서, 공부가 좀 필요하겠다 싶어서 놔두려고 한다.
+
+추후 공부해서 따로 포스팅을 해두어야겠다.
+
+아무튼 1번은 db에 사용자 이름과 비번을 저장해두는 방식이다.
+
+```yaml
+
+authInternalUsers:
+  # Username. 'any' means any user, including anonymous ones.
+  - user: any
+    # Password. Not used in case of 'any' user.
+    pass:
+    # IPs or networks allowed to use this user. An empty list means any IP.
+    ips: []
+    # Permissions.
+    permissions:
+      # Available actions are: publish, read, playback, api, metrics, pprof.
+      - action: publish
+        # Paths can be set to further restrict access to a specific path.
+        # An empty path means any path.
+        # Regular expressions can be used by using a tilde as prefix.
+        path:
+      - action: read
+        path:
+      - action: playback
+        path:
+
+```
+
+과 같은데, 문제는 **경고 문구**에 있었다.
+
+인증 정보를 주고받게 되는데, RTSP같은 경우, WebRTC와 달리 TLS 같은 암호화가 필요하다는 뜻이다.
+> 평문으로 주고받기 때문인데, 이러면 홈캠 영상인 미디어 패킷도 악의적인 공격자에게 노출될 위험이 있따.
+
+다행히 이 부분은 TLS 인증서를 쓰거나, VPN을 쓰면 된다고 하는데, 내 경우에는 **tailscale**을 사용하기 때문에 VPN을 쓴다고 보면 된다.
+
+단, 마찬가지로 WebRTC의 경우도 브라우저에서 쓰려면 https 인증서가 별도로 필요하다고 한다.
+> tailscale의 도메인으로 접속시, 별도로 tailscale에서 https 인증서를 발급해준다고 한다.
+> - 처음 알았는데, https 인증서는 도메인 단위지, ip 단위가 아니라고 한다.
+
+그건 그렇고 이 db 방식의 user name과 password는 언제 들어가냐, 하면 아까 `rtsp`는 plain 으로 전송된다고 했으니까,
+
+```
+
+ rtsp://myuser:mypass@<server-ip>:8554/mystream
+
+```
+
+이렇게 url에 평문으로 넣어줘야 한다. 이래서 vpn이 꼭 필요했나보다.
+
+`hls`나 `webRTC`에서 보낼 때는
+
+```
+Authorization: Basic base64(myuser:mypass)
+
+```
+
+와 같이 보내면 된다.
+
+이떄, db에 저장할 비밀번호를 평문이 아닌, 
+
+```bash
+
+echo -n "mypass" | openssl dgst -binary -sha256 | openssl base64
+
+```
+
+로 만들어낸 base64의 sha256 변환 문자열을 저장할 수 있다. 그럴 때는,
+
+```yaml
+
+authInternalUsers:
+  - user: sha256:j1tsRqDEw9xvq/D7/9tMx6Jh/jMhk3UfjwIB2f1zgMo=
+    pass: sha256:BdSWkrdV+ZxFBLUQQY7+7uv9RmiSVA8nrPmjGjJtZQQ=
+    permissions:
+      - action: publish
+
+```
+
+와 같이 `sha256:`을 붙여줘야 한다.
 
 
 
