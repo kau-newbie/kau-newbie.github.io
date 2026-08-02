@@ -414,7 +414,7 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 추가로, **JavaScript에서 API 형태로 webRTC를 지원한다.**
 
-## 각 라이브러리는 대체 여기서 무엇을 하지? {:#question1-section}
+## 각 라이브러리는 대체 여기서 무엇을 하지?{:#question1-section}
 
 이때, architecture를 보면, 궁금한 점이 생긴다.
 
@@ -426,6 +426,8 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 USB 포트로 연결하는 rasberypi 보다는, 길다란 납작 케이블 형태의 카메라를 python으로 조작하기 위해 만들어진 라이브러리라고 한다.
 > 문서에 따르면 아주아주 고수준의 api들도 제공한다고 한다.
+>
+> 앞서 살펴봤던 libcamera나 vl42 기반의 고수준 라이브러리이다.
 
 Video 파트 문서를 읽어보자.
 
@@ -650,6 +652,30 @@ WebRTC는 ICE, DTLS, SRTP 같은 transport를 지원하지만, signaling 부분�
 
 결국 서로 다른 회사들마다 호환 가능한 표준이 필요했고, 그래서 나온 게(서버-> 클라이언트 방향이다.) `WHEP`이다.
 > encoder --> server는 `WHIP`이라고 한다.
+
+- WHIP이나 WHEP이나 동일한 인증 토큰, ice를 위한 헤더 형식, SDP offer via HTTP POST, receives an SDP answer in the Response 등등 동일하다.
+- 따라서 개발자 입장에서는 API를 통해 하나의 로직을 재사용할 수도 있다고 한다.
+
+아무튼 간단하게만 알아보고, 얼른 구현 단계로 넘어가야겠다.
+
+## 4. 구현단계
+
+mediaMTX는 `rtsp`, `rtmp`, `srt`, 혹은 `WHIP`으로 들어온 스트리밍을 `WHEP`으로 바꿔줄 **하나의 완성형 APP**이다.
+> Go lang으로 만들어졌다고 한다. 
+
+설정파일 `mediamtx.yaml`만 수정해서 실행하면 별도의 서버 프로그램으로 동작한다고 한다.
+
+이쯤되니 걱정되는게, 지금 웹 서버에서도 대시보드를 통해 홈캠 영상을 보거나, 혹은 추후 앱으로 확장하려 하는데,
+
+`webRTC`는 **p2p**가 아닌가? 찾아보니 다행히 mediaMTX를 통해 1:N이 가능하다고 한다.
+
+아키텍처는 아래와 같겠다. client와 was 서버로 1:N webRTC 스트리밍을 하는 mediaMTX 서버가 있다.
+
+![아키텍처](/assets/images/forPost/videostreaming/architecturev2.png)
+
+아무튼 계속해서 mediamtx 사용법을 공부해보겠다.
+
+
 
 
 
