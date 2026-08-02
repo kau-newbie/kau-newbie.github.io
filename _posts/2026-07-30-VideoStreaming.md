@@ -589,36 +589,69 @@ ffmpeg [global_options] {[input_file_options] -i input_url} ... {[output_file_op
 명령줄에서 옵션으로 해석되지 않는 문자열은 모두 출력 URL로 간주됩니다.
 
 ```
-라는데, 다음고 같은 예시를 두고 있다.
+라는데, 다음과 같은 예시를 두고 있다.
 
 Set the video bitrate of the output file to 64 kbit/s:
 > ffmpeg -i input.avi -b:v 64k -bufsize 64k output.mp4
+> - `-b`로 bitrate를 조절하겠다는건데, `:v`로 비디오 스트림에만 적용하겠다는 뜻이다. 오디오면 `:a`이다.
 
 Force the frame rate of the output file to 24 fps:
 > ffmpeg -i input.avi -r 24 output.mp4
 
--i 옵션 뒤에는 input 파일이 나오고,  -b로 bitrate를 설정하거나, -r로 frame rate를 설정한다.
+`-i` 옵션 뒤에는 input 파일이 나오고,  `-b`로 bitrate를 설정하거나, `-r`로 frame rate를 설정한다.
 - input으로 넘어오는 스트림에 대해 30fps로 강제하는 상황도 생각해볼 수 있겠다.(물론 통신환경을 고려해서, 적용하진 않을 것이다.)
 
+`-codec` (또는 `-c`) : copy would copy all the streams without reencoding. 이렇게 `-codec` 옵션 등 정말 다양한 옵션이 많다.
+> -c 옵션은 encoder이자 decoder일 수 있는데, 대부분 encoder로 해석하고, 보통 디코더는 `-dec`로 명시해주는 것 같았다.
+> 예를 또 들어보자면, 비디오에 대해서는 x264 ([출처](https://ffmpeg.org/ffmpeg-codecs.html#libx264_002c-libx264rgb))일 때, `-c:v libx264`와 같은 식이었다.
+
+그리고 [ffmpeg protocol문서](https://ffmpeg.org/ffmpeg-protocols.html#rtsp)를 보면,
+
+```
+
+rtsp://hostname[:port]/path
+
+```
+
+과 같이 `input`, 혹은 `output쪽 url`에 쓰도록 되어있다.
+
+다음과 같은 방식으로 다양한 옵션들도 쓸 수 있었다.
+
+```py
+
+# Watch a stream over UDP, with a max reordering delay of 0.5 seconds:
+
+ffplay -max_delay 500000 -rtsp_transport udp rtsp://server/video.mp4
+
+```
+
+`-disable` 옵션을 통하지 않는 이상, 모든 프로토콜을 받을 수 있게 default 값이 설정됐으므로, input은 그대로 둔다. ouput에만 `rtsp://hostname[:port]/path`와 같이 적어두면 되겠다.
+> 우리는 ffmpeg을 picamera2에서 호출하기 때문이다.
+
+**그리고 무엇보다 WebRTC는 지원하지 않았다. transcoding 해줄 서버가 필요한 근거가 됐다.**
+
+## 3단계: WebRTC & NAT 트래버설 깊이 파기
+
+핵심 학습 주제:
+- [x] 시그널링 (Signaling) & SDP: 브라우저와 서버 간 연결 규격(Offer/Answer) 교환
+- [x] ICE Candidate & NAT Traversal (핵심!): 사설 IP 환경에서 상대방 IP/포트를 찾는 과정
+- [x] STUN & TURN 서버: P2P 직통로 형성(STUN) 및 방화벽 우회 중계 서버(TURN/Coturn)
+- [ ] WHEP (WebRTC HTTP Egress Protocol): HTTP REST API로 WebRTC 미디어 수신을 주고받는 현대적 표준 프로토콜
+
+WHEP을 제외하곤 위에서 개념들은 살펴봤으니, WHEP을 배운 후 빠르게 구현단계로 넘어가자.
+
+### WHEP이란
+
+[http.dev](https://http.dev/whep#usage)에 따르면,
+
+WebRTC는 ICE, DTLS, SRTP 같은 transport를 지원하지만, signaling 부분에 대해선 정해놓지 않았었다.
+
+때문에 개별 회사들마다 별도의 websocket이나 기타 방법으로 SDP 교환 방식을 구축해왔다.
+
+결국 서로 다른 회사들마다 호환 가능한 표준이 필요했고, 그래서 나온 게(서버-> 클라이언트 방향이다.) `WHEP`이다.
+> encoder --> server는 `WHIP`이라고 한다.
 
 
-2. FFmpeg 학습 자료
-FFmpeg Official Documentation
-
-공식 문서로, 모든 옵션과 필터에 대한 상세 설명이 들어있습니다.
-
-FFmpeg Wiki (H.264 Encoding Guide)
-
-H.264 코덱의 프리셋(ultrafast, veryfast 등), 비트레이트 설정, CRF 값 조절 등 실무 가이드가 잘 나와 있습니다.
-
-3. 미디어 서버 및 라이브러리 (MediaMTX & Picamera2)
-MediaMTX GitHub (bluenviron/mediamtx)
-
-README 및 Wiki 문서에 RTSP, WebRTC(WHEP), HLS 설정을 위한 환경변수와 샘플이 매우 깔끔하게 다뤄져 있습니다.
-
-Raspberry Pi Picamera2 Official Manual
-
-라즈베리파이 재단에서 공식 제공하는 Python 카메라 제어 라이브러리 Picamera2의 PDF 메뉴얼입니다.
 
 
 
