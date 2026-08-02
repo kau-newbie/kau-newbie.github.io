@@ -6,7 +6,7 @@ categories: [project, video, streaming]
 image: assets/images/forPost/multimedia.png
 ---
 
-요약: video streaming이란 무엇인가
+요약: codec, protocol, picamera2부터 ffmpeg, mediamtx까지
 
 # Video Streaming 공부
 
@@ -660,8 +660,11 @@ WebRTC는 ICE, DTLS, SRTP 같은 transport를 지원하지만, signaling 부분�
 
 ## 4. 구현단계
 
+### MediaMTX
+
 mediaMTX는 `rtsp`, `rtmp`, `srt`, 혹은 `WHIP`으로 들어온 스트리밍을 `WHEP`으로 바꿔줄 **하나의 완성형 APP**이다.
 > Go lang으로 만들어졌다고 한다. 
+> - "ready-to-use, zero-dependencies"라고 한다. 
 
 설정파일 `mediamtx.yaml`만 수정해서 실행하면 별도의 서버 프로그램으로 동작한다고 한다.
 
@@ -674,6 +677,50 @@ mediaMTX는 `rtsp`, `rtmp`, `srt`, 혹은 `WHIP`으로 들어온 스트리밍을
 ![아키텍처](/assets/images/forPost/videostreaming/architecturev2.png)
 
 아무튼 계속해서 mediamtx 사용법을 공부해보겠다.
+
+[공식문서](https://github.com/bluenviron/mediamtx)에 따르면, 
+
+**mediamtx**는 live media server and media proxy으로,
+
+- Publish live streams to the server with Media-over-QUIC, SRT, WebRTC, RTSP, RTMP, HLS, MPEG-TS, RTP, using FFmpeg ... *web browsers* and more.
+- Read live streams from the server with Media-over-QUIC, SRT, WebRTC, RTSP, RTMP, HLS, using FFmpeg, ... web browsers and more.
+
+라고 한다. `publish`로 mediamtx에게 stream을 보낸 뒤, client들은 `read`로 mediamtx로부터 stream을 받는다.
+
+#### Docker Image Download
+
+```
+
+docker run -it \
+-e MTX_RTSPTRANSPORTS=tcp \
+-e MTX_WEBRTCADDITIONALHOSTS=192.168.x.x \    
+-p 8554:8554 \
+-p 1935:1935 \
+-p 8888:8888 \
+-p 8889:8889 \
+-p 8892:8892 \
+-p 8890:8890/udp \
+-p 8189:8189/udp \
+-p 8892:8892/udp \
+bluenviron/mediamtx:1
+
+```
+`MTX_RTSPTRANSPORTS=tcp`는 클라이언트가 RSTP프로토콜을 이용해 mediaMTX로 publish 할 때, tcp로 전송하도록 강제하는 옵션이다.
+> 도커를 쓰면 ip나 포트가 변경될 수 있어서 udp는 연결이 끊길 수도 있다.
+> 
+> 혹은, udp를 그대로 쓰고 싶다면, `--network=host`옵션을 써서 도커 컨테이너가 호스트 머신의 network를 그대로(ip 주소나 포트번호 등) 쓴다.
+> - 단, 리눅스환경에서만 가능하다.
+
+`MTX_WEBRTCADDITIONALHOSTS`는 클라이언트가 접속할 수 있는, 혹은 상대방이 접속할 수 있는 추가적인 public ip 주소이다.
+> 예를 들어, mediaMTX서버가 NAT 뒷 단에 위치해 있을 경우, SDP를 교환해야하는 mediaMTX서버와 클라이언트는 서로 SDP를 주고 받을 수 없다.(주소를 모르기 때문이다!)
+>
+> 보통은 서버를 두고 해결하지만, 여기서는 이 `MTX_WEBRTCADDITIONALHOSTS`에 적어준 public ip 주소를 통해 클라이언트가 접속할 수 있게끔 하는 추가적인 public ip주소인 것이다.
+
+
+#### publish
+
+[공식문서](https://mediamtx.org/docs/features/basic-usage)에 따르면,
+
 
 
 
