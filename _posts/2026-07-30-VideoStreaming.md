@@ -947,11 +947,7 @@ authInternalUsers:
 
 다행히 이 부분은 TLS 인증서를 쓰거나, VPN을 쓰면 된다고 하는데, 내 경우에는 **tailscale**을 사용하기 때문에 VPN을 쓴다고 보면 된다.
 
-단, 마찬가지로 WebRTC의 경우도 브라우저에서 쓰려면 https 인증서가 별도로 필요하다고 한다.
-> tailscale의 도메인으로 접속시, 별도로 tailscale에서 https 인증서를 발급해준다고 한다.
-> - 처음 알았는데, https 인증서는 도메인 단위지, ip 단위가 아니라고 한다.
-
-그건 그렇고 이 db 방식의 user name과 password는 언제 들어가냐, 하면 아까 `rtsp`는 plain 으로 전송된다고 했으니까,
+이 db 방식의 user name과 password는 언제 들어가냐, 하면 아까 `rtsp`는 plain 으로 전송된다고 했으니까,
 
 ```
 
@@ -991,6 +987,37 @@ authInternalUsers:
 ```
 
 와 같이 `sha256:`을 붙여줘야 한다.
+
+단, 마찬가지로 WebRTC의 경우도 브라우저에서 쓰려면 https 인증서가 별도로 필요하다고 한다.
+> tailscale의 도메인으로 접속시, 별도로 tailscale에서 https 인증서를 발급해준다고 한다.
+> - 처음 알았는데, https 인증서는 도메인 단위지, ip 단위가 아니라고 한다.
+
+https는 *tailscale*의 DNS 설정 페이지에서 https certificates를 enable한 뒤, 필요한 서버들(https로 접속해서 영상을 주고, 또 받을 각 서버)에 다운받아준다.
+> 라즈베리파이는 웹 브라우저를 통해 전달하는 http 프로토콜이 아니기 때문에,(rtsp이다.) 웹 브라우저의 보안제약이 없어 https certificate를 다운받을 필요가 없다.
+
+#### Proxy
+
+proxy 내용은 stun 서버 내용이 아닌, cam 서버가 포트를 열어두면 mediaMTX 서버에서 **pull**해오는 방식이다.
+
+사용자가 웹 브라우저로 접속 시 mediaMTX서버가 cam 서버로 stream을 pull해오겠단 건데, 원하는 방식은 아니기 때문에 넘어가겠다.
+
+#### Log
+
+```bash
+
+docker run -v /var/log/mediamtx:/var/log/mediamtx myimage
+
+```
+
+도커 환경이므로, 이렇게 `-v`로 리눅스 서버 자체의 /var/log/ 경로를 마운트 해줘야 한다.
+> - 알아서 로그를 일정기간 쌓아놓고, 또 잘라내는 *rotate* 기능을 해주는 관리 프로그램이 리눅스 서버 내에서 사용하기 때문이다.
+> - 또, 도커 컨테이너가 내려갈 때마다 로그가 삭제되므로, 리눅스 서버 자체에 저장해야 보존할 수 있기 때문이다.
+
+## 정리
+
+이제 최종 정리를 해야겠다.
+
+
 
 
 
