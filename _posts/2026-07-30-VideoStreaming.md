@@ -1506,7 +1506,7 @@ it doesn’t allow to pass credentials (username, password or token) from the we
 라고 한다. 해결하기 위해선 자바스크립트를 쓰는데, username이나 password가 노출된다. 탈락.
 </details>
 
-간단히 여기까지만 하고 [JWT]()에 관한 포스팅으로 넘기겠다.
+간단히 여기까지만 하고 [JWT](https://kau-newbie.github.io/JWT/)에 관한 포스팅으로 넘기겠다.
 > 자세한 설명과 함께 실제 구현은 JWT에서 더 자세히 다루었다.
 
 ### authMethod
