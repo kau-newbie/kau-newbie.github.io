@@ -1388,6 +1388,10 @@ abc123
 
 ```
 
+아무튼 이제 토큰 방식으로 넘어간다.
+
+### JWT (Json Web Token)
+
 여기서 토큰이란, `JWT`이다. 안 쓰겠다 해놓고 어쩔 수 없이(?) 쓰게 됐다. 
 > 인증은 꼭 jwt아니고, 단순 DB 조회도 가능하다고 하는데, 공부할겸 그냥 JWT로 가겠다.
 
@@ -1416,7 +1420,7 @@ abc123
 그래서, 처음 사용자가 iframe으로 `GET`요청을 보낼 때 쿼리 스트링으로 날린 token을 그대로 복사해서 보내는 것이 아닌,
 
 mediamtx의 규격 중 하나에 집어넣어서 보내게 된다.
->  "user": "<JWT>" 이런식으로 집어넣어서 보낸다고 한다.
+>  "token": "<JWT>" 이런식으로 집어넣어서 보낸다고 한다.
 
 공식 문서에 다음과 같이 authHTTP 형식이 기재돼있다.
 
@@ -1475,7 +1479,7 @@ public class HomeApiController {
 	        @RequestBody MediaMtxJwtRequest request
 	) {
 
-	    String token = request.getUser();
+	    String token = request.getToken();      // token 키의 값을 가져온다.
 
 	    if(tokenService.validate(token)) {
 	        return ResponseEntity.ok().build();      // responseEntity는 reponse그 자체로, 응답을 ok(200)으로 할지말지 정할 수 있는 듯 하다.
@@ -1502,3 +1506,61 @@ it doesn’t allow to pass credentials (username, password or token) from the we
 라고 한다. 해결하기 위해선 자바스크립트를 쓰는데, username이나 password가 노출된다. 탈락.
 </details>
 
+간단히 여기까지만 하고 [JWT]()에 관한 포스팅으로 넘기겠다.
+> 자세한 설명과 함께 실제 구현은 JWT에서 더 자세히 다루었다.
+
+### authMethod
+
+추가로, JWT방식을 쓰게 되면서, `authMethod`를 http로 바꿔주었는데, 이러면 기존 *rtsp*로 라즈베리파이가 스트리밍을 쏠 때 쓰던 internal과 충돌을 일으킨다.
+> 진짜 몰라가지고 고생고생을 했다.
+
+암튼 이때는 `authHttpExclude`를 설정해주면 된다.
+
+```yml
+
+authHTTPExclude:
+  - action: api
+  - action: metrics
+  - action: pprof
+  - action: publish
+
+```
+
+아무튼 이제 진짜진짜 마무리이다.
+
+```
+
+Browser
+    │
+    │ ① Spring 로그인 (JSESSIONID 또는 JWT)
+    ▼
+Spring Boot
+    │
+    │
+    ├───────────────┐
+    │               │
+    ▼               ▼
+ Dashboard      /api/mediamtx/auth
+                    ▲
+                    │ ③ authHTTP
+                    │
+              MediaMTX
+                    ▲
+                    │
+             Raspberry Pi (RTSP Publish)
+
+```
+
+위의 아키텍처를 JWT를 통해 구현했다. 
+
+1. 맨 처음, 클라이언트가 홈 화면으로 접속한다. 그 후, 로그인에 성공한다.
+2. 홈 화면으로 url을 보냈으니 홈 컨트롤러가 작동하면서 jwt (인증토큰)을 만든다. 토큰은 Model에 넣어둔다.
+3. View가 client가 접속할 home.html을 그릴 때, 앞서 만들어둔 jwt를 Model에서 꺼내서 <iframe>안에 url과 함께 넣는다.
+4. 이러면 클라이언트(브라우저)가 home.html을 받으면서 jwt를 받게 된다.
+5. 이후, 비디오 보기 버튼을 누르면, iframe을 통해 비디오를 보게 되는데, 이때 url을 통해 mediamtx 서버로 request가 jwt와 함께 전달된다.
+6. mediamtx에서는 auth http (훅이라고 하는 것 같았다.) 설정으로 인해 spring에 위에서 언급한 json 형식으로 auth를 물어보게 되고(post형식),
+7. spring에서는 api controller가 동작하면서 별도의 auth Service 컴포넌트에 의해 jwt를 검증하게 된다.
+8. 검증 성공시 http 200을 반환시키게 되고 (responseEntity), mediamtx는 200을 보고 접속을 허용하게 된다.
+
+
+끝.
