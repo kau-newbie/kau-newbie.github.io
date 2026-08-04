@@ -319,17 +319,6 @@ VirtualFilterChain에서는 똑같이 필터 chain을 다 통과할 때까지 do
 
 ```java
 
-package com.example.demo.config; 
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -682,6 +671,99 @@ public class BugReportController {
 `@PreAuthorize("hasRole('ROLE_ADMIN')")`와 같이 `@GetMapping("/bug-report/{id}")` 이후에 메서드 기반 권한 검사를 사용한 것을 확인할 수 있다.
 
 
+### JSESSIONID {#jsessionid-section}
+
+JSESSIONID는 쿠키이다. Spring Security에서는 다양한 컴포넌트들에 의해 다뤄지고 있다.
+
+*securityContext*와 이것들을 저장하는 *SecurityContextRepository* 라는 저장소가 있다.
+
+#### 1. SecurityContext
+
+    - 현재 요청(Request) 처리 중인 스레드 로컬(ThreadLocal)에 담겨 있는 인증 정보(사용자, 권한 등).
+    - 즉, "지금 이 순간"의 인증 상태를 나타내는 객체.
+    - 요청이 끝나면 기본적으로 사라짐.
+
+#### 2. SecurityContextRepository
+
+    - 이 SecurityContext를 요청 간에 지속(persist) 시키고, 다음 요청에서 복원(restore) 해주는 저장소 역할을 하는 컴포넌트.
+    - 기본 구현체는 HttpSessionSecurityContextRepository → 세션(HttpSession)에 저장.
+    - 따라서 보통은 서버 메모리에 저장되지만, 필요하다면 DB, Redis 같은 외부 저장소로 커스터마이징할 수 있다.
+
+#### 3. SecurityContextHolder
+
+    - 현재 실행 중인 *스레드(Thread)* 안에서 *SecurityContext*를 보관하는 정적 헬퍼 클래스.
+
+셋의 관계를 정리하자면,
+
+- **SecurityContext**: 실제 인증 정보(사용자, 권한 등)를 담고 있는 객체.
+
+- **SecurityContextHolder**: 그 SecurityContext를 ThreadLocal에 저장/조회하는 도구.
+
+- **SecurityContextRepository**: 요청 간에 SecurityContext를 세션이나 다른 저장소에 저장/복원하는 역할.
+
+아래와 같이 SeucurityContextHolder를 쓸 수 있겠다.
+
+```java
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication(); // getContext()로 SecurityContext를 반환한다.
+        
+    // 로그인 상태인지 확인 (익명 사용자 anonymousUser 가 아닌지 검증)
+    boolean isLoggedIn = auth != null && auth.isAuthenticated() 
+                        && !"anonymousUser".equals(auth.getName());
+
+```
+
+프로젝트 코드를 읽고 지피티씨가 요약도 해줬다. 아래와 같다.
+
+```
+
+현재 로그인 흐름
+
+사용자:
+
+    아이디/비밀번호 입력
+            |
+            ▼
+    Spring Security
+            |
+            ▼
+    Authentication 생성
+            |
+            ▼
+    HttpSession 저장
+            |
+            ▼
+    JSESSIONID 발급
+            |
+            ▼
+    브라우저 Cookie 저장
+
+브라우저:
+
+    Cookie:
+        JSESSIONID=abc123
+
+Spring 내부:
+
+    Session Store
+
+    abc123
+     |
+     +-- SecurityContext
+           |
+           +-- Authentication
+                 |
+                 +-- Principal(UserDetails)
+
+그래서 Controller에서:
+
+Authentication auth =
+    SecurityContextHolder.getContext()
+                         .getAuthentication();
+
+하면 현재 로그인한 사용자를 얻는 겁니다.
+
+```
 
 
 
@@ -693,9 +775,9 @@ public class BugReportController {
 
 ## + 부록(Append)
 
-1. [Spring Security 공식튜토리얼](https://docs.spring.io/spring-security/reference/servlet/getting-started.html)
+##### 1. [Spring Security 공식튜토리얼](https://docs.spring.io/spring-security/reference/servlet/getting-started.html)
 
-2. 본문 중에서 의문이 들 수 있는 점이, SecurityFilterChain을 만들기도 전에 http의 메서드를 보면
+##### 2. 본문 중에서 의문이 들 수 있는 점이, SecurityFilterChain을 만들기도 전에 http의 메서드를 보면
 
     ```java
 
@@ -759,7 +841,7 @@ public class BugReportController {
 
     [httpsecurity](https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/config/annotation/web/builders/HttpSecurity.html)
 
-3. Configuration과 WebSecurity 차이{#confi-websecurity-dff-section}
+##### 3. Configuration과 WebSecurity 차이{#confi-websecurity-dff-section}
 
     Java 웹 개발, 특히 **Spring Security**를 공부할 때 이 두 단어는 정말 많이 마주치고 또 가장 헷갈리는 부분입니다.
 

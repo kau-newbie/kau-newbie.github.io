@@ -872,7 +872,97 @@ push 방식으로 가도록 하겠다. 계속해서 `read` 파트로 넘어가�
 
 #### Configuration
 
-이제 configuration이다. 여러 방법이 있는데, 바로 실행중인 도커 컨테이너에 설정 파일만 덮어씌울 수 있다고 한다. 아래는 직역이다.
+이제 configuration이다. 
+
+예시로 `webRTC` 설정을 들어보겠다.
+
+```yaml
+###############################################
+# Global settings -> WebRTC server
+
+# Enable the WebRTC server, which allows to publish and read streams with the WebRTC protocol.
+webrtc: true
+# Address of the WebRTC TCP/HTTP listener.
+webrtcAddress: :8889  # 기본적으로 webRTC는 8889 port로 열어두고 (url창에서 :8889를 붙여주면되겠다.)
+# Enable HTTPS.
+# This covers only the WebRTC handshake, while WebRTC streams
+# are always encrypted with a key that is exchanged during the WebRTC handshake.
+webrtcEncryption: true
+# Path to the server key.
+# This can be generated with:
+# openssl genrsa -out server.key 2048
+# openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
+webrtcServerKey: /저장경로/server.key                # 받아온 key와 certificate를 경로로 적어준다!
+# Path to the server certificate.
+webrtcServerCert: /저장경로/server.crt
+# Allowed CORS origins.
+# Supports wildcards: ['http://*.example.com']
+webrtcAllowOrigins: ["*"]
+# IPs or CIDRs of proxies placed before the WebRTC server.
+# If the server receives a request from one of these entries, IP in logs
+# will be taken from the X-Forwarded-For header.
+webrtcTrustedProxies: []
+# Address of a UDP/ICE listener that will receive connections.
+# Use a blank string to disable.
+webrtcLocalUDPAddress: :8189                                  # ice를 udp로 주고받는 경우.
+# Address of a TCP/ICE listener that will receive connections.
+# This is disabled by default since TCP is less efficient than UDP and
+# introduces a progressive delay when network is congested.
+webrtcLocalTCPAddress: ""                                   
+# WebRTC clients need to know the IP of the server.
+# Gather IPs from interfaces and send them to clients.
+webrtcIPsFromInterfaces: true
+# Interfaces whose IPs will be sent to clients.
+# An empty value means to use all available interfaces.
+
+# Interfaces whose IPs will be sent to clients.
+# An empty value means to use all available interfaces.
+webrtcIPsFromInterfacesList: []
+# Additional hosts or IPs to send to clients.
+webrtcAdditionalHosts: ["myserver-dns"]                                 
+# ICE servers. Needed only when local listeners can't be reached by clients.
+# STUN servers allow to obtain and share the public IP of the server.
+# TURN/TURNS servers force all traffic through them.
+webrtcICEServers2: []
+  # - url: stun:stun.l.google.com:19302
+  # if user is "AUTH_SECRET", then authentication is secret based.
+  # the secret must be inserted into the password field.
+  # username: ''
+  # password: ''
+  # clientOnly: false
+# Maximum time to gather STUN candidates.
+webrtcSTUNGatherTimeout: 5s
+# Time to wait for the WebRTC handshake to complete.
+webrtcHandshakeTimeout: 10s
+# Maximum time to gather tracks.
+webrtcTrackGatherTimeout: 2s
+
+```
+
+나중에 `sudo docker logs mediamtx --tail 20`명령어로 떠있는 mediamtx 컨테이너의 로그를 받아볼 수도 있겠다.
+
+```jsonl
+ 
+{"timestamp":"2026-08-03","level":"INF","message":"MediaMTX v1.19.3, linux, amd64"}
+{"timestamp":"2026-08-03","level":"INF","message":"configuration loaded from /mediamtx.yml"}
+{"timestamp":"2026-08-03","level":"INF","message":"[RTSP] started with listeners on :8554 (TCP/RTSP), :8000 (UDP/RTP), :8001 (UDP/RTCP)"}
+{"timestamp":"2026-08-03,"level":"INF","message":"[RTMP] started with listener on :1935 (TCP/RTMP)"}
+{"timestamp":"2026-08-03","level":"INF","message":"[HLS] started with listener on :8888 (TCP/HTTPS)"}
+{"timestamp":"2026-08-03","level":"INF","message":"[WebRTC] started with listeners on :8889 (TCP/HTTPS), :8189 (UDP/ICE)"}
+{"timestamp":"2026-08-03","level":"INF","message":"[SRT] started with listener on :8890 (UDP/SRT)"}
+{"timestamp":"2026-08-03","level":"WAR","message":"[MoQ] certificate auto.key not found, generating it from scratch"}
+{"timestamp":"2026-08-03","level":"INF","message":"[MoQ] started with listeners on :8892 (TCP/HTTP2), :8892 (UDP/HTTP3)"}
+{"timestamp":"2026-08-03","level":"INF","message":"[RTSP] [conn x.x.x.x:xxxx] opened"}
+{"timestamp":"2026-08-03","level":"INF","message":"[RTSP] [session xxxxx] created by x.x.x.x:xxxx"}
+{"timestamp":"2026-08-03","level":"INF","message":"[path cam1] stream is available and online, 1 track (H264)"}
+{"timestamp":"2026-08-03","level":"INF","message":"[RTSP] [session xxxxx] is publishing to path 'cam1'"}
+{"timestamp":"2026-08-03","level":"INF","message":"[path cam1] RTP packets are too big (1460 > 1440), remuxing them into smaller ones"}
+
+```
+
+보기에 별 문제는 없어 보인다. (제일 마지막 줄은 물어보니까 알아서 쪼개는 과정임을 알리는 로그라고 한다.)
+
+configuration을 적용하는 방법에는 여러가지가 있는데, 그 중 하나가 **실행중인 도커 컨테이너에 설정 파일을 옵션 인자로 넘겨주기**이다. 아래는 직역이다.
 
 ```bash
 
@@ -883,8 +973,10 @@ Docker 이미지 안에서는 루트 폴더(/mediamtx.yml)에 이 파일이 들�
 이 설정 파일은 호스트의 파일로 덮어씌울 수 있습니다. 예를 들어:
 
 bash
-docker run --rm -it --network=host \
+docker run --rm -it --network=host \   <--- host os의 포트와 ip 주소를 컨테이너도 그대로 쓰겠다는 뜻.
   -v "$PWD/mediamtx.yml:/mediamtx.yml:ro" \
+  -p 8554:8554 \                 <------------ 예를 들면, 이건 rtsp publish용 포트
+  -p 8889:8889 \                 <------------ 이건 webRTC용 (read용) 포트
   bluenviron/mediamtx:1
 
 → 이렇게 하면 현재 디렉토리($PWD)에 있는 mediamtx.yml을 컨테이너 내부의 /mediamtx.yml로 마운트해서, 내가 수정한 설정이 적용됩니다.
@@ -895,8 +987,29 @@ docker run --rm -it --network=host \
 
 ```
 
-참고: `-v <호스트 경로>:<컨테이너 경로>:<옵션>` 으로, :ro는 read-only로 마운트한다는 것이다.
+**참고**: `-v <호스트 경로>:<컨테이너 경로>:<옵션>` 으로, :ro는 read-only로 마운트한다는 것이다.
 
+예로, `https`를 사용한 webRTC를 하려면,
+
+```yaml
+
+# mediamtx.yml 내용
+
+# WebRTC (HTTPS/TLS)
+webrtcEncryption: yes
+webrtcServerCert: /etc/tailscale/server.crt  <-- 이것들은 tailscale에서 가져왔고,
+webrtcServerKey: /etc/tailscale/server.key    <-- 모두 host os의 `/etc/tailscale/` 경로 아래에 있는 실제 certificate와 key이다.
+                                                  마찬가지로 -v로 마운트 해주어야 한다. 아래와 같다.
+                                                   -v /etc/ssl/tailscale:/etc/ssl/tailscale:ro   -e SSL_KEYSTORE_PASSWORD='your's'
+# HLS (HTTPS/TLS)
+hlsEncryption: yes
+hlsServerCert: /etc/tailscale/server.crt
+hlsServerKey: /etc/tailscale/server.key
+
+```
+
+으로 바꾸면 되겠다. host os의 mediamtx.yaml을 (-v로 마운트했기 때문에,) 컨테이너도 사용한다.
+> 여기서는 `/etc/ssl/tailscale/`경로에 certificate와 key를 tailscale로부터 받아왔다.
 
 이제 보안 설정이다.
 
@@ -988,6 +1101,34 @@ authInternalUsers:
 
 와 같이 `sha256:`을 붙여줘야 한다.
 
+여러 아이디, 혹은 특정 아이디 따로, 전체에게 따로 권한을 부여할 수 있다. 아래와 같다.
+
+```yaml
+
+ - user: any
+    ips: []
+    permissions:
+      - action: read
+        path: cam1          <----- /cam1 에서 '/' 빼야함.
+  - user: usr1
+    # Password. Not used in case of 'any' user.
+    pass: sha256:xxxx
+    # IPs or networks allowed to use this user. An empty list means any IP.
+    ips: []
+    # Permissions.
+    permissions:
+      # Available actions are: publish, read, playback, api, metrics, pprof.
+      - action: publish
+        # Paths can be set to further restrict access to a specific path.
+        # An empty path means any path.
+        # Regular expressions can be used by using a tilde as prefix.
+        path: cam1 <---------------- publish랑 맞춰줘야 read할 수 있음.
+
+
+```
+
+위 예시는 any 에게 read 권한을 열어주고, mediaMTX 서버로 publish 할 수 있는 권한은 usr1에게만 줬다. 
+
 단, 마찬가지로 WebRTC의 경우도 브라우저에서 쓰려면 https 인증서가 별도로 필요하다고 한다.
 > tailscale의 도메인으로 접속시, 별도로 tailscale에서 https 인증서를 발급해준다고 한다.
 > - 처음 알았는데, https 인증서는 도메인 단위지, ip 단위가 아니라고 한다.
@@ -1013,14 +1154,351 @@ docker run -v /var/log/mediamtx:/var/log/mediamtx myimage
 > - 알아서 로그를 일정기간 쌓아놓고, 또 잘라내는 *rotate* 기능을 해주는 관리 프로그램이 리눅스 서버 내에서 사용하기 때문이다.
 > - 또, 도커 컨테이너가 내려갈 때마다 로그가 삭제되므로, 리눅스 서버 자체에 저장해야 보존할 수 있기 때문이다.
 
-## 정리
+## 정리..?
 
 이제 최종 정리를 해야겠다.
 
+```
+
+[ Tailscale 네트워크 (가상 프라이빗 도메인 제공) ]
+                    │
+            <my_server_name_>.<my_server_dns>.ts.net
+                    │
+                    ▼
+[ 우분투 리눅스 서버 (호스트) ]  
+  │
+  ├─ 8080 포트 ──> [ Spring Boot 컨테이너 ] (웹 페이지 반환)
+  │
+  └─ 8889 포트 ──> [ MediaMTX 컨테이너 ]   (웹캠 영상 스트리밍)
+
+```
+
+이렇게 tailscale 덕분에 dns를 제공받은 뒤, https 인증서와 키 모두 발급받은 뒤, springboot server와 mediamtx 서버에 모두 적용했다.
+
+그렇게 끝인 줄 알았으나, 문제가 생겼다.
+
+## 문제발생
+
+:8889로 접속하면 mediamtx의 configuration에 의해 팝업창으로 로그인창이 뜨고, mediamtx.yml에 적은 대로 아이디/비번을 치면 캠 화면을 볼 수 있다.
+
+문제는 :8080으로 홈 대시보드에서 영상보기를 누르면 검은 화면만 나온다.
+
+`f12` -> 콘솔창에서 다음과 같은 경고가 떴다.
+
+```
+
+Subresource requests whose URLs contain embedded credentials (e.g. `https://user:pass@host/`) are blocked. See https://www.chromestatus.com/feature/5669008342777856 for more details.
+
+```
+
+현재 query 형태로 (https://user:password를 쓴 뒤, @ 뒤에 도메인을 씀) 유저 아이디와 비번을 mediamtx에 넘겨줬는데, 이게 
+
+팝업창이 아닌, \<iframe>의 경우는 subresource로서 보안 정책에 걸리는 문제이다.
+
+AI 칭구들에게 물어본 결과 보통 "ngix의 역 프록시"를 이용한다고 한다. 아래 그림과 같다는데, 추후에 공부해보겠다.
+
+```
+
+Browser
+     │
+Spring
+     │
+Nginx
+     │ (Authorization 추가)
+MediaMTX
+
+```
+
+아무튼 지피티씨와 원만한 합의(?)를 내린 결과는 아래와 같다.
+
+```
+
+Browser
+    │
+    │ ① Spring 로그인 (JSESSIONID 또는 JWT)
+    ▼
+Spring Boot
+    │
+    │
+    ├───────────────┐
+    │               │
+    ▼               ▼
+ Dashboard      /api/mediamtx/auth
+                    ▲
+                    │ ③ authHTTP
+                    │
+              MediaMTX
+                    ▲
+                    │
+             Raspberry Pi (RTSP Publish)
+
+```
+
+기본적으로 mediamtx는 `read`를 `any`로 열어놓고, spring에서 인증을 담당하게 한다는 것이다.
+
+`mediamtx.yml`을 수정한다.
+
+```yml
+
+authmethod: internal --> http
+
+authHTTPAddress: [도메인]/api/mediamtx/auth # 스프링 부트 쪽에서는 컨트롤러의 @postmapping()을 이용하면 되겠다.
+
+```
+
+아.., 공부할게 늘어났다. 
+
+### JSESSIONID
+
+**JSESSIONID**는 Java 기반의 웹 애플리케이션(예: Spring Boot, Tomcat, Servlet 기반 서버)에서 사용자의 로그인 상태나 세션(Session)을 식별하기 위해 발급하는 고유한 쿠키(Cookie) 이름이라고 한다.
+
+젬나이의 설명은 아래와 같다.
+
+```
+JSESSIONID가 작동하는 방식
+
+최초 접속 (로그인 요청):
+
+  브라우저가 Spring Boot 웹 서버에 접속하거나 로그인을 시도합니다.
+
+서버에서 세션 생성 & 발급:
+
+  서버는 메모리에 해당 사용자를 위한 공간(세션)을 만들고, 무작위로 복잡한 고유 ID값(예: JSESSIONID=A1B2C3D4E5F6...)을 생성합니다.
+
+  서버는 응답 헤더(Set-Cookie)에 이 ID를 실어서 브라우저에게 전달합니다.
+
+쿠키 저장:
+
+  브라우저는 전달받은 JSESSIONID를 자신의 쿠키 저장소에 보관합니다.
+
+이후 모든 요청:
+
+  브라우저가 다른 페이지(/home, /api/... 등)로 이동할 때마다, 요청 헤더(Cookie)에 JSESSIONID를 자동으로 포함해서 서버에 보냅니다.
+
+서버의 사용자 식별:
+
+  서버는 전달받은 JSESSIONID를 확인하고, "아! 아까 로그인했던 그 사용자가 맞구나!" 하고 인증된 상태로 응답을 내려줍니다.
+
+```
+
+아니 그냥 쿠키잖아? 
+
+그렇다. 이미 새로고침해도 로그인 상태가 유지되기 때문에, `jsessionId`를 사용하고 있다.
+
+**그렇다면 이 로그인시 브라우저의 `JSESSIONID`를 *mediamtx* 에서도 재사용할 수 있게 만들 순 없을까?**
+
+**혹은 두 개를 따로 만들어야 하나?**
+
+```
+Browser
+   |
+   | JSESSIONID (Spring Security)
+   |                |
+Spring Boot :8080   |
+                    |
+MediaMTX            |    // 이게 안되나?
+    |               |
+    | authHTTP   <---
+    |
+Spring /api/mediamtx/auth
+
+```
+
+여기에 대해선 `JSESSIONID`가 뭔지부터 알아야 했다.
+
+**"JSESSIONID = 서버에 저장된 세션 객체를 찾기 위한 열쇠"**이다.
+
+이게 '*mediamtx*가 *Spring server*로 /api/mediamtx/auth를 `POST`로 날려도 JSESSIONID를 받아오지 못하는 이유'가 된다.
+
+jsessionid를 소유한 주체는 *브라우저*이지 *SpringBoot 서버*가 아니기 때문이다.
+
+예를 들어, 서버 메모리의 Session Storage (`SecurityContextRepository`라는 컴포넌트) 안에는 `jsessionid` 발급 후,
+
+```
+
+Session Storage
+
+abc123
+ |
+ ├── username: kim
+ ├── roles: USER
+ └── SecurityContext
+       |
+       └── Authentication
+
+```
+다음과 같이 저장하고 있는데,
+
+사용자가 http 요청과 함께 jsessionid를 붙여서 보내면, SecurityContext를 보고 확인 후, 요청을 통과시켜 처리한다.
+> 로그인 사용자 '복원'이란 표현을 썼다.
+
+**그렇다면** Spring을 시켜서 사용자 브라우저로부터 받아온다면? Spring을 중계하면 가능하다고 한다.
+> 복잡한 proxy 설정이 있다고 하는데, 이건 추후로 미뤄둬야 겠다.
+> **그냥 보내려 한다면, 도메인이 달라서 쿠키가 전달되지 않는다!**
+
+하지만 이 방법은 곤란한게, webRTC의 특성 때문이다.
+
+#### 1. 일반적인 웹 인증/리다이렉트 흐름  
+
+  보통은 브라우저가 서버로 요청을 보내고, 서버가 인증 후 리다이렉트(예: 로그인 성공 후 특정 URL로 이동)하면 그걸로 끝. 
+  > 이후에는 단순히 세션 기반 요청만 이어짐.
+
+#### 2. WebRTC의 흐름
+
+  WebRTC는 단순히 한 번의 요청으로 끝나는 게 아니라, 지속적인 미디어 스트리밍 연결을 유지해야 함.
+
+  iframe 안에서 JavaScript가 동작하면서 `POST /whep` 같은 엔드포인트로 계속 요청을 보내고
+
+  MediaMTX 같은 미디어 서버와 연결을 유지함.
+  > 즉, 단순히 “리다이렉트 후 끝”이 아니라, 지속적인 데이터 교환과 연결 유지 과정이 뒤따릅니다.
+
+그래서 추천받은 건 **별도의 인증 토큰**을 만들어서 mediamtx 단에서 저장 및 비교 조회를 해보는 것이다.
+> 이때까지만해도 DB조회로 간단 인증이 가능하단 걸 몰랐다. auth HTTP에 대해 문서에 올라온 형식만 지켜서 건네주면 되는 거였다.
+
+```
+
+1. 사용자 로그인
+        |
+        v
+2. Spring Security
+        |
+        v
+3. Authentication.getName()
+        |
+        v
+4. JWT 생성
+   {
+     username:"kim",
+     path:"cam1",
+     exp:5분
+   }
+        |
+        v
+5. iframe
+   /cam1?user=JWT
+        |
+        v
+6. MediaMTX authHTTP
+        |
+        v
+7. Spring JWT 검증
+        |
+        v
+8. 200 OK
+
+```
+
+여기서 토큰이란, `JWT`이다. 안 쓰겠다 해놓고 어쩔 수 없이(?) 쓰게 됐다. 
+> 인증은 꼭 jwt아니고, 단순 DB 조회도 가능하다고 하는데, 공부할겸 그냥 JWT로 가겠다.
+
+위를 보면 사용자가 iframe을 통해서 `GET`요청을 mediamtx에게 보내고 있고,
+
+그 다음, mediamtx에서는 인증 요청을 `POST`를 통해서 한다. 
+> mediamtx.yml에 의해 
+> - authHTTPAddress: https://domain-name:8080/api/mediamtx/auth 경로의 Spring 서버로 보내게 된다.
+
+이때 mediamtx가 보내는 jwt(json 토큰)은 버전마다 정해진 규격이 있다. 예를 들면,
+
+```json
+
+{
+  "ip": "100.x.x.x",
+  "user": "",
+  "password": "",
+  "action": "read",
+  "path": "cam1",
+  "protocol": "http",
+  "id": "xxxx"
+}
+
+```
+
+그래서, 처음 사용자가 iframe으로 `GET`요청을 보낼 때 쿼리 스트링으로 날린 token을 그대로 복사해서 보내는 것이 아닌,
+
+mediamtx의 규격 중 하나에 집어넣어서 보내게 된다.
+>  "user": "<JWT>" 이런식으로 집어넣어서 보낸다고 한다.
+
+공식 문서에 다음과 같이 authHTTP 형식이 기재돼있다.
+
+```json
+
+{
+  "user": "user",
+  "password": "password",
+  "token": "token",
+  "ip": "ip",
+  "action": "publish|read|playback|api|metrics|pprof",
+  "path": "path",
+  "protocol": "rtsp|rtmp|hls|webrtc|srt",
+  "id": "id",
+  "query": "query",
+  "userAgent": "userAgent"
+}
+
+```
+
+여기에 맞춰 dto도 작성해주면 되겠다.
+
+```java
+
+@Getter
+@Setter
+public class MediaMtxJwtRequest {
+	private String user;
+  private String password;
+  private String token;        // 이 토큰 부분을 무엇으로 할 거냐가 서버의 선택이다!
+  private String ip;
+  private String action;
+  private String path;
+  private String protocol;
+  private String id;
+  private String query;
+  private String userAgent;	    
+}
+
+```
 
 
 
 
+```java
+
+@RequiredArgsConstructor
+@RestController             // 리턴되는 자바객체를 json으로 변환.
+@RequestMapping("/api/v1")
+public class HomeApiController {
+	
+	private final MediaTokenService tokenService;
+	
+	@PostMapping("/mediamtx/auth")
+	public ResponseEntity<Void> auth(
+	        @RequestBody MediaMtxJwtRequest request
+	) {
+
+	    String token = request.getUser();
+
+	    if(tokenService.validate(token)) {
+	        return ResponseEntity.ok().build();      // responseEntity는 reponse그 자체로, 응답을 ok(200)으로 할지말지 정할 수 있는 듯 하다.
+	    }
+
+	    return ResponseEntity.status(HttpStatus.UNAUTHORIZED) // unauthorized는 401이다.
+	            .build();
+	}
+
+...
+
+```
+
+이런식으로 코드를 짰다. 간단히 jwt가 **tokenService**에서 검증받고, 유효하면 `ok`로 return하고, 그렇지 않으면 HttpStatus를 `401`로 설정한 후, return한다.
 
 
+<details>
+  <summary>(사실 embed 방식도 있지만)</summary>
+<pre>
+The iframe method is fit for most use cases, but it has some limitations:
+
+it doesn’t allow to pass credentials (username, password or token) from the website to MediaMTX; credentials are asked directly to users.
+</pre>
+라고 한다. 해결하기 위해선 자바스크립트를 쓰는데, username이나 password가 노출된다. 탈락.
+</details>
 
