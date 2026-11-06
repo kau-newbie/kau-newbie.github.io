@@ -68,3 +68,26 @@ body {}
 .article-post h1, .article-post h2, .article-post h3, .article-post h4 {
     scroll-margin-top: 110px;
 }
+
+/* 글 화면: 상단바도 본문과 같은 좌우 24px 여백으로 양 끝 정렬 */
+.layout-post .navigation-wrap .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 24px;
+}
+
+/* 글 화면: 바깥 배경을 연한 회색으로 낮춰 본문(흰색)이 더 밝게 보이게 한다. */
+.layout-post {
+    background: #f5f5f7;
+}
+.layout-post .post-layout-main {
+    background: #fff;
+    padding: 32px 40px;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+@media (max-width: 767px) {
+    .layout-post .post-layout-main {
+        padding: 20px 16px;
+    }
+}
