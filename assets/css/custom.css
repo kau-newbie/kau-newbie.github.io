@@ -4,3 +4,59 @@ Just customize your theme here.
 ================================================== */
 
 body {}
+
+/* 글 화면: 왼쪽 목차
+================================================== */
+.layout-post main.container {
+    padding-left: 60px;
+}
+.post-toc {
+    top: 96px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.post-toc-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 0.8rem;
+}
+.post-toc-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    border-left: 2px solid #eee;
+}
+.post-toc-list li a {
+    display: block;
+    padding: 3px 0 3px 12px;
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    color: #777;
+    text-decoration: none;
+    word-break: keep-all;
+}
+.post-toc-list li a:hover {
+    color: #000;
+}
+.post-toc-list li a.active {
+    color: #000;
+    font-weight: 700;
+    border-left-color: #333;
+}
+.post-toc-list .toc-level-1 a { padding-left: 26px; font-size: 13px; }
+.post-toc-list .toc-level-2 a { padding-left: 40px; font-size: 13px; }
+.post-toc-list .toc-level-3 a { padding-left: 54px; font-size: 13px; }
+
+/* 목차 이동 시 상단 메뉴에 제목이 가려지지 않게 한다. */
+.article-post h1, .article-post h2, .article-post h3, .article-post h4 {
+    scroll-margin-top: 110px;
+}
+
+@media (max-width: 991px) {
+    .layout-post main.container {
+        padding-left: 25px;
+    }
+}

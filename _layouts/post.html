@@ -14,7 +14,16 @@ post_class: post-template
 		<!-- Post -->        
         {% assign author = site.authors[page.author] %}
         
-		<div class="col-md-9 col-lg-9">
+		<!-- Table of Contents (왼쪽 목차) -->
+		<div class="col-lg-2 d-none d-lg-block">
+			<nav id="post-toc" class="post-toc sticky-top" aria-label="목차" hidden>
+				<h5 class="post-toc-title">목차</h5>
+				<ul class="post-toc-list"></ul>
+			</nav>
+		</div>
+		<!-- End Table of Contents -->
+
+		<div class="col-md-9 col-lg-7">
             <!-- Post Featured Image -->
 			{% if page.image %}<img class="featured-image img-fluid rounded" src="{{ site.baseurl }}/{{ page.image }}" alt="{{ page.title }}">{% endif %}
 			<!-- End Featured Image -->
@@ -129,3 +138,45 @@ post_class: post-template
 
 <!-- End Article
 ================================================== -->
+<script>
+(function () {
+  var article = document.querySelector('.article-post');
+  var toc = document.getElementById('post-toc');
+  if (!article || !toc) return;
+  var headings = article.querySelectorAll('h1, h2, h3, h4');
+  if (!headings.length) return;
+
+  var minLevel = 4;
+  headings.forEach(function (h) {
+    minLevel = Math.min(minLevel, parseInt(h.tagName.charAt(1), 10));
+  });
+
+  var list = toc.querySelector('.post-toc-list');
+  var links = [];
+  headings.forEach(function (h, i) {
+    if (!h.id) h.id = 'toc-heading-' + i;
+    var level = parseInt(h.tagName.charAt(1), 10) - minLevel;
+    var li = document.createElement('li');
+    li.className = 'toc-level-' + level;
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    list.appendChild(li);
+    links.push({ heading: h, link: a });
+  });
+  toc.hidden = false;
+
+  function update() {
+    var current = links[0];
+    links.forEach(function (item) {
+      if (item.heading.getBoundingClientRect().top <= 140) current = item;
+    });
+    links.forEach(function (item) { item.link.classList.remove('active'); });
+    current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+</script>
+
