@@ -69,8 +69,8 @@ body {}
     scroll-margin-top: 110px;
 }
 
-/* 글 화면: 상단바도 본문과 같은 좌우 24px 여백으로 양 끝 정렬 */
-.layout-post .navigation-wrap .container {
+/* 모든 화면: 상단바를 좌우 24px 여백으로 양 끝 정렬 */
+.navigation-wrap .container {
     width: 100%;
     max-width: 100%;
     padding: 0 24px;
