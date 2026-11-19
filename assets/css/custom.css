@@ -117,3 +117,15 @@ body {}
     color: #999;
     font-size: 0.85em;
 }
+
+/* 홈페이지: 글 카드 이미지를 같은 크기로 표시
+   권장 원본 크기: 1200 x 630 px (약 1.9:1), 파일 크기 300KB 이하.
+   다른 크기·비율의 이미지는 중앙 기준으로 잘려서 이 비율에 맞춰 보인다.
+================================================== */
+.postbox-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+    object-position: center;
+}
