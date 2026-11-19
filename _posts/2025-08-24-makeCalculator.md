@@ -2,7 +2,8 @@
 layout: post
 title:  "VerologHDL로 계산기 만들기(1)"
 author: kau-newbie
-categories: [ Verilog, Hardware ]
+categories: [verilog]
+tags: [Hardware]
 image: assets/images/mainpicture.png
 ---
 

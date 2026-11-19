@@ -2,7 +2,8 @@
 layout: post
 title:  "[ns-3]ns-3 간단히 알아보기"
 author: kau-newbie
-categories: [cc, ns-3]
+categories: [network]
+tags: [cc, ns-3]
 image: assets/images/forPost/ns-3icon.png
 ---
 

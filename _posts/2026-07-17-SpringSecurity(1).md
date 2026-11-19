@@ -2,7 +2,8 @@
 layout: post
 title:  "[Spring-Security] Spring Security 공부(1)"
 author: kau-newbie
-categories: [Spring-Security]
+categories: [spring]
+tags: [Spring-Security]
 image: assets/images/forPost/Springicon.png
 ---
 

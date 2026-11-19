@@ -2,7 +2,8 @@
 layout: post
 title:  "[c] bits shift연산에 대한 고찰"
 author: kau-newbie
-categories: [ c, memory, system ]
+categories: [c]
+tags: [memory, system]
 image: assets/images/forPost/c_logo.png
 ---
 

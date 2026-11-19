@@ -2,7 +2,8 @@
 layout: post
 title:  "[c] floating에 대한 정리"
 author: kau-newbie
-categories: [ c, memory, system ]
+categories: [c]
+tags: [memory, system]
 image: assets/images/forPost/c_logo.png
 ---
 

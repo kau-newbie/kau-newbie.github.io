@@ -2,7 +2,8 @@
 layout: post
 title:  "[Android]anti-tab jacking 기능(View-filtering)에 대해서"
 author: kau-newbie
-categories: [ android, os, view, security]
+categories: [android]
+tags: [os, view, security]
 image: assets/images/forPost/android_logo.png
 ---
 

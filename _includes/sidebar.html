@@ -2,39 +2,15 @@
     <div class="sidebar-section">
         <h5 class="mb-3"><span>Category</span></h5>
         
-        <div class="category-tree" style="font-family: 'Courier New', Courier, monospace; font-size: 13px; line-height: 1.6;">
-            {% comment %} 1. 모든 카테고리 이름을 추출하여 정렬합니다. {% endcomment %}
-            {% assign categories_list = "" | split: "" %}
-            {% for category in site.categories %}
-                {% assign categories_list = categories_list | push: category[0] %}
+        <ul class="category-list">
+            {% assign sorted_categories = site.categories | sort %}
+            {% for category in sorted_categories %}
+                <li>
+                    <a href="{{ '/categories/' | relative_url }}#{{ category[0] | replace: ' ','-' }}">{{ category[0] | downcase }}</a>
+                    <span class="category-count">{{ category[1].size }}</span>
+                </li>
             {% endfor %}
-            {% assign sorted_categories = categories_list | sort_natural %}
-
-            {% assign current_letter = "" %}
-
-            {% for category_name in sorted_categories %}
-                {% comment %} 카테고리의 첫 글자(대문자) 추출 {% endcomment %}
-                {% assign first_letter = category_name | slice: 0 | upcase %}
-
-                {% comment %} 첫 글자가 바뀔 때마다 그룹 헤더(-A, -B ...) 출력 {% endcomment %}
-                {% if first_letter != current_letter %}
-                    {% assign current_letter = first_letter %}
-                    <div class="letter-group" style="font-weight: bold; margin-top: 8px; color: #333;">
-                        - {{ current_letter }}
-                    </div>
-                {% endif %}
-
-                {% comment %} 들여쓰기된 카테고리 항목 출력 {% endcomment %}
-                <div class="category-item" style="padding-left: 16px;">
-                    <a href="{{ '/categories/' | relative_url }}#{{ category_name | replace: ' ','-' }}" 
-                       style="color: #555; text-decoration: none; transition: color 0.2s;"
-                       onmouseover="this.style.color='#000'; this.style.textDecoration='underline';"
-                       onmouseout="this.style.color='#555'; this.style.textDecoration='none';">
-                        - {{ category_name | downcase }}
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+        </ul>
     </div>
     
     <div class="sidebar-section">

@@ -2,7 +2,8 @@
 layout: post
 title:  "[project] video-streaming 공부"
 author: kau-newbie
-categories: [project, video, streaming]
+categories: [network]
+tags: [project, video, streaming]
 image: assets/images/forPost/multimedia.png
 ---
 

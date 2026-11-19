@@ -2,7 +2,8 @@
 layout: post
 title:  "[project]AndroidTutor(3) Hilt로 migration하자-2"
 author: kau-newbie
-categories: [ project, android, app, DI, Hilt ]
+categories: [android]
+tags: [project, app, DI, Hilt]
 image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 

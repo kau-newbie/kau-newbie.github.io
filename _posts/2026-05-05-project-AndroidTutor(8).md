@@ -2,7 +2,8 @@
 layout: post
 title:  "[project]AndroidTutor(8) 안드로이드 접근성 서비스에 관한 고찰-2"
 author: kau-newbie
-categories: [ android, project, accessibilityService, 접근성서비스, Runnable, Handler, Thread]
+categories: [android]
+tags: [project, accessibilityService, 접근성서비스, Runnable, Handler, Thread]
 image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 

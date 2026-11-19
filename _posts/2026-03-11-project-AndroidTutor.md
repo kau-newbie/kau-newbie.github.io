@@ -2,7 +2,8 @@
 layout: post
 title:  "[project]AndroidTutor(1) 앱 프로젝트 요약"
 author: kau-newbie
-categories: [ project, android, app, ai ]
+categories: [android]
+tags: [project, app, ai]
 image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 ---
 
