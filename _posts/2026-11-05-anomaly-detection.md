@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "[AI] 회전기기에 대한 예지보전 모델"
+published: false
 author: kau-newbie
 categories: [ ai ]
 image: assets/images/forPost/ai_generated.png

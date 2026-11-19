@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "[ai와 과제제출] 내 목소리로 발표영상을 만들기"
+published: false
 author: kau-newbie
 categories: [ai]
 image: assets/images/forPost/ai_generated.png
