@@ -77,7 +77,8 @@ body {}
 }
 
 /* 글 화면: 바깥 배경을 연한 회색으로 낮춰 본문(흰색)이 더 밝게 보이게 한다. */
-.layout-post {
+.layout-post,
+.layout-default {
     background: #f5f5f7;
 }
 .layout-post .post-layout-main {
