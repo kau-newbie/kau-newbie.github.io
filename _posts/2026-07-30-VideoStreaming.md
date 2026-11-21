@@ -415,7 +415,7 @@ webRTC 설명을 보면 UDP, SDP 등 프로토콜이 자주 등장하는데, 여
 
 추가로, **JavaScript에서 API 형태로 webRTC를 지원한다.**
 
-## 각 라이브러리는 대체 여기서 무엇을 하지?{:#question1-section}
+## 각 라이브러리는 대체 여기서 무엇을 하지?{#question1-section}
 
 이때, architecture를 보면, 궁금한 점이 생긴다.
 
