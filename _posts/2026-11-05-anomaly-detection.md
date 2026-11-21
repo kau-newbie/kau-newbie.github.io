@@ -4,7 +4,8 @@ title:  "[AI] 회전기기에 대한 예지보전 모델"
 published: false
 author: kau-newbie
 categories: [ai]
-image: assets/images/forPost/ai_generated.png
+tags: [anomaly-detection, predictive-maintenance, agent]
+image: assets/images/공통/썸네일/ai_generated.png
 ---
 
 요약: 회전기기에 대한 예지보전 모델을 만들고자 한다. 26.11.01 기준으로 아직 전국 플랜트 공장의 약 19%만이 예지보전 기기를 도입했다고 한다. 예컨데 돈이 된다는 얘기이다. 창업하자.

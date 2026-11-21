@@ -2,9 +2,9 @@
 layout: post
 title:  "[project] video-streaming 공부"
 author: kau-newbie
-categories: [network]
-tags: [project, video, streaming]
-image: assets/images/forPost/multimedia.png
+categories: [project, network]
+tags: [video, streaming, homecam, webrtc]
+image: assets/images/공통/썸네일/multimedia.png
 ---
 
 요약: codec, protocol, picamera2부터 ffmpeg, mediamtx까지
@@ -116,7 +116,7 @@ FFmpeg는 모든 멀티미디어 처리의 "스위스 아미 나이프"입니다
 
 그림으로 보면 아래와 같다.
 
-![그림으로 보자면](/assets/images/forPost/videostreaming/videoStreamingExample.png) 
+![그림으로 보자면](/assets/images/project/VideoStreaming/videoStreamingExample.png) 
 
 #### 비디오 코덱
 
@@ -557,7 +557,7 @@ output = FfmpegOutput("rtsp://mediamtx-server:8554/mystream")
 
 지금까지 나온 내용들로 홈캠 프로젝트에 적용해보자면, 다음과 같은 아키텍처를 그릴 수 있을 것 같다.
 
-![홈캠프로젝트](/assets/images/forPost/videostreaming/prj-homecam-architecture.drawio.png)
+![홈캠프로젝트](/assets/images/project/VideoStreaming/prj-homecam-architecture.drawio.png)
 
 ##### pi 에서는,
 - cam -> picamera2 -> Ffmpeg 을 거치며 최종적으로 rtsp 프로토콜을 통해 mediaMTX 서버로 스트리밍을 보낸다.
@@ -675,7 +675,7 @@ mediaMTX는 `rtsp`, `rtmp`, `srt`, 혹은 `WHIP`으로 들어온 스트리밍을
 
 아키텍처는 아래와 같겠다. client와 was 서버로 1:N webRTC 스트리밍을 하는 mediaMTX 서버가 있다.
 
-![아키텍처](/assets/images/forPost/videostreaming/architecturev2.png)
+![아키텍처](/assets/images/project/VideoStreaming/architecturev2.png)
 
 아무튼 계속해서 mediamtx 사용법을 공부해보겠다.
 

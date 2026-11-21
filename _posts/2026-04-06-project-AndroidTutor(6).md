@@ -2,9 +2,9 @@
 layout: post
 title:  "[project]Project: AndroidTutor(6) 접근성서비스 필터링을 원형큐로 해결해보자"
 author: kau-newbie
-categories: [android]
-tags: [os, project]
-image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
+categories: [project, android]
+tags: [os, circular-queue]
+image: assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: 같은 종류(ui 종류, eventType 등)의 ui 이벤트가 반복 발생 -> 원형 해시 큐로 중복검사

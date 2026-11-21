@@ -3,8 +3,8 @@ layout: post
 title:  "[Spring-Security] Spring Security 공부(1)"
 author: kau-newbie
 categories: [spring]
-tags: [Spring-Security]
-image: assets/images/forPost/Springicon.png
+tags: [spring-security, filter-chain]
+image: assets/images/공통/로고/Springicon.png
 ---
 
 요약: Spring Security란 무엇일까
@@ -109,7 +109,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 
 ### 서블릿 컨테이너와 스프링 컨테이너를 거치는 전반적인 과정
 
-![spring컨테이너와servlet컨테이너전체흐름1](../assets/images/forPost/Spring/spring-security.png)
+![spring컨테이너와servlet컨테이너전체흐름1](../assets/images/spring/SpringSecurity-1/spring-security.png)
 
 1. 사용자의 요청(http)이 tomcat으로 들어온다.
 2. tomcat에서는 필터링 기능(chain of filters)을 수행한다.
@@ -275,7 +275,7 @@ VirtualFilterChain에서는 똑같이 필터 chain을 다 통과할 때까지 do
 
 **결과적으로** FilterChainProxy와 DelegatingFilterProxy의 관계는 아래의 그림과 같다.
 
-![더 자세한 필터링 경로](../assets/images/forPost/Spring/schema_withfilterchainproxy.png)
+![더 자세한 필터링 경로](../assets/images/spring/SpringSecurity-1/schema_withfilterchainproxy.png)
 
 제미나이가 그려준 schema가 더 이해가 쉬울 수도 있다. (아래)
 

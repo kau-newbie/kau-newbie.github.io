@@ -2,9 +2,9 @@
 layout: post
 title:  "[project]AndroidTutor(3) Hilt로 migration하자-2"
 author: kau-newbie
-categories: [android]
-tags: [project, app, DI, Hilt]
-image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
+categories: [project, android]
+tags: [di, hilt, migration]
+image: assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: hilt를 위한 종속성 해결 (AGP, kapt, ksp)
@@ -25,7 +25,7 @@ ksp가 여기선 뭔가, 하니
 
 라고 한다. 일단 기존에 쓰려던 kapt를 ksp 대신 넣어놓고 계속 오류를 읽어봤다. 자세한 오류 설명을 보니 런타임에서 AGP가 9이상이어야 된댄다.
 
-![버전을 이리저리 바꿔보았지만...](../assets/images/forPost/AndroidTutor(2)/builderrorExample1.png)
+![버전을 이리저리 바꿔보았지만...](../assets/images/project/AndroidTutor-2/builderrorExample1.png)
 
 대충 요 사진에서 두 번째 줄이 AGP 9.0 이상이어야 된다는 내용이었다. 위 사진은 AGP 바꾸기 싫어서(libs.versions.toml 파일에서 확인해보니, 현재 내 AGP는 8.13.2였다.) ksp를 2.3.6으로 찾아보니 없다는 내용이었다. 물론, 바꾼 근거는 [깃허브 release 페이지](https://github.com/google/ksp/releases)를 보고 바꾼 것이다. 하지만 안됐다. 어렵다.
 
@@ -75,18 +75,18 @@ See Android Studio & AGP compatibility options.
 네? 링크를 타고 확인하러 가봤다.
 
 [이 링크를 타고 갔더니,](https://developer.android.com/studio/releases?hl=ko#android_gradle_plugin_and_android_studio_compatibility)
-![26년3월30일기준 안드로이드스튜디오버전](/assets/images/forPost/AndroidTutor(2)/AGP-and-vermatching.png)
+![26년3월30일기준 안드로이드스튜디오버전](/assets/images/project/AndroidTutor-2/AGP-and-vermatching.png)
 아, 나는 옛날 것을 쓰고 있었구나... 또 한세월 걸려 이번에는 안드로이드 스튜디오를 업그레이드 했다. (나는 일각고래 좋아하는데..., 강제로 판다가 됐다.)
 그리고 마참내! 됐다! ksp 줄들이 파란걸 볼 수 있다.
-![migration to ksp is too hard...](/assets/images/forPost/AndroidTutor(2)/ksp-good.png)
+![migration to ksp is too hard...](/assets/images/project/AndroidTutor-2/ksp-good.png)
 
 문제는 또 새로운 에러가 떴다는 건데..,
-![new err?](/assets/images/forPost/AndroidTutor(2)/newerr1.png)
+![new err?](/assets/images/project/AndroidTutor-2/newerr1.png)
 
 제미나이에 따르면, 보통 Dagger Hilt 라이브러리와 그 컴파일러역할을 하는 KSP 버전이 서로 일치하지 않기 때문이라고 했다.
 Hilt 버전 일치를 먼저 확인하랜다. 다시 gradle.kts 파일을 프로젝트 레벨과 app(모듈) 레벨에서 서로 같은지 확인한다. 아, 서로 버전이 달랐다. 황급히 app 레벨에서 gradle 파일을 수정했다.
 
-![find version of KSP](/assets/images/forPost/AndroidTutor(2)/app-lv-settings.png)
+![find version of KSP](/assets/images/project/AndroidTutor-2/app-lv-settings.png)
 
 이렇게 하고 돌리니 이제 새로운 에러가 났다.
 ```

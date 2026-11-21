@@ -2,9 +2,9 @@
 layout: post
 title:  "[project]AndroidTutor(1) 앱 프로젝트 요약"
 author: kau-newbie
-categories: [android]
-tags: [project, app, ai]
-image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
+categories: [project, android]
+tags: [app, ai]
+image: assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: GUI agent를 응용한 스마트폰 화면 네비게이션 앱. (배리어 프리앱)
@@ -21,7 +21,7 @@ image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 
 #### 1. 최초 사용자 목표설정 및 루프 모드
 
-![기본 메인로직](../assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg)
+![기본 메인로직](../assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg)
 
 이 모드는 사용자의 목표를 음성으로 받기 전, 혹은 사용자의 목표를 막 달성한 상태이다.
 - 오버레이된 버튼 겸 아이콘만 화면에 떠있다.
@@ -38,7 +38,7 @@ LLM으로부터 한줄 지시사항과 함께 행동을 받아오면, 그 행동
 
 #### 2. 반복 루프 모드
 
-![반복 로직](/assets/images/forPost/AndroidTutor/반복로직.drawio.png)
+![반복 로직](/assets/images/project/AndroidTutor-1/반복로직.drawio.png)
 
 두 번째 모드는 사용자의 목표가 완료됐다고 LLM이 응답하기까지 반복되는 모드이다.
 
@@ -51,8 +51,8 @@ LLM으로부터 한줄 지시사항과 함께 행동을 받아오면, 그 행동
 
 실제 예시는 아래와 같다.
 
-![듣기중](/assets/images/forPost/AndroidTutor/듣기중.png) ==> ![안내1](/assets/images/forPost/AndroidTutor/안내중.png) ==>
-![화면변경1](/assets/images/forPost/AndroidTutor/화면변경1.png) ==> ![안내2](/assets/images/forPost/AndroidTutor/안내중2.png)
+![듣기중](/assets/images/project/AndroidTutor-1/듣기중.png) ==> ![안내1](/assets/images/project/AndroidTutor-1/안내중.png) ==>
+![화면변경1](/assets/images/project/AndroidTutor-1/화면변경1.png) ==> ![안내2](/assets/images/project/AndroidTutor-1/안내중2.png)
 
 1. 사용자의 "엄마에게 문자 보내고 싶어." 음성 입력 (최초 목표 입력)
 2. LLM으로부터 안내 및 가이드 .gif 띄우기

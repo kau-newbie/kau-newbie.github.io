@@ -4,7 +4,7 @@ title:  "[Android]anti-tab jacking 기능(View-filtering)에 대해서"
 author: kau-newbie
 categories: [android]
 tags: [os, view, security]
-image: assets/images/forPost/android_logo.png
+image: assets/images/공통/로고/android_logo.png
 ---
 
 요약: 공식문서의 tab jacking 문제로 인한 터치가 안 먹는 문제
@@ -15,7 +15,7 @@ image: assets/images/forPost/android_logo.png
 
 프로젝트 진행중에, 문제가 생겼다. 다음과 같은 상황이 발견됐다.
 
-![이게무슨상황일까](/assets/images/forPost/Androidsys/cantlogin.png)
+![이게무슨상황일까](/assets/images/android/AndroidSys/cantlogin.png)
 
 열심히 검색도 하고, 제미나이에게 물어도 본 결과, 공식 문서에서 그 해답을 찾을 수 있었다.
 
@@ -26,7 +26,7 @@ Specifies whether to filter touches when the view's window is obscured by anothe
 ```
 그러니까, 지금 상황은 내가 띄운 view(애니메이션)이 로그인 버튼 위에 올라가서 막았다는 말이다. 예를 들면,
 
-![겹치는 영역이 이렇게 있다](/assets/images/forPost/Androidsys/overlayarea.png)
+![겹치는 영역이 이렇게 있다](/assets/images/android/AndroidSys/overlayarea.png)
 
 이렇게 그림에서 표시한 부분이 겹치고 있었다.
 

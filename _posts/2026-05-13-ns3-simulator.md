@@ -3,8 +3,8 @@ layout: post
 title:  "[ns-3]ns-3 간단히 알아보기"
 author: kau-newbie
 categories: [network]
-tags: [cc, ns-3]
-image: assets/images/forPost/ns-3icon.png
+tags: [ns-3, simulator]
+image: assets/images/공통/로고/ns-3icon.png
 ---
 
 

@@ -3,8 +3,8 @@ layout: post
 title:  "VerologHDL로 계산기 만들기(1)"
 author: kau-newbie
 categories: [verilog]
-tags: [Hardware]
-image: assets/images/mainpicture.png
+tags: [hardware, hdl, calculator]
+image: assets/images/verilog/makeCalculator/mainpicture.png
 ---
 
 
@@ -72,7 +72,7 @@ y 범위는 다음과 같다.
 
 다음과 같다.
 
-![계산기모듈](../assets/images/topschema.drawio.png)
+![계산기모듈](../assets/images/verilog/makeCalculator/topschema.drawio.png)
 
 이제 lower level들에서 만들어 볼 차례이다.
 <br>
@@ -133,7 +133,7 @@ top controler가 출력 register들에게 ok signal을 맡고, (err와 result를
 
 controler부의 대략적인 그림은 다음과 같았다.
 
-![컨트롤러 부분 초안 - Controler part schema 1.0](../assets/images/cal_control.1.drawio.png)
+![컨트롤러 부분 초안 - Controler part schema 1.0](../assets/images/verilog/makeCalculator/cal_control.1.drawio.png)
 
 그렇게 덧셈과 뺄셈, 그리고 곱셈의 경우는 대학강의에서 쓰던 교재를 참고했다. 나눗셈은 나름 자존심 상 곱셈을 참고해서 만들어봤다.
 

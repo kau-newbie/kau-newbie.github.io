@@ -3,8 +3,8 @@ layout: post
 title:  "[c] bits shift연산에 대한 고찰"
 author: kau-newbie
 categories: [c]
-tags: [memory, system]
-image: assets/images/forPost/c_logo.png
+tags: [memory, system, bit-shift]
+image: assets/images/공통/로고/c_logo.png
 ---
 
 요약: c에서 bit shift의 고려사항

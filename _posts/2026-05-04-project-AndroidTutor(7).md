@@ -2,9 +2,9 @@
 layout: post
 title:  "[project]AndroidTutor(7) 안드로이드 접근성 서비스에 관한 고찰"
 author: kau-newbie
-categories: [android]
-tags: [project, accessibilityService, 접근성서비스]
-image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
+categories: [project, android]
+tags: [accessibility-service]
+image: assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: 접근성 서비스 문서 읽기

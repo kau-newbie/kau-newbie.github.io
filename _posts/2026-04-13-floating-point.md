@@ -3,8 +3,8 @@ layout: post
 title:  "[c] floating에 대한 정리"
 author: kau-newbie
 categories: [c]
-tags: [memory, system]
-image: assets/images/forPost/c_logo.png
+tags: [memory, system, floating-point]
+image: assets/images/공통/로고/c_logo.png
 ---
 
 요약: c에서 floating point 고려사항

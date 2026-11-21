@@ -2,9 +2,9 @@
 layout: post
 title:  "[project]AndroidTutor(5) coroutine(코루틴)와 flag 변수의 race condition"
 author: kau-newbie
-categories: [android]
-tags: [os, coroutine, project]
-image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
+categories: [project, android]
+tags: [os, coroutine, race-condition]
+image: assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: collect{}와 collectLatest{}의 차이로 인한 직전(아직 실행 중) 코루틴 취소 문제 해결
@@ -17,9 +17,9 @@ image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
 
 프로젝트 진행중에, 문제가 생겼다. 다음과 같은 상황이 발견됐다.
 
-![이게무슨상황일까1](/assets/images/forPost/Androidsys/assoonas_getResponse1.png)
-![이게무슨상황일까2](/assets/images/forPost/Androidsys/assoonas_getResponse2.png)
-![이게무슨상황일까3](/assets/images/forPost/Androidsys/assoonas_getResponse3.png)
+![이게무슨상황일까1](/assets/images/project/AndroidTutor-5/assoonas_getResponse1.png)
+![이게무슨상황일까2](/assets/images/project/AndroidTutor-5/assoonas_getResponse2.png)
+![이게무슨상황일까3](/assets/images/project/AndroidTutor-5/assoonas_getResponse3.png)
 
 한 번 LLM의 응답을 받고난 거의 직후, 곧바로 중복되는 응답이 도착한다. 도착 시간이 각각 `2026-04-03 21:56:40.409` 와 `2026-04-03 21:56:45.584`이다. 가상머신 상인데도 체감상 2-3초밖에 되지 않았던 것 같다. 왜냐하면 애니메이션 로딩까지 조금 시간이 걸렸기 때문이다. 
 

@@ -2,9 +2,9 @@
 layout: post
 title:  "[project]AndroidTutor(4) Hilt로 migration하자-3"
 author: kau-newbie
-categories: [android]
-tags: [project, app, DI, Hilt]
-image: assets/images/forPost/AndroidTutor/prj-androidtutor-basicmodel.jpg
+categories: [project, android]
+tags: [di, hilt, migration]
+image: assets/images/project/AndroidTutor-1/prj-androidtutor-basicmodel.jpg
 ---
 
 요약: 실제 앱에 hilt 적용 & 결과
@@ -136,7 +136,7 @@ dependencies{
 
 별도로 파일을 만들어서 Application을 상속받은 클래스를 선언했다.
 
-![application상속받기](/assets/images/forPost/AndroidTutor(4)/makingapplication.png)
+![application상속받기](/assets/images/project/AndroidTutor-4/makingapplication.png)
 
 이때 적은 클래스 이름([공식 문서에서는 'specifying the fully qualified name'이라고 표현한다.](https://developer.android.com/reference/kotlin/android/app/Application?_gl=1*7ra5yf*_up*MQ..*_ga*NzU0MjQyMzkyLjE3ODM0OTQ3MTg.*_ga_6HH9YJMN9M*czE3ODM0OTQ3MTckbzEkZzAkdDE3ODM0OTQ3MTckajYwJGwwJGg1MzkzNTM3MDA.))은 그대로 AndroidManifest.xml에 들어가야 한다. 아래와 같다.
 
@@ -170,10 +170,10 @@ Application 클래스에 Hilt를 설정하고 애플리케이션 수준 구성�
 
 여기서 의문이 하나 생긴다. 그렇다면 @AndroidEntryPoint는 어디에 달아줘야 하나?
 
-![내 앱에서의 dependency graph](../assets/images/forPost/AndroidTutor(4)/TouchWhereApplication.svg)
+![내 앱에서의 dependency graph](../assets/images/project/AndroidTutor-4/TouchWhereApplication.svg)
 
-![내 앱에서의 dependency graph](../assets/images/forPost/AndroidTutor(4)/digraph1.png)
+![내 앱에서의 dependency graph](../assets/images/project/AndroidTutor-4/digraph1.png)
 
-![내 앱에서의 dependency graph](../assets/images/forPost/AndroidTutor(4)/digraph2.png)
+![내 앱에서의 dependency graph](../assets/images/project/AndroidTutor-4/digraph2.png)
 
 (HiltBluePrint로 그래프를 그렸다.)
